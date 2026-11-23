@@ -86,6 +86,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun deviceNamePref(context: Context) = EditTextPreference(context).apply {
         key = DeviceHelper.KEY_DEVICE_NAME_PREFERENCE
+        // GlassLink: don't save the name just because this screen showed it; only a typed name is
+        // kept, otherwise the phone's own name (from Android's settings) keeps being used.
+        isPersistent = false
         isSelectable = true
         setOnBindEditTextListener { editText: EditText ->
             editText.setSingleLine()
@@ -118,7 +121,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 false
             }
             else {
-                summary = new
+                val typed = DeviceHelper.filterInvalidCharactersFromDeviceNameAndLimitLength(name)
+                if (typed == DeviceHelper.systemDeviceName(context)) {
+                    DeviceHelper.clearCustomDeviceName(context)
+                } else {
+                    DeviceHelper.setDeviceName(context, typed)
+                }
+                summary = typed
                 true
             }
         }

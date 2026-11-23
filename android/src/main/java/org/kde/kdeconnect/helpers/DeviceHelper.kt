@@ -6,25 +6,18 @@
 package org.kde.kdeconnect.helpers
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.provider.Settings
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.text.SpannableStringBuilder
-import android.util.Log
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.univocity.parsers.common.TextParsingException
-import com.univocity.parsers.csv.CsvParser
-import com.univocity.parsers.csv.CsvParserSettings
 import org.kde.kdeconnect.DeviceInfo
 import org.kde.kdeconnect.DeviceType
 import org.kde.kdeconnect.helpers.security.SslHelper
 import org.kde.kdeconnect.plugins.PluginFactory
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.URL
-import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 object DeviceHelper {
@@ -32,11 +25,10 @@ object DeviceHelper {
 
     const val KEY_DEVICE_NAME_PREFERENCE = "device_name_preference"
     private const val KEY_DEVICE_NAME_FETCHED_FROM_THE_INTERNET = "device_name_downloaded_preference"
+    private const val KEY_GLASSLINK_NAME_MIGRATED = "glasslink_device_name_migrated"
     private const val KEY_DEVICE_ID_PREFERENCE = "device_id_preference"
 
-    private var fetchingName = false
 
-    private const val DEVICE_DATABASE = "https://storage.googleapis.com/play_public/supported_devices.csv"
 
     private val NAME_INVALID_CHARACTERS_REGEX = "[\"',;:.!?()\\[\\]<>]".toRegex()
     const val MAX_DEVICE_NAME_LENGTH = 32
@@ -62,60 +54,37 @@ object DeviceHelper {
         }
     }
 
+    /**
+     * GlassLink: a name typed in GlassLink's settings wins; otherwise the name the phone was given
+     * in Android's settings (About phone › Device name, e.g. "Astrum"); the model only as a last
+     * resort. Unlike upstream, nothing is looked up on the internet.
+     */
     fun getDeviceName(context: Context): String {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        if (!preferences.contains(KEY_DEVICE_NAME_PREFERENCE)
-            && !preferences.getBoolean(KEY_DEVICE_NAME_FETCHED_FROM_THE_INTERNET, false)
-            && !fetchingName
-        ) {
-            fetchingName = true
-            backgroundFetchDeviceName(context)
-            return Build.MODEL
-        }
-        return preferences.getString(KEY_DEVICE_NAME_PREFERENCE, Build.MODEL)!!
+        dropDownloadedName(preferences)
+        preferences.getString(KEY_DEVICE_NAME_PREFERENCE, null)?.takeIf { it.isNotBlank() }?.let { return it }
+        return systemDeviceName(context) ?: filterInvalidCharactersFromDeviceNameAndLimitLength(Build.MODEL)
     }
 
-    private fun backgroundFetchDeviceName(context: Context) {
-        ThreadHelper.runOnNewThread {
-            try {
-                val url = URL(DEVICE_DATABASE)
-                val connection = url.openConnection()
+    /** The name given to the phone in Android's settings, if it has one. */
+    fun systemDeviceName(context: Context): String? {
+        val resolver = context.contentResolver
+        val raw = Settings.Global.getString(resolver, "device_name") ?: Settings.Secure.getString(resolver, "bluetooth_name")
+        return raw?.let { filterInvalidCharactersFromDeviceNameAndLimitLength(it) }?.takeIf { it.isNotBlank() }
+    }
 
-                // If we get here we managed to download the file. Mark that as done so we don't try again even if we don't end up finding a name.
-                val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-                preferences.edit { putBoolean(KEY_DEVICE_NAME_FETCHED_FROM_THE_INTERNET, true) }
+    /** Forget a typed name, so the phone's own name is used again. */
+    fun clearCustomDeviceName(context: Context) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit { remove(KEY_DEVICE_NAME_PREFERENCE) }
+    }
 
-                BufferedReader(
-                    InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_16)
-                ).use { reader ->
-                    val settings = CsvParserSettings()
-                    settings.isHeaderExtractionEnabled = true
-                    val parser = CsvParser(settings)
-                    var found = false
-                    for (records in parser.iterate(reader)) {
-                        if (records.size < 4) {
-                            continue
-                        }
-                        val buildModel = records[3]
-                        if (Build.MODEL.equals(buildModel, ignoreCase = true)) {
-                            val deviceName = records[1]
-                            Log.i("DeviceHelper", "Got device name: $deviceName")
-                            // Update the shared preference. Places that display the name should be listening to this change and update it
-                            setDeviceName(context, deviceName)
-                            found = true
-                            break
-                        }
-                    }
-                    if (!found) {
-                        Log.e("DeviceHelper", "Didn't find a device name for ${Build.MODEL}")
-                    }
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } catch (e: TextParsingException) {
-                e.printStackTrace()
-            }
-            fetchingName = false
+    /** Upstream saved a marketing name downloaded from Google's device list (e.g. "Galaxy S23+").
+     *  Drop it once, so the phone's own name shows instead. */
+    private fun dropDownloadedName(preferences: SharedPreferences) {
+        if (preferences.getBoolean(KEY_GLASSLINK_NAME_MIGRATED, false)) return
+        preferences.edit {
+            if (preferences.getBoolean(KEY_DEVICE_NAME_FETCHED_FROM_THE_INTERNET, false)) remove(KEY_DEVICE_NAME_PREFERENCE)
+            putBoolean(KEY_GLASSLINK_NAME_MIGRATED, true)
         }
     }
 

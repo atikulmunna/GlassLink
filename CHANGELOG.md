@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
+
+**Downloads:** `GlassLink-0.2.0.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.0.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. Update both
+apps: mirroring needs the new version on the Mac and on the phone. The Android app installs over
+earlier versions and keeps your pairing.
 
 ### Screen mirroring
 

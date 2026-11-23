@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- **Calls and notifications no longer go missing.** macOS reports network changes every few
+  seconds even when nothing changed, and GlassLink announced itself again each time, which made
+  the phone drop and rebuild its connection. Anything sent during the swap was lost. GlassLink now
+  only announces when the Mac's network really changes.
+- Only one copy of GlassLink for Mac runs at a time; a second copy quits.
+- Incoming-call alerts are ordinary banners now, so they show even without a special entitlement.
+
+### New
+
+- **Answer, decline and end calls from your Mac**, from the call banner, the menu bar or the
+  notification. The call stays on the phone: talk on the phone or its earbuds.
+- **Setup checks on the Overview:** GlassLink says when macOS has its notifications turned off, or
+  when the phone is still waiting for a permission, with buttons to fix either.
+
 ## 0.2.0
 
 **Downloads:** `GlassLink-0.2.0.dmg` for macOS 26 or later (Apple silicon and Intel), and

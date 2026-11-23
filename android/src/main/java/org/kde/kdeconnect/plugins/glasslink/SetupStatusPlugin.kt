@@ -24,7 +24,8 @@ import org.kde.kdeconnect_tp.R
  *
  * The Mac sends `glasslink.setup.request` (with `show`: true to open the setup screen here) and
  * gets `glasslink.setup` back: `missing` (features that can't run) and `limited` (features running
- * without an optional permission), as names to show. It's sent again whenever that changes.
+ * without an optional permission), as names to show, plus `missingKeys` (plugin keys, such as
+ * CallControlPlugin). It's sent again whenever that changes.
  */
 @LoadablePlugin
 class SetupStatusPlugin : Plugin() {
@@ -65,6 +66,7 @@ class SetupStatusPlugin : Plugin() {
         device.sendPacket(NetworkPacket(PACKET_TYPE_SETUP).apply {
             this["missing"] = current.first
             this["limited"] = current.second
+            this["missingKeys"] = device.pluginsWithoutPermissions.keys.sorted()
         })
     }
 

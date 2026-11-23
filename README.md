@@ -37,7 +37,7 @@ three. It still speaks the KDE Connect protocol, so the Mac app also works with 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/comparison-dark.svg">
-    <img src="assets/comparison-light.svg" width="100%" alt="Comparison of Phone Link, KDE Connect on Mac and GlassLink. Runs on a Mac: Phone Link, Windows only; KDE Connect, experimental (Qt); GlassLink, native SwiftUI. Mirror the phone's screen: Phone Link, select phones; KDE Connect, no; GlassLink, any phone. Use it with mouse and keyboard: Phone Link, select phones; KDE Connect, no; GlassLink, yes. Notifications with reply: all three. Text messages (SMS): Phone Link and GlassLink, yes; KDE Connect, partial. Incoming call alerts: all three. Answer calls on the computer: Phone Link only. Text copy and paste: all three. Image copy and paste: Phone Link, select phones; KDE Connect, no; GlassLink, both ways. Phone screenshots on the computer: Phone Link, yes; KDE Connect, manual; GlassLink, instant. Send files: all three; GlassLink with drag and drop. No account or cloud needed: Phone Link needs a Microsoft account; KDE Connect and GlassLink, yes. Open source: KDE Connect and GlassLink.">
+    <img src="assets/comparison-light.svg" width="100%" alt="Comparison of Phone Link, KDE Connect on Mac and GlassLink. Runs on a Mac: Phone Link, Windows only; KDE Connect, experimental (Qt); GlassLink, native SwiftUI. Mirror the phone's screen: Phone Link, select phones; KDE Connect, no; GlassLink, any phone. Use it with mouse and keyboard: Phone Link, select phones; KDE Connect, no; GlassLink, yes. Notifications with reply: all three. Text messages (SMS): Phone Link and GlassLink, yes; KDE Connect, partial. Incoming call alerts: all three. Answer or decline calls: Phone Link and GlassLink. Talk through the computer: Phone Link only. Text copy and paste: all three. Image copy and paste: Phone Link, select phones; KDE Connect, no; GlassLink, both ways. Phone screenshots on the computer: Phone Link, yes; KDE Connect, manual; GlassLink, instant. Send files: all three; GlassLink with drag and drop. No account or cloud needed: Phone Link needs a Microsoft account; KDE Connect and GlassLink, yes. Open source: KDE Connect and GlassLink.">
   </picture>
 </p>
 
@@ -47,7 +47,7 @@ three. It still speaks the KDE Connect protocol, so the Mac app also works with 
   use it; right-click or **Esc** goes Back.
 - **Notifications** with inline reply and actions, in Notification Center.
 - **Messages:** your SMS conversations, with replies from the Mac.
-- **Calls:** incoming-call banner with silence, and missed-call alerts.
+- **Calls:** answer, decline or silence from the Mac (you talk on the phone), and missed-call alerts.
 - **Clipboard:** text and images, both ways.
 - **Screenshots:** on the other device's clipboard within a second, never saved as files.
 - **Files:** drag onto the window to send.

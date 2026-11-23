@@ -208,11 +208,29 @@ struct CallBanner: View {
                 Spacer(minLength: 20)
                 if call.kind == .ringing {
                     Button("Silence", systemImage: "bell.slash.fill") { device.muteRinger() }
+                        .labelStyle(.iconOnly)
                         .buttonStyle(.glass)
+                        .help("Silence the ringer")
                 }
-                Image(systemName: "phone.fill")
-                    .foregroundStyle(.primary)
-                    .symbolEffect(.wiggle, options: .repeating, isActive: call.kind == .ringing)
+                if device.supportsCallControl {
+                    Button(call.kind == .ringing ? "Decline" : "End", systemImage: "phone.down.fill") { device.declineCall() }
+                        .labelStyle(.iconOnly)
+                        .buttonStyle(.glass)
+                        .help(call.kind == .ringing ? "Decline the call" : "End the call")
+                    if call.kind == .ringing {
+                        Button("Answer", systemImage: "phone.fill") { device.answerCall() }
+                            .labelStyle(.iconOnly)
+                            .buttonStyle(.glassProminent)
+                            .symbolEffect(.wiggle, options: .repeating)
+                            .help(device.callControlNeedsPermission
+                                  ? "Allow GlassLink to manage calls on the phone first"
+                                  : "Answer on the phone, then talk on the phone or its earbuds")
+                    }
+                } else {
+                    Image(systemName: "phone.fill")
+                        .foregroundStyle(.primary)
+                        .symbolEffect(.wiggle, options: .repeating, isActive: call.kind == .ringing)
+                }
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 12)

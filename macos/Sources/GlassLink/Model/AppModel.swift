@@ -106,6 +106,14 @@ final class AppModel {
 
     func start() async {
         guard provider == nil else { return }
+        if Self.anotherCopyIsRunning() {
+            // Two copies would share one identity, so the phone would keep switching between them
+            // and lose packets. The copy that started first keeps running.
+            NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "")
+                .first { $0 != .current }?.activate()
+            NSApp.terminate(nil)
+            return
+        }
         if DemoData.isEnabled {
             // Demo mode is for UI work: no network, no notifications, no clipboard.
             status = .running
@@ -170,6 +178,15 @@ final class AppModel {
                 for device in app.pairedDevices where device.isReady { device.requestSetupStatus() }
             }
         }
+    }
+
+    /// Another GlassLink with this bundle ID started before this one (ties: the lower process ID wins).
+    static func anotherCopyIsRunning() -> Bool {
+        guard let id = Bundle.main.bundleIdentifier, !DemoData.isEnabled else { return false }
+        let me = NSRunningApplication.current
+        func rank(_ app: NSRunningApplication) -> (Date, pid_t) { (app.launchDate ?? .distantPast, app.processIdentifier) }
+        return NSRunningApplication.runningApplications(withBundleIdentifier: id)
+            .contains { $0 != me && !$0.isTerminated && rank($0) < rank(me) }
     }
 
     func stop() {
@@ -341,6 +358,7 @@ final class AppModel {
             PacketType.sftpRequest, PacketType.glasslinkClipboardImage,
             PacketType.glasslinkClipboardRequest, PacketType.glasslinkWallpaperRequest,
             PacketType.glasslinkMirrorRequest, PacketType.glasslinkMirrorInput, PacketType.glasslinkSetupRequest,
+            PacketType.glasslinkCallRequest,
         ]
     )
 

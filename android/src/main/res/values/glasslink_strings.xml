@@ -31,4 +31,7 @@
     <string name="glasslink_setup_title">Finish setting up GlassLink for %s</string>
     <string name="glasslink_setup_text">Waiting for permission: %s. Tap to allow. If Android says a setting is restricted, open App info for GlassLink, tap ⋮ and choose Allow restricted settings.</string>
     <string name="glasslink_setup_text_none">Everything is set up. Tap to review GlassLink\'s permissions.</string>
+    <string name="pref_plugin_glasslink_calls">Call controls</string>
+    <string name="pref_plugin_glasslink_calls_desc">Answer, decline and end calls from your Mac</string>
+    <string name="glasslink_calls_permission_explanation">To answer and decline calls from your Mac, GlassLink needs permission to manage phone calls.</string>
 </resources>

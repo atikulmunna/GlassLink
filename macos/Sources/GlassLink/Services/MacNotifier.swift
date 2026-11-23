@@ -10,6 +10,7 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
         static let plain = "phone.plain"
         static let pair = "pair.request"
         static let call = "call.incoming"
+        static let callControl = "call.incoming.control"
         static let file = "file.received"
     }
 
@@ -19,6 +20,8 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
         static let accept = "accept"
         static let decline = "decline"
         static let mute = "mute"
+        static let answer = "answer"
+        static let declineCall = "declineCall"
         static let reveal = "reveal"
     }
 
@@ -42,6 +45,11 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
                 UNNotificationAction(identifier: Action.decline, title: "Decline", options: [.destructive]),
             ], intentIdentifiers: []),
             UNNotificationCategory(identifier: Category.call, actions: [
+                UNNotificationAction(identifier: Action.mute, title: "Silence Ringer"),
+            ], intentIdentifiers: []),
+            UNNotificationCategory(identifier: Category.callControl, actions: [
+                UNNotificationAction(identifier: Action.answer, title: "Answer on Phone"),
+                UNNotificationAction(identifier: Action.declineCall, title: "Decline", options: [.destructive]),
                 UNNotificationAction(identifier: Action.mute, title: "Silence Ringer"),
             ], intentIdentifiers: []),
             UNNotificationCategory(identifier: Category.file, actions: [
@@ -126,7 +134,7 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
         content.title = "Incoming call"
         content.body = name == number || number.isEmpty ? name : "\(name) · \(number)"
         content.sound = .default
-        content.categoryIdentifier = Category.call
+        content.categoryIdentifier = device.supportsCallControl ? Category.callControl : Category.call
         content.userInfo = ["device": device.id]
         add(content, id: "call/\(device.id)")
     }
@@ -202,6 +210,10 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
             device.rejectPairing()
         case Action.mute:
             device.muteRinger()
+        case Action.answer:
+            device.answerCall()
+        case Action.declineCall:
+            device.declineCall()
         case Action.reveal:
             if let file { NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: file)]) }
         default:

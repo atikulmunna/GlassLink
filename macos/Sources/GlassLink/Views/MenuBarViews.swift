@@ -32,6 +32,13 @@ struct MenuBarPanel: View {
                         if call.kind == .ringing {
                             Button("Silence") { device.muteRinger() }.buttonStyle(.glass).controlSize(.small)
                         }
+                        if device.supportsCallControl {
+                            Button(call.kind == .ringing ? "Decline" : "End") { device.declineCall() }
+                                .buttonStyle(.glass).controlSize(.small)
+                            if call.kind == .ringing {
+                                Button("Answer") { device.answerCall() }.buttonStyle(.glassProminent).controlSize(.small)
+                            }
+                        }
                     }
                 }
                 GlassEffectContainer(spacing: 10) {

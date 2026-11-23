@@ -55,6 +55,8 @@ final class PhoneDevice: Identifiable {
     var setupMissing: [String] = []
     /// Features running without an optional permission (for example calls without contact names).
     var setupLimited: [String] = []
+    /// The same, as the phone's plugin keys (for example "CallControlPlugin").
+    var setupMissingKeys: Set<String> = []
     /// Phone screen mirroring (GlassLink for Android).
     @ObservationIgnored lazy var mirror = MirrorController(device: self)
 
@@ -369,6 +371,7 @@ final class PhoneDevice: Identifiable {
         case PacketType.glasslinkSetup:
             setupMissing = packet["missing"]?.array?.compactMap(\.string) ?? []
             setupLimited = packet["limited"]?.array?.compactMap(\.string) ?? []
+            setupMissingKeys = Set(packet["missingKeys"]?.array?.compactMap(\.string) ?? [])
             trace("\(name) setup: missing [\(setupMissing.joined(separator: ", "))], limited [\(setupLimited.joined(separator: ", "))]")
         case PacketType.glasslinkClipboardRequest:
             sendClipboard() // the phone tapped "Get Mac's clipboard"
@@ -484,6 +487,25 @@ final class PhoneDevice: Identifiable {
 
     func muteRinger() {
         send(NetworkPacket(type: PacketType.telephonyMute))
+    }
+
+    /// GlassLink for Android can answer, decline and end calls.
+    var supportsCallControl: Bool { link?.info.incomingCapabilities.contains(PacketType.glasslinkCallRequest) ?? false }
+    /// It can, once the phone allows GlassLink to manage calls.
+    var callControlNeedsPermission: Bool { setupMissingKeys.contains("CallControlPlugin") }
+
+    /// Answers on the phone (talk on the phone or its earbuds). If the phone hasn't allowed it yet,
+    /// opens its setup screen instead.
+    func answerCall() { callRequest("answer") }
+    func declineCall() { callRequest(call?.kind == .ringing ? "decline" : "end") }
+
+    private func callRequest(_ action: String) {
+        guard supportsCallControl else { return }
+        if callControlNeedsPermission {
+            requestSetupStatus(show: true)
+            return
+        }
+        send(NetworkPacket(type: PacketType.glasslinkCallRequest, body: ["action": .string(action)]))
     }
 
     // MARK: Messages

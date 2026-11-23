@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.gif">
-    <img src="assets/banner-light.gif" alt="GlassLink: your Android phone, on your Mac" width="640">
+    <img src="assets/banner-light.gif" alt="GlassLink: a MacBook writing hello and an Android phone, joined by a handshake" width="480">
   </picture>
 </p>
 
@@ -194,7 +194,8 @@ Without this, use **Send clipboard** on the phone, or **Get Phone's Clipboard** 
 GlassLink/
 ├── macos/      GlassLink for Mac: Swift package (KDEConnectKit protocol library + SwiftUI app)
 ├── android/    GlassLink for Android: fork of KDE Connect for Android (kept mergeable with upstream)
-├── tools/      make-icon.swift (both apps' icons), make-banner.swift (the animated README banner)
+├── tools/      make-icon.swift (both apps' icons), make-banner.swift (the animated README banner),
+│               handshake.svg (Material Symbols, Apache 2.0)
 ├── scripts/    release.sh, package-macos.sh, package-android.sh
 ├── assets/     banner, icon, screenshots
 ├── VERSION     one version number for both apps
@@ -257,6 +258,12 @@ with [SwiftNIO](https://github.com/apple/swift-nio), [SwiftNIO SSL](https://gith
 GlassLink is free software under the [GNU General Public License v3.0](LICENSE). Files in `android/`
 keep their upstream license headers (GPL-2.0-only or GPL-3.0-only).
 
-GlassLink is an independent project, not affiliated with or endorsed by KDE e.V., Microsoft or
-Apple. Phone Link is a trademark of Microsoft; Mac, macOS, iPhone and Continuity are trademarks of
-Apple.
+The Android robot in the banner is reproduced or modified from work created and shared by Google
+and used according to terms described in the
+[Creative Commons 3.0 Attribution License](https://creativecommons.org/licenses/by/3.0/). The
+handshake is the "handshake" icon from [Material Symbols](https://github.com/google/material-design-icons)
+(Apache License 2.0).
+
+GlassLink is an independent project, not affiliated with or endorsed by KDE e.V., Google, Microsoft
+or Apple. Android is a trademark of Google LLC; Phone Link is a trademark of Microsoft; Mac, macOS,
+iPhone and Continuity are trademarks of Apple.

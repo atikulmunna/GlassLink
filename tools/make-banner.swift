@@ -1,6 +1,11 @@
-// Draws the README's animated banner: a MacBook writing "hello" (as in GlassLink for Android),
-// next to the GlassLink name. Writes assets/banner-dark.gif and assets/banner-light.gif, on
-// backgrounds matching GitHub's dark and light themes so the banner seems to float.
+// Draws the README's animated banner: a MacBook writing "hello" (as in GlassLink for Android), a
+// handshake, and an Android phone on which the Android robot assembles itself. No text. Writes
+// assets/banner-dark.gif and assets/banner-light.gif, on backgrounds matching GitHub's dark and
+// light themes so the banner seems to float.
+//
+// The Android robot is reproduced or modified from work created and shared by Google and used
+// according to terms described in the Creative Commons 3.0 Attribution License. The handshake is
+// Material Symbols "handshake" (Apache License 2.0), in tools/handshake.svg.
 //
 //   swift tools/make-banner.swift        (then optimised with gifsicle, if installed)
 import AppKit
@@ -8,7 +13,7 @@ import ImageIO
 import UniformTypeIdentifiers
 
 let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-let width = 1280, height = 320 // drawn at 2×; shown at 640 × 160
+let width = 960, height = 320 // drawn at 2×; shown at 480 × 160
 let space = CGColorSpace(name: CGColorSpace.sRGB)!
 
 func color(_ hex: UInt32, _ alpha: CGFloat = 1) -> CGColor {
@@ -154,56 +159,214 @@ func drawMacBook(_ ctx: CGContext, in frame: CGRect, write: CGFloat, fade: CGFlo
          gradient: [color(0x8C8F95), color(0xBFC1C6)], from: baseTop, to: baseTop + baseH * 0.42)
 }
 
+// MARK: - Motion
+
+func clamp(_ x: CGFloat) -> CGFloat { min(1, max(0, x)) }
+func ease(_ t: CGFloat) -> CGFloat { t < 0.5 ? 4 * t * t * t : 1 - pow(-2 * t + 2, 3) / 2 }
+/// 0 → 1 with a little overshoot, like a spring.
+func spring(_ t: CGFloat) -> CGFloat {
+    let p = clamp(t)
+    return p >= 1 ? 1 : 1 - cos(p * .pi * 2.2) * exp(-p * 5.5)
+}
+/// Progress of a step that runs from `start` for `duration` seconds.
+func step(_ time: CGFloat, _ start: CGFloat, _ duration: CGFloat) -> CGFloat { clamp((time - start) / duration) }
+
+// MARK: - The Android phone and the robot
+
+/// An Android phone, front view: aluminium frame, black glass, punch-hole camera, side keys.
+func drawPhone(_ ctx: CGContext, in r: CGRect, content: (CGRect) -> Void) {
+    // Contact shadow.
+    ctx.saveGState()
+    let shadow = CGGradient(colorsSpace: space, colors: [color(0x000000, 0.4), color(0x000000, 0)] as CFArray, locations: nil)!
+    ctx.translateBy(x: r.midX, y: r.maxY + 4)
+    ctx.scaleBy(x: 1, y: 0.12)
+    ctx.drawRadialGradient(shadow, startCenter: .zero, startRadius: 0, endCenter: .zero, endRadius: r.width * 0.75, options: [])
+    ctx.restoreGState()
+
+    // Side keys, then the frame and the glass.
+    ctx.setFillColor(color(0xA6A9AF))
+    ctx.fill(CGRect(x: r.maxX - 1, y: r.minY + r.height * 0.22, width: 3, height: r.height * 0.1))
+    ctx.fill(CGRect(x: r.maxX - 1, y: r.minY + r.height * 0.36, width: 3, height: r.height * 0.06))
+    let body = CGPath(roundedRect: r, cornerWidth: r.width * 0.17, cornerHeight: r.width * 0.17, transform: nil)
+    fill(ctx, body, gradient: [color(0xE4E5E8), color(0xA9ACB2)], from: r.minY, to: r.maxY)
+    let glass = r.insetBy(dx: 3, dy: 3)
+    ctx.addPath(CGPath(roundedRect: glass, cornerWidth: r.width * 0.15, cornerHeight: r.width * 0.15, transform: nil))
+    ctx.setFillColor(color(0x070708))
+    ctx.fillPath()
+    let screen = glass.insetBy(dx: 4, dy: 4)
+    fill(ctx, CGPath(roundedRect: screen, cornerWidth: r.width * 0.12, cornerHeight: r.width * 0.12, transform: nil),
+         gradient: [color(0x0B0B0C), color(0x000000)], from: screen.minY, to: screen.maxY)
+    ctx.saveGState()
+    ctx.addPath(CGPath(roundedRect: screen, cornerWidth: r.width * 0.12, cornerHeight: r.width * 0.12, transform: nil))
+    ctx.clip()
+    content(screen)
+    ctx.restoreGState()
+    // Punch-hole camera.
+    ctx.setFillColor(color(0x1C2433))
+    ctx.fillEllipse(in: CGRect(x: r.midX - 4, y: screen.minY + 9, width: 8, height: 8))
+}
+
+/// The Android robot (in a 100 × 112 box) assembling itself between `time` 0 and about 2.3 s:
+/// body rises, legs drop in, head pops on, arms swing in, antennae grow, eyes open and blink.
+func drawRobot(_ ctx: CGContext, in screen: CGRect, time t: CGFloat, fade: CGFloat) {
+    guard fade > 0, t > 0 else { return }
+    let scale = screen.width * 0.62 / 100
+    ctx.saveGState()
+    ctx.translateBy(x: screen.midX - 50 * scale, y: screen.midY - 56 * scale + 4)
+    ctx.scaleBy(x: scale, y: scale)
+
+    let white = [color(0xFFFFFF), color(0xB9B9B9), color(0xFFFFFF)]
+    func paint(_ path: CGPath, alpha: CGFloat) {
+        guard alpha > 0 else { return }
+        ctx.saveGState()
+        ctx.setAlpha(alpha * fade)
+        for (width, glow) in [(9.0, 0.03), (6.0, 0.05)] { // soft glow, as on the "hello"
+            ctx.addPath(path)
+            ctx.setLineWidth(width)
+            ctx.setLineJoin(.round)
+            ctx.setStrokeColor(color(0xFFFFFF, glow))
+            ctx.strokePath()
+        }
+        ctx.addPath(path)
+        ctx.clip()
+        let g = CGGradient(colorsSpace: space, colors: white as CFArray, locations: nil)!
+        ctx.drawLinearGradient(g, start: CGPoint(x: 0, y: 0), end: CGPoint(x: 100, y: 112), options: [])
+        ctx.restoreGState()
+    }
+    func capsule(_ r: CGRect) -> CGPath { CGPath(roundedRect: r, cornerWidth: r.width / 2, cornerHeight: r.width / 2, transform: nil) }
+
+    // Body: grows up from its base.
+    let body = step(t, 0.0, 0.55)
+    if body > 0 {
+        let h = 50 * spring(body)
+        let path = CGMutablePath()
+        let rect = CGRect(x: 18, y: 94 - h, width: 64, height: h)
+        path.addPath(roundedRectBottom(rect, radius: min(10, h / 2)))
+        paint(path, alpha: clamp(body * 3))
+    }
+    // Legs: drop in from below.
+    let legs = step(t, 0.3, 0.5)
+    let legOffset = (1 - spring(legs)) * 18
+    paint(capsule(CGRect(x: 33, y: 84 + legOffset, width: 11, height: 28)), alpha: clamp(legs * 3))
+    paint(capsule(CGRect(x: 56, y: 84 + legOffset, width: 11, height: 28)), alpha: clamp(legs * 3))
+    // Head: pops on, with a little overshoot.
+    let head = step(t, 0.55, 0.55)
+    if head > 0 {
+        ctx.saveGState()
+        let k = spring(head)
+        ctx.translateBy(x: 50, y: 40)
+        ctx.scaleBy(x: k, y: k)
+        ctx.translateBy(x: -50, y: -40)
+        let path = CGMutablePath()
+        path.addArc(center: CGPoint(x: 50, y: 40), radius: 32, startAngle: .pi, endAngle: 0, clockwise: false)
+        path.closeSubpath()
+        paint(path, alpha: clamp(head * 3))
+        ctx.restoreGState()
+    }
+    // Arms: swing in from the sides.
+    let arms = step(t, 0.8, 0.55)
+    let armOffset = (1 - spring(arms)) * 14
+    paint(capsule(CGRect(x: 4 - armOffset, y: 46, width: 11, height: 36)), alpha: clamp(arms * 3))
+    paint(capsule(CGRect(x: 85 + armOffset, y: 46, width: 11, height: 36)), alpha: clamp(arms * 3))
+    // Antennae: grow outward from the head.
+    let antennae = ease(step(t, 1.15, 0.4))
+    if antennae > 0 {
+        ctx.saveGState()
+        ctx.setAlpha(fade)
+        ctx.setLineCap(.round)
+        ctx.setLineWidth(3.6)
+        ctx.setStrokeColor(color(0xEDEDED))
+        for (from, to) in [(CGPoint(x: 37, y: 15), CGPoint(x: 29, y: 3)), (CGPoint(x: 63, y: 15), CGPoint(x: 71, y: 3))] {
+            ctx.move(to: from)
+            ctx.addLine(to: CGPoint(x: from.x + (to.x - from.x) * antennae, y: from.y + (to.y - from.y) * antennae))
+            ctx.strokePath()
+        }
+        ctx.restoreGState()
+    }
+    // Eyes: open, then blink once.
+    let eyes = step(t, 1.45, 0.25)
+    if eyes > 0, head >= 1 {
+        let blink = step(t, 2.6, 0.18)
+        let openness = eyes * (blink > 0 && blink < 1 ? abs(1 - 2 * blink) : 1)
+        ctx.setFillColor(color(0x000000, fade))
+        for x in [38.0, 62.0] {
+            ctx.fillEllipse(in: CGRect(x: x - 3.8, y: 28 - 3.8 * openness, width: 7.6, height: 7.6 * max(openness, 0.08)))
+        }
+    }
+    ctx.restoreGState()
+}
+
+/// A rectangle with square top corners and rounded bottom ones (the robot's body).
+func roundedRectBottom(_ r: CGRect, radius: CGFloat) -> CGPath {
+    let p = CGMutablePath()
+    p.move(to: CGPoint(x: r.minX, y: r.minY))
+    p.addLine(to: CGPoint(x: r.maxX, y: r.minY))
+    p.addArc(tangent1End: CGPoint(x: r.maxX, y: r.maxY), tangent2End: CGPoint(x: r.minX, y: r.maxY), radius: radius)
+    p.addArc(tangent1End: CGPoint(x: r.minX, y: r.maxY), tangent2End: CGPoint(x: r.minX, y: r.minY), radius: radius)
+    p.closeSubpath()
+    return p
+}
+
+// MARK: - The handshake (Material Symbols, tools/handshake.svg)
+
+func handshakeImage(ink: String) -> NSImage {
+    var svg = try! String(contentsOf: repo.appendingPathComponent("tools/handshake.svg"), encoding: .utf8)
+    svg = svg.replacingOccurrences(of: "<path d=", with: "<path fill=\"\(ink)\" d=")
+    return NSImage(data: Data(svg.utf8))!
+}
+
 // MARK: - Frames
 
 struct Theme {
     let name: String
     let background: CGColor
-    let ink: NSColor
+    let handshake: NSImage
 }
 
-func frame(theme: Theme, write: CGFloat, fade: CGFloat) -> CGImage {
+func frame(theme: Theme, time t: CGFloat, fade: CGFloat) -> CGImage {
     let ctx = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
                         bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
     ctx.setFillColor(theme.background)
     ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
-
-    // Text, drawn in AppKit's bottom-up coordinates.
-    NSGraphicsContext.saveGraphicsState()
-    NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: false)
-    let x: CGFloat = 520
-    NSAttributedString(string: "GlassLink", attributes: [
-        .font: NSFont.systemFont(ofSize: 104, weight: .bold), .foregroundColor: theme.ink, .kern: -2,
-    ]).draw(at: NSPoint(x: x - 6, y: 150))
-    NSAttributedString(string: "Your Android phone, on your Mac.", attributes: [
-        .font: NSFont.systemFont(ofSize: 38, weight: .regular), .foregroundColor: theme.ink.withAlphaComponent(0.7),
-    ]).draw(at: NSPoint(x: x, y: 96))
-    NSAttributedString(string: "macOS  ·  Android  ·  open source", attributes: [
-        .font: NSFont.systemFont(ofSize: 24, weight: .medium), .foregroundColor: theme.ink.withAlphaComponent(0.45), .kern: 1.2,
-    ]).draw(at: NSPoint(x: x + 2, y: 50))
-    NSGraphicsContext.restoreGraphicsState()
-
-    // The MacBook, in top-down coordinates.
-    ctx.saveGState()
-    ctx.translateBy(x: 0, y: CGFloat(height))
+    ctx.translateBy(x: 0, y: CGFloat(height)) // top-down from here on
     ctx.scaleBy(x: 1, y: -1)
-    drawMacBook(ctx, in: CGRect(x: 40, y: 38, width: 420, height: 240), write: write, fade: fade)
-    ctx.restoreGState()
+
+    // Layout: MacBook 400, gap, handshake 92, gap, phone 128; centred.
+    let macWidth: CGFloat = 400, gap: CGFloat = 46, shake: CGFloat = 92, phoneSize = CGSize(width: 128, height: 268)
+    let left = (CGFloat(width) - (macWidth + gap + shake + gap + phoneSize.width)) / 2
+    drawMacBook(ctx, in: CGRect(x: left, y: 40, width: macWidth, height: 240), write: ease(step(t, 0, 2.4)), fade: fade)
+
+    // Handshake: pops in partway through, pulses once both greetings are done.
+    let pop = spring(step(t, 1.0, 0.6))
+    let pulse = step(t, 2.75, 0.35)
+    let k = pop * (1 + 0.12 * sin(pulse * .pi))
+    if pop > 0 {
+        let center = CGPoint(x: left + macWidth + gap + shake / 2, y: 150)
+        let size = shake * k
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: true)
+        theme.handshake.draw(in: NSRect(x: center.x - size / 2, y: center.y - size / 2, width: size, height: size),
+                             from: .zero, operation: .sourceOver, fraction: clamp(step(t, 1.0, 0.25)) * fade, respectFlipped: true, hints: nil)
+        NSGraphicsContext.restoreGraphicsState()
+    }
+
+    let phone = CGRect(x: left + macWidth + gap + shake + gap, y: 24, width: phoneSize.width, height: phoneSize.height)
+    drawPhone(ctx, in: phone) { screen in drawRobot(ctx, in: screen, time: t - 0.4, fade: fade) }
     return ctx.makeImage()!
 }
 
-func ease(_ t: CGFloat) -> CGFloat { t < 0.5 ? 4 * t * t * t : 1 - pow(-2 * t + 2, 3) / 2 }
-
-/// Write (2.4 s), hold (2 s), fade (0.6 s), pause (0.5 s); then it loops.
+/// Both greetings (about 3 s), hold (1.6 s), fade (0.6 s), pause (0.4 s); then it loops.
 func writeGIF(_ theme: Theme, to url: URL) throws {
     var frames: [(CGImage, Double)] = []
     let fps = 20.0
-    let writeFrames = Int(2.4 * fps)
-    for i in 0...writeFrames { frames.append((frame(theme: theme, write: ease(CGFloat(i) / CGFloat(writeFrames)), fade: 1), 1 / fps)) }
-    frames[frames.count - 1].1 = 2.0
+    let active = Int(3.1 * fps)
+    for i in 0...active { frames.append((frame(theme: theme, time: CGFloat(i) / CGFloat(fps), fade: 1), 1 / fps)) }
+    frames[frames.count - 1].1 = 1.6
     let fadeFrames = Int(0.6 * fps)
-    for i in 1...fadeFrames { frames.append((frame(theme: theme, write: 1, fade: 1 - CGFloat(i) / CGFloat(fadeFrames)), 1 / fps)) }
-    frames[frames.count - 1].1 = 0.5
+    for i in 1...fadeFrames {
+        frames.append((frame(theme: theme, time: 3.1, fade: 1 - CGFloat(i) / CGFloat(fadeFrames)), 1 / fps))
+    }
+    frames[frames.count - 1].1 = 0.4
 
     let dest = CGImageDestinationCreateWithURL(url as CFURL, UTType.gif.identifier as CFString, frames.count, nil)!
     CGImageDestinationSetProperties(dest, [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0]] as CFDictionary)
@@ -217,8 +380,8 @@ func writeGIF(_ theme: Theme, to url: URL) throws {
 
 let assets = repo.appendingPathComponent("assets")
 let themes = [
-    Theme(name: "dark", background: color(0x0D1117), ink: .white),  // GitHub dark
-    Theme(name: "light", background: color(0xFFFFFF), ink: .black), // GitHub light
+    Theme(name: "dark", background: color(0x0D1117), handshake: handshakeImage(ink: "#E6E6E6")),  // GitHub dark
+    Theme(name: "light", background: color(0xFFFFFF), handshake: handshakeImage(ink: "#1A1A1A")), // GitHub light
 ]
 for theme in themes {
     let url = assets.appendingPathComponent("banner-\(theme.name).gif")

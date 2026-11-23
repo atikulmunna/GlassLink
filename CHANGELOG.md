@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.2
+
+**Downloads:** `GlassLink-0.1.2.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.1.2.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. The Android app
+installs over earlier versions and keeps your pairing.
+
+### GlassLink for Android
+
+- When the Mac's name changes, the title at the top of its screen now updates right away, instead
+  of keeping the old name until you reopen the screen.
+
+### GlassLink for Mac
+
+- No changes besides the version number.
+
 ## 0.1.1
 
 A small update to 0.1.0.

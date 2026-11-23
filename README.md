@@ -22,9 +22,9 @@ matching Android companion. It runs entirely on your own Wi-Fi, with no accounts
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/mac-overview.png" alt="GlassLink for Mac: the phone at a glance, with its wallpaper, battery, signal and quick actions" width="64%">
+  <img src="assets/screenshots/mac-home.png" alt="GlassLink for Mac: the phone at a glance, with its wallpaper, battery, signal and quick actions" width="64%">
   &nbsp;
-  <img src="assets/screenshots/android-device.png" alt="GlassLink for Android: the Mac drawn on the phone, writing hello, with round glass quick actions" width="31%">
+  <img src="assets/screenshots/phone-hello.png" alt="GlassLink for Android: the Mac drawn on the phone, writing hello, with round glass quick actions" width="31%">
 </p>
 
 ## Why GlassLink

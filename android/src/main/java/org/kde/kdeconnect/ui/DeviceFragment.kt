@@ -224,6 +224,9 @@ class DeviceFragment : BaseFragment<ActivityDeviceBinding>() {
         if (!hasBinding) return // in case onDestroyView has already been called
         val device = device ?: return
 
+        // The other device can be renamed while this screen is open; keep the title current.
+        setActionBarTitle(device.name)
+
         //Once in-app, there is no point in keep displaying the notification if any
         device.hidePairingNotification()
 

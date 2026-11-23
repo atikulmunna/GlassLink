@@ -45,6 +45,10 @@ abstract class BaseFragment<VB: ViewBinding> : Fragment() {
         }
     }
 
+    protected fun setActionBarTitle(title: CharSequence?) {
+        (activity  as? AppCompatActivity?)?.supportActionBar?.title = title
+    }
+
     protected fun setActionBarSubtitle(subtitle: CharSequence? = null) {
         (activity  as? AppCompatActivity?)?.supportActionBar?.subtitle = subtitle
     }

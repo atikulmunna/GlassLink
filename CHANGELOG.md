@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.2.2
+
+**Downloads:** `GlassLink-0.2.2.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.2.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. Update both
+apps. The Android app installs over earlier versions and keeps your pairing.
+
+### Calls
+
+- **Answer and decline WhatsApp calls too**, and calls from other apps that handle their own
+  calls. Android ignores outside requests for those, so GlassLink now presses the Answer or
+  Decline button in the app's own call notification.
+- **Silence works.** It used to do nothing, and the ringer could come back at full volume after
+  the call. It now mutes the ringer, or switches to vibrate where Android requires Do Not Disturb
+  access, and restores your previous setting afterwards.
+- Silence, Decline and Answer are now equal round buttons on the call banner and in the menu bar.
+  Answer stands out by its solid fill.
+
 ## 0.2.1
 
 **Downloads:** `GlassLink-0.2.1.dmg` for macOS 26 or later (Apple silicon and Intel), and

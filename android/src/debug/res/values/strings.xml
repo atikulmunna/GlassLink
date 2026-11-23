@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="kde_connect">GlassLink (Debug)</string>
+    <string name="quit_app_shortcut">Quit</string>
+    <string name="remote_keyboard_service">GlassLink (Debug) Remote Keyboard</string>
+</resources>

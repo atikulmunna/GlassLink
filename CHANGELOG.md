@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.2.1
+
+**Downloads:** `GlassLink-0.2.1.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.1.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. Update both
+apps: answering calls needs the new version on the Mac and on the phone. The Android app installs
+over earlier versions and keeps your pairing.
 
 ### Fixes
 

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-  <string name="kde_connect">KDE Connect</string>
+  <string name="kde_connect">GlassLink</string>
   <string name="manifest_label_share">Sendi al Aparato</string>
   <string name="foreground_notification_no_devices">Ne konektita al iu ajn aparato</string>
   <string name="foreground_notification_devices">Konektita al: %s</string>
@@ -184,7 +184,7 @@
   </string-array>
   <string name="mpris_notifications_explanation">La sciiga permeso estas necesa por montri malproksimajn datumportilojn en la sciigokesto</string>
   <string name="mpris_notification_settings_title">Montri sciigon pri rego de amaskomunikiloj</string>
-  <string name="mpris_notification_settings_summary">Permesu mastrumi viajn plurmediajn ludilojn sen malfermi KDE Connect</string>
+  <string name="mpris_notification_settings_summary">Permesu mastrumi viajn plurmediajn ludilojn sen malfermi GlassLink</string>
   <string name="share_to">Kunhavigi al…</string>
   <string name="unreachable_device_url_share_text">URL-oj kundividitaj al neatingebla aparato estos liveritaj al ĝi post kiam ĝi fariĝos atingebla.\n\n</string>
   <string name="protocol_version">Protokolversio:</string>
@@ -222,7 +222,7 @@
   <string name="sftp_action_mode_menu_delete">Forigi</string>
   <string name="sftp_no_storage_locations_configured">Neniuj konservejoj agordis</string>
   <string name="sftp_saf_permission_explanation">Por aliri dosierojn malproksime vi devas agordi konservadlokojn</string>
-  <string name="sftp_manage_storage_permission_explanation">Por permesi foran aliron al dosieroj sur ĉi tiu aparato, vi devas permesi al KDE Connect administri la konservejon.</string>
+  <string name="sftp_manage_storage_permission_explanation">Por permesi foran aliron al dosieroj sur ĉi tiu aparato, vi devas permesi al GlassLink administri la konservejon.</string>
   <string name="no_players_connected">Neniuj ludantoj trovitaj</string>
   <string name="send_files">Sendi dosierojn</string>
   <string-array name="digitizer_preference_entries_draw_button_side">
@@ -234,7 +234,7 @@
   <string name="block_notification_contents">Bloki sciigan enhavon</string>
   <string name="block_notification_images">Bloki sciigajn bildojn</string>
   <string name="pairing_title">KDE Konekti Aparatojn</string>
-  <string name="pairing_description">Aliaj aparatoj rulantaj KDE Connect en via sama reto devus aperi ĉi tie.</string>
+  <string name="pairing_description">Aliaj aparatoj rulantaj GlassLink en via sama reto devus aperi ĉi tie.</string>
   <string name="device_rename_title">Alinomi la aparaton</string>
   <string name="device_rename_confirm">Alinomi</string>
   <string name="refresh">Refreŝigi</string>
@@ -245,7 +245,7 @@
   <string name="pref_plugin_telepathy">Sendi SMS</string>
   <string name="pref_plugin_telepathy_desc">Sendi tekstmesaĝojn de via labortablo</string>
   <string name="pref_plugin_telepathy_mms">Sendi MMS</string>
-  <string name="pref_plugin_telepathy_mms_desc">Por povi sendi MMS de KDE Connect, vi devas agordi ĝin kiel la defaŭltan SMS-aplikaĵon.</string>
+  <string name="pref_plugin_telepathy_mms_desc">Por povi sendi MMS de GlassLink, vi devas agordi ĝin kiel la defaŭltan SMS-aplikaĵon.</string>
   <string name="findmyphone_title">Trovi mian telefonon</string>
   <string name="findmyphone_title_tablet">Trovi mian tableton</string>
   <string name="findmyphone_title_tv">Trovi mian televidilon</string>
@@ -264,7 +264,7 @@
   <string name="telephony_permission_explanation">Por vidi telefonvokojn sur la labortablo, vi devas doni permeson al telefonvokaj protokoloj kaj telefona stato</string>
   <string name="telephony_optional_permission_explanation">Por vidi kontaktonomon anstataŭ telefonnumero vi devas doni aliron al la kontaktoj de la telefono</string>
   <string name="contacts_permission_explanation">Por dividi vian kontaktlibron kun la labortablo, vi devas doni permeson al kontaktoj</string>
-  <string name="contacts_per_device_confirmation">Viaj telefonaj kontaktoj estos kopiitaj al ĉi tiu aparato, do ili povas esti uzataj de la KDE Connect SMS-aplikaĵo kaj aliaj aplikaĵoj.</string>
+  <string name="contacts_per_device_confirmation">Viaj telefonaj kontaktoj estos kopiitaj al ĉi tiu aparato, do ili povas esti uzataj de la GlassLink SMS-aplikaĵo kaj aliaj aplikaĵoj.</string>
   <string name="select_ringtone">Elekti sonoron</string>
   <string name="telephony_pref_blocked_title">Blokitaj nombroj</string>
   <string name="mpris_coverart_description">Kovrilo de aktuala aŭdvidaĵo</string>
@@ -326,8 +326,8 @@
   <string name="empty_trusted_networks_list_text">Vi ankoraŭ ne aldonis neniun fidindan reton</string>
   <string name="allow_all_networks_text">Permesi ĉion</string>
   <string name="location_permission_needed_title">Permeso bezonata</string>
-  <string name="bluetooth_permission_needed_desc">KDE Connect bezonas permeson por konekti al proksimaj aparatoj por fari aparatojn parigitaj per Bluetooth disponebla en KDE Connect.</string>
-  <string name="location_permission_needed_desc">KDE Connect bezonas la fonlokan permeson por scii la WiFi-reton al kiu vi estas konektita eĉ kiam la programo estas en la fono. Ĉi tio estas ĉar la nomo de la WiFi-retoj ĉirkaŭ vi povus esti uzata por trovi vian lokon, eĉ kiam tion ne faras KDE Connect.</string>
+  <string name="bluetooth_permission_needed_desc">GlassLink bezonas permeson por konekti al proksimaj aparatoj por fari aparatojn parigitaj per Bluetooth disponebla en GlassLink.</string>
+  <string name="location_permission_needed_desc">GlassLink bezonas la fonlokan permeson por scii la WiFi-reton al kiu vi estas konektita eĉ kiam la programo estas en la fono. Ĉi tio estas ĉar la nomo de la WiFi-retoj ĉirkaŭ vi povus esti uzata por trovi vian lokon, eĉ kiam tion ne faras GlassLink.</string>
   <string name="clipboard_android_x_incompat">Android 10 forigis aliron al tondujo al ĉiuj aplikaĵoj. Ĉi tiu kromaĵo estos malŝaltita.</string>
   <string name="mpris_open_url">Daŭre ludi ĉi tie</string>
   <string name="cant_open_url">Ne povas malfermi URL por daŭrigi ludadon</string>

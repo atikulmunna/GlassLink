@@ -260,7 +260,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 val process = Runtime.getRuntime().exec(arrayOf("logcat", "-d"))
                 process.inputStream.reader(Charsets.UTF_8).use { reader ->
                     output.writer(Charsets.UTF_8).use { writer ->
-                        writer.write("KDE Connect ${BuildConfig.VERSION_NAME}\n")
+                        writer.write("GlassLink ${BuildConfig.VERSION_NAME}\n")
                         writer.write("Android ${Build.VERSION.RELEASE} (${Build.MANUFACTURER} ${Build.MODEL})\n")
                         reader.copyTo(writer)
                     }

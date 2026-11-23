@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-  <string name="kde_connect">KDE Connect</string>
+  <string name="kde_connect">GlassLink</string>
   <string name="manifest_label_share">Siųsti į įrenginį</string>
   <string name="foreground_notification_no_devices">Neprisijungta prie jokio įrenginio</string>
   <string name="foreground_notification_devices">Prisijungta prie: %s</string>
@@ -187,7 +187,7 @@
     <item>2 minutės</item>
   </string-array>
   <string name="mpris_notification_settings_title">Rodyti įvairialypės terpės valdymo pranešimus</string>
-  <string name="mpris_notification_settings_summary">Leisti valdyti medijos leistuves neatveriant KDE Connect</string>
+  <string name="mpris_notification_settings_summary">Leisti valdyti medijos leistuves neatveriant GlassLink</string>
   <string name="protocol_version_newer">Šis įrenginys naudoja naujesnę protokolo versiją</string>
   <string name="plugin_settings_with_name">%s nuostatos</string>
   <string name="invalid_device_name">Netinkamas įrenginio pavadinimas</string>
@@ -229,8 +229,8 @@
     <item>Bottom left</item>
     <item>Bottom right</item>
   </string-array>
-  <string name="pairing_title">KDE Connect įrenginiai</string>
-  <string name="pairing_description">Čia turėtų atsirasti kiti to paties tinklo įrenginiai, naudojantys KDE Connect.</string>
+  <string name="pairing_title">GlassLink įrenginiai</string>
+  <string name="pairing_description">Čia turėtų atsirasti kiti to paties tinklo įrenginiai, naudojantys GlassLink.</string>
   <string name="device_rename_title">Pervadinti įrenginį</string>
   <string name="device_rename_confirm">Pervadinti</string>
   <string name="refresh">Įkelti iš naujo</string>
@@ -241,7 +241,7 @@
   <string name="pref_plugin_telepathy">Siųsti SMS žinutę</string>
   <string name="pref_plugin_telepathy_desc">Siųsti tekstines žinutes iš savo darbalaukio</string>
   <string name="pref_plugin_telepathy_mms">Siųsti MMS žinutę</string>
-  <string name="pref_plugin_telepathy_mms_desc">Norėdami siųsti MMS iš KDE Connect, turite nustatyti ją kaip numatytąją SMS programėlę.</string>
+  <string name="pref_plugin_telepathy_mms_desc">Norėdami siųsti MMS iš GlassLink, turite nustatyti ją kaip numatytąją SMS programėlę.</string>
   <string name="findmyphone_title">Rasti telefoną</string>
   <string name="findmyphone_title_tablet">Rasti planšetę</string>
   <string name="findmyphone_title_tv">Rasti televizorių</string>
@@ -303,7 +303,7 @@
   <string name="block_images">Blokuoti pranešimuose paveiksliukus</string>
   <string name="notification_channel_receivenotification">Pranešimai iš kitų įrenginių</string>
   <string name="no_app_for_opening">Šio failo atvėrimui nerasta jokios tinkamos programėlės</string>
-  <string name="remote_keyboard_service">KDE Connect nuotolinė klaviatūra</string>
+  <string name="remote_keyboard_service">GlassLink nuotolinė klaviatūra</string>
   <string name="presenter_pointer">Rodyklė</string>
   <string name="trusted_networks">Patikimi tinklai</string>
   <string name="trusted_networks_desc">Apriboti automatinį aptikimą iki žinomų tinklų</string>
@@ -311,7 +311,7 @@
   <string name="empty_trusted_networks_list_text">Kol kas nesate pridėję jokių patikimų tinklų</string>
   <string name="allow_all_networks_text">Leisti visus</string>
   <string name="location_permission_needed_title">Reikalingas leidimas</string>
-  <string name="location_permission_needed_desc">KDE Connect reikia foninio vietovės leidimo, kad, netgi tuomet, kai programėlė veikia fone, ji žinotų belaidžio (WiFi) tinklo ryšius, prie kurių esate prisijungę. Taip yra todėl, kad aplink jus esančių belaidžių tinklų pavadinimai gali būti naudojami, siekiant geriau nustatyti jūsų buvimo vietą, nors KDE Connect to ir nedaro.</string>
+  <string name="location_permission_needed_desc">GlassLink reikia foninio vietovės leidimo, kad, netgi tuomet, kai programėlė veikia fone, ji žinotų belaidžio (WiFi) tinklo ryšius, prie kurių esate prisijungę. Taip yra todėl, kad aplink jus esančių belaidžių tinklų pavadinimai gali būti naudojami, siekiant geriau nustatyti jūsų buvimo vietą, nors GlassLink to ir nedaro.</string>
   <string name="clipboard_android_x_incompat">Android 10 pašalino iškarpinės prieigą prie visų programėlių. Šis papildinys bus išjungtas.</string>
   <string name="mpris_open_url">Tęsti atkūrimą čia</string>
   <string name="cant_open_url">Nepavyksta atverti URL, kad būtų tęsiamas atkūrimas</string>

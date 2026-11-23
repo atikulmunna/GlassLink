@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-  <string name="kde_connect">KDE Connect</string>
+  <string name="kde_connect">GlassLink</string>
   <string name="manifest_label_share">Küldés eszközre</string>
   <string name="foreground_notification_no_devices">Nincs csatlakozva egy eszközhöz sem</string>
   <string name="foreground_notification_devices">Csatlakozva ehhez: %s</string>
@@ -170,7 +170,7 @@
     <item>2 perc</item>
   </string-array>
   <string name="mpris_notification_settings_title">Médiavezérlő értesítéseinek megjelenítése</string>
-  <string name="mpris_notification_settings_summary">Lehetővé teszi a médialejátszók vezérlését a KDE Connect megnyitása nélkül</string>
+  <string name="mpris_notification_settings_summary">Lehetővé teszi a médialejátszók vezérlését a GlassLink megnyitása nélkül</string>
   <string name="protocol_version_newer">Ez az eszköz egy újabb protokollverziót használ</string>
   <string name="plugin_settings_with_name">%s beállításai</string>
   <string name="invalid_device_name">Érvénytelen eszköznév</string>
@@ -212,8 +212,8 @@
     <item>Bottom left</item>
     <item>Bottom right</item>
   </string-array>
-  <string name="pairing_title">KDE Connect eszközök</string>
-  <string name="pairing_description">Itt kell megjelennie az Ön hálózatában lévő többi, KDE Connectet futtató eszköznek.</string>
+  <string name="pairing_title">GlassLink eszközök</string>
+  <string name="pairing_description">Itt kell megjelennie az Ön hálózatában lévő többi, GlassLinket futtató eszköznek.</string>
   <string name="device_rename_title">Eszköz átnevezése</string>
   <string name="device_rename_confirm">Átnevezés</string>
   <string name="refresh">Frissítés</string>
@@ -224,7 +224,7 @@
   <string name="pref_plugin_telepathy">SMS küldése</string>
   <string name="pref_plugin_telepathy_desc">Szöveges üzenetek küldese a számítógépéről</string>
   <string name="pref_plugin_telepathy_mms">MMS küldése</string>
-  <string name="pref_plugin_telepathy_mms_desc">Ahhoz, hogy MMS-t tudjon küldeni a KDE Connectből, be kell állítania a KDE Connectet alapértelmezett SMS alkalmazásként.</string>
+  <string name="pref_plugin_telepathy_mms_desc">Ahhoz, hogy MMS-t tudjon küldeni a GlassLinkből, be kell állítania a GlassLinket alapértelmezett SMS alkalmazásként.</string>
   <string name="findmyphone_title">Telefon keresése</string>
   <string name="findmyphone_title_tablet">Tablet keresése</string>
   <string name="findmyphone_title_tv">TV keresése</string>
@@ -285,7 +285,7 @@
   <string name="block_images">Képek blokkolása az értesítésekben</string>
   <string name="notification_channel_receivenotification">Értesítések más eszközökről</string>
   <string name="no_app_for_opening">Nem található alkalmazás a fájl megnyitásához</string>
-  <string name="remote_keyboard_service">KDE Connect távoli billentyűzet</string>
+  <string name="remote_keyboard_service">GlassLink távoli billentyűzet</string>
   <string name="presenter_pointer">Mutató</string>
   <string name="trusted_networks">Megbízható hálózatok</string>
   <string name="trusted_networks_desc">Automatikus felfedezés korlátozása az ismert hálózatokra</string>

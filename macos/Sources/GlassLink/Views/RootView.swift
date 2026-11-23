@@ -56,7 +56,7 @@ struct RootView: View {
         .animation(.glass, value: model.current?.id)
         .onAppear {
             // Demo/screenshot aid: GLASSLINK_SECTION=messages opens that screen.
-            if DemoData.isEnabled, let name = ProcessInfo.processInfo.environment["GLASSLINK_SECTION"],
+            if DemoData.showsSampleContent, let name = ProcessInfo.processInfo.environment["GLASSLINK_SECTION"],
                let start = Section(rawValue: name) { section = start }
         }
     }
@@ -102,6 +102,7 @@ struct Sidebar: View {
             ForEach(Section.allCases) { item in
                 Label(item.title, systemImage: item.symbol)
                     .badge(badge(for: item))
+                    .listItemTint(.monochrome) // midnight and white: no accent-coloured sidebar icons
                     .tag(item)
             }
 
@@ -113,6 +114,7 @@ struct Sidebar: View {
                         } label: {
                             HStack {
                                 Label(other.name, systemImage: other.symbolName)
+                                    .listItemTint(.monochrome)
                                 Spacer()
                                 ConnectionDot(connected: other.isConnected)
                             }

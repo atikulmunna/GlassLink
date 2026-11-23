@@ -182,6 +182,14 @@ final class PhoneDevice: Identifiable {
         syncScheduledEarly = false
         guard isReady else { return }
         lastSync = .now
+        if DemoData.isScreenshotMode {
+            // Real phone, made-up notifications and messages: never ask for the real ones.
+            DemoData.fillSampleContent(self)
+            if link?.info.outgoingCapabilities.contains(PacketType.glasslinkWallpaper) == true {
+                send(NetworkPacket(type: PacketType.glasslinkWallpaperRequest))
+            }
+            return
+        }
         send(NetworkPacket(type: PacketType.notificationRequest, body: ["request": true]))
         requestConversations()
         send(NetworkPacket(type: PacketType.contactsRequestAllUIDs))
@@ -311,6 +319,11 @@ final class PhoneDevice: Identifiable {
             return
         }
         phoneLooksReady()
+        if DemoData.isScreenshotMode, [PacketType.notification, PacketType.smsMessages, PacketType.telephony,
+                                       PacketType.contactsResponseUIDs, PacketType.contactsResponseVCards,
+                                       PacketType.clipboard, PacketType.clipboardConnect].contains(packet.type) {
+            return // keep real content out of screenshots
+        }
         switch packet.type {
         case PacketType.ping:
             app?.notifier.post(title: name, body: packet["message"]?.string ?? "Ping!", deviceId: id)

@@ -43,7 +43,11 @@ struct MessagesView: View {
         .sheet(isPresented: $composing) { NewMessageSheet(device: device) }
         .onAppear {
             if device.conversations.isEmpty { device.requestConversations() }
-            if DemoData.isEnabled, selection == nil { selection = device.conversations.first?.threadId }
+            if DemoData.showsSampleContent, selection == nil { selection = device.conversations.first?.threadId }
+        }
+        .onChange(of: device.conversations.first?.threadId) { _, first in
+            // Screenshot mode fills in the sample conversations a moment after the view appears.
+            if DemoData.showsSampleContent, selection == nil { selection = first }
         }
     }
 

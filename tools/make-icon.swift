@@ -5,7 +5,7 @@
 //   macos/Resources/AppIcon.icns     macOS icon (squircle with a soft shadow)
 //   android/src/main/res/...         Android adaptive icon (background, foreground, monochrome),
 //                                    legacy launcher PNGs, status-bar icon, in-app logo
-//   assets/icon.png, assets/banner.png   for the README
+//   assets/icon.png, assets/banner-dark.png, assets/banner-light.png   for the README
 //
 // Midnight and white, like both apps: a black field, white frosted glass, no colour.
 import AppKit
@@ -282,37 +282,26 @@ func writeAndroidIcon(res: URL, preview: URL?) throws {
 
 // MARK: - README artwork
 
-/// A wide midnight banner: the icon, the name, and one line about what GlassLink is.
-func writeBanner(to url: URL) throws {
+/// A transparent banner that floats on the page: the icon (with its soft shadow), the name, and
+/// one line about GlassLink. `dark` is for dark page backgrounds (white type), otherwise black type.
+func writeBanner(to url: URL, dark: Bool) throws {
     let width = 1600, height = 520
     let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: width, pixelsHigh: height, bitsPerSample: 8,
                                samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
                                bytesPerRow: 0, bitsPerPixel: 0)!
     NSGraphicsContext.saveGraphicsState()
     NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-    let ctx = NSGraphicsContext.current!.cgContext
-    ctx.setFillColor(color(0x000000))
-    ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
-    let light = CGGradient(colorsSpace: space, colors: [color(0xffffff, 0.07), color(0xffffff, 0)] as CFArray, locations: [0, 1])!
-    ctx.drawRadialGradient(light, startCenter: CGPoint(x: 420, y: 420), startRadius: 0, endCenter: CGPoint(x: 420, y: 420), endRadius: 700, options: [])
-
-    // The icon, drawn at 340 px.
-    let icon = NSImage(data: macIcon(size: 680))!
-    icon.draw(in: NSRect(x: 150, y: 90, width: 340, height: 340))
-
-    // Name and tagline (SF Pro, white and grey).
-    let name = NSAttributedString(string: "GlassLink", attributes: [
-        .font: NSFont.systemFont(ofSize: 128, weight: .bold), .foregroundColor: NSColor.white, .kern: -2.5,
-    ])
-    name.draw(at: NSPoint(x: 560, y: 250))
-    let tagline = NSAttributedString(string: "Your Android phone, on your Mac.", attributes: [
-        .font: NSFont.systemFont(ofSize: 46, weight: .regular), .foregroundColor: NSColor(white: 0.72, alpha: 1),
-    ])
-    tagline.draw(at: NSPoint(x: 566, y: 178))
-    let platforms = NSAttributedString(string: "macOS  ·  Android  ·  open source", attributes: [
-        .font: NSFont.systemFont(ofSize: 28, weight: .medium), .foregroundColor: NSColor(white: 0.45, alpha: 1), .kern: 1.5,
-    ])
-    platforms.draw(at: NSPoint(x: 568, y: 118))
+    NSImage(data: macIcon(size: 680))!.draw(in: NSRect(x: 150, y: 90, width: 340, height: 340))
+    let ink = dark ? NSColor.white : NSColor.black
+    NSAttributedString(string: "GlassLink", attributes: [
+        .font: NSFont.systemFont(ofSize: 128, weight: .bold), .foregroundColor: ink, .kern: -2.5,
+    ]).draw(at: NSPoint(x: 560, y: 250))
+    NSAttributedString(string: "Your Android phone, on your Mac.", attributes: [
+        .font: NSFont.systemFont(ofSize: 46, weight: .regular), .foregroundColor: ink.withAlphaComponent(0.7),
+    ]).draw(at: NSPoint(x: 566, y: 178))
+    NSAttributedString(string: "macOS  ·  Android  ·  open source", attributes: [
+        .font: NSFont.systemFont(ofSize: 28, weight: .medium), .foregroundColor: ink.withAlphaComponent(0.45), .kern: 1.5,
+    ]).draw(at: NSPoint(x: 568, y: 118))
     NSGraphicsContext.restoreGraphicsState()
     try rep.representation(using: .png, properties: [:])!.write(to: url)
 }
@@ -323,5 +312,6 @@ let assets = repo.appendingPathComponent("assets")
 try FileManager.default.createDirectory(at: assets, withIntermediateDirectories: true)
 try writeMacIcon(preview: assets.appendingPathComponent("icon.png"))
 try writeAndroidIcon(res: repo.appendingPathComponent("android/src/main/res"), preview: nil)
-try writeBanner(to: assets.appendingPathComponent("banner.png"))
-print("Wrote assets/icon.png and assets/banner.png")
+try writeBanner(to: assets.appendingPathComponent("banner-dark.png"), dark: true)
+try writeBanner(to: assets.appendingPathComponent("banner-light.png"), dark: false)
+print("Wrote assets/icon.png, assets/banner-dark.png and assets/banner-light.png")

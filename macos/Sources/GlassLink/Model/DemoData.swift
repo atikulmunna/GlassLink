@@ -3,8 +3,15 @@ import KDEConnectKit
 
 /// `GLASSLINK_DEMO=1` adds a pretend phone with sample data, for working on the UI without a
 /// phone nearby. Nothing about it is saved or sent anywhere.
+///
+/// `GLASSLINK_SCREENSHOT=1` uses the real, connected phone (name, battery, signal, wallpaper) but
+/// shows the sample notifications and messages instead of real ones, for README screenshots.
+/// Real notifications, messages, contacts and calls are not requested or shown in that mode.
 enum DemoData {
     static var isEnabled: Bool { ProcessInfo.processInfo.environment["GLASSLINK_DEMO"] != nil }
+    static var isScreenshotMode: Bool { ProcessInfo.processInfo.environment["GLASSLINK_SCREENSHOT"] != nil }
+    /// Demo or screenshot mode: sample content, and `GLASSLINK_SECTION` picks the first screen.
+    static var showsSampleContent: Bool { isEnabled || isScreenshotMode }
 
     @MainActor
     static func makeDevice(app: AppModel) -> PhoneDevice {
@@ -14,7 +21,20 @@ enum DemoData {
         device.isDemo = true
         device.battery = BatteryState(level: 78, isCharging: true, isLow: false)
         device.signals = [SignalState(id: "1", networkType: "5G", strength: 3)]
+        fillSampleContent(device)
 
+        let received = Transfer(direction: .incoming, filename: "IMG_2041.HEIC", total: 3_400_000)
+        received.done = received.total
+        received.status = .finished
+        let sending = Transfer(direction: .outgoing, filename: "Quarterly Report.pdf", total: 8_200_000)
+        sending.done = 5_100_000
+        device.transfers = [sending, received]
+        return device
+    }
+
+    /// Made-up notifications, conversations and contact names.
+    @MainActor
+    static func fillSampleContent(_ device: PhoneDevice) {
         let now = Date()
         func note(_ id: String, _ app: String, _ title: String, _ text: String, minutesAgo: Double, reply: Bool = false, actions: [String] = []) -> PhoneNotification {
             var packet = NetworkPacket(type: PacketType.notification, body: [
@@ -55,13 +75,5 @@ enum DemoData {
         device.threads = [1: maya, 2: bank, 3: leo]
         device.conversations = [maya, bank, leo].map { Conversation(threadId: $0[0].threadId, addresses: $0[0].addresses, latest: $0.last!) }
         device.contacts = [PhoneNumber.key("+15550102030"): "Maya Chen", PhoneNumber.key("+15550199001"): "Leo Park"]
-
-        let received = Transfer(direction: .incoming, filename: "IMG_2041.HEIC", total: 3_400_000)
-        received.done = received.total
-        received.status = .finished
-        let sending = Transfer(direction: .outgoing, filename: "Quarterly Report.pdf", total: 8_200_000)
-        sending.done = 5_100_000
-        device.transfers = [sending, received]
-        return device
     }
 }

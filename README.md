@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="assets/banner.png" alt="GlassLink: your Android phone, on your Mac" width="100%">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.png">
+    <img src="assets/banner-light.png" alt="GlassLink: your Android phone, on your Mac" width="100%">
+  </picture>
 </p>
 
 <p align="center">
@@ -19,7 +22,9 @@ matching Android companion. It runs entirely on your own Wi-Fi, with no accounts
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/mac-overview.png" alt="GlassLink for Mac: overview of the connected phone" width="80%">
+  <img src="assets/screenshots/mac-overview.png" alt="GlassLink for Mac: the phone at a glance, with its wallpaper, battery, signal and quick actions" width="64%">
+  &nbsp;
+  <img src="assets/screenshots/android-device.png" alt="GlassLink for Android: the Mac drawn on the phone, writing hello, with round glass quick actions" width="31%">
 </p>
 
 ## Why GlassLink
@@ -167,6 +172,9 @@ adb shell appops set io.github.atikulmunna.glasslink SYSTEM_ALERT_WINDOW allow
 adb shell am force-stop io.github.atikulmunna.glasslink
 ```
 
+On Android 13 and later, the phone then asks "Allow GlassLink to access all device logs?" when
+GlassLink starts, usually once after each restart of the phone. Tap **Allow one-time access**.
+
 Without this, use **Send clipboard** on the phone, or **Get Phone's Clipboard** on the Mac.
 
 ## Privacy and security
@@ -204,7 +212,8 @@ cd macos
 ```
 
 `GLASSLINK_TRACE=1` prints protocol traces to the terminal. `GLASSLINK_DEMO=1` shows a pretend
-phone, which is handy for UI work.
+phone, which is handy for UI work. `GLASSLINK_SCREENSHOT=1` uses your real phone but shows sample
+notifications and messages, for screenshots that don't reveal your own.
 
 **Android:** JDK 21 and the Android SDK (platform 37).
 

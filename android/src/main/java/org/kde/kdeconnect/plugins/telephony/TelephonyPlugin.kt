@@ -13,6 +13,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.AudioManager
+import android.util.Log
 import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import androidx.core.content.ContextCompat
@@ -135,21 +136,41 @@ class TelephonyPlugin : Plugin() {
         lastPacket = np
     }
 
+    // GlassLink: these passed ADJUST_MUTE/ADJUST_UNMUTE to setStreamVolume as if they were volume
+    // levels, so muting did nothing (or failed) and "unmuting" could set the ringer to full volume.
+    // Now the ring stream is muted properly, or, where Android wants Do Not Disturb access for that,
+    // the phone switches to vibrate; either way the previous state comes back afterwards.
+    private var ringerModeBeforeMute: Int? = null
+
     private fun unmuteRinger() {
-        if (isMuted) {
-            val am = context.getSystemService<AudioManager>() ?: return
-            am.setStreamVolume(AudioManager.STREAM_RING, AudioManager.ADJUST_UNMUTE, 0)
-            isMuted = false
-        }
+        if (!isMuted) return
+        val am = context.getSystemService<AudioManager>() ?: return
+        runCatching {
+            val mode = ringerModeBeforeMute
+            if (mode != null) am.ringerMode = mode
+            else am.adjustStreamVolume(AudioManager.STREAM_RING, AudioManager.ADJUST_UNMUTE, 0)
+        }.onFailure { Log.w("TelephonyPlugin", "Couldn't restore the ringer", it) }
+        ringerModeBeforeMute = null
+        isMuted = false
     }
 
     private fun muteRinger() {
         if (isMuted) return
-
         val am = context.getSystemService<AudioManager>() ?: return
-        if (!am.isStreamMute(AudioManager.STREAM_RING)) {
-            am.setStreamVolume(AudioManager.STREAM_RING, AudioManager.ADJUST_MUTE, 0)
-            isMuted = true
+        if (am.isStreamMute(AudioManager.STREAM_RING) || am.ringerMode != AudioManager.RINGER_MODE_NORMAL) return
+        isMuted = try {
+            am.adjustStreamVolume(AudioManager.STREAM_RING, AudioManager.ADJUST_MUTE, 0)
+            true
+        } catch (e: SecurityException) {
+            try {
+                ringerModeBeforeMute = am.ringerMode
+                am.ringerMode = AudioManager.RINGER_MODE_VIBRATE
+                true
+            } catch (e: SecurityException) {
+                ringerModeBeforeMute = null
+                Log.w("TelephonyPlugin", "Not allowed to silence the ringer", e)
+                false
+            }
         }
     }
 

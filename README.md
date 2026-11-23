@@ -11,9 +11,10 @@
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-000000?style=flat-square&labelColor=333333"></a>
 </p>
 
-GlassLink brings your Android phone to your Mac: notifications you can answer, your text messages,
-incoming calls, your clipboard, your screenshots and your files, in a native macOS app with a
-matching Android companion. It runs entirely on your own Wi-Fi, with no accounts and no cloud.
+GlassLink brings your Android phone to your Mac. See its screen in a window and use it with your
+mouse and keyboard. Answer its notifications, text from your Mac, and share your clipboard,
+screenshots and files. It's a native macOS app with a matching Android companion, and it runs
+entirely on your own Wi-Fi, with no accounts and no cloud.
 
 <p align="center">
   <a href="https://github.com/atikulmunna/GlassLink/releases/latest"><b>Download for Mac (.dmg)</b></a>
@@ -33,8 +34,9 @@ matching Android companion. It runs entirely on your own Wi-Fi, with no accounts
 
 Microsoft's **Phone Link** set the bar for using an Android phone from a computer. Notifications show
 up on the desktop and you can reply to them. Your SMS conversations are a click away. Calls ring on
-the computer. Recent photos and screenshots are right there, and copy-and-paste works across devices.
-It feels like one system rather than two.
+the computer. Recent photos and screenshots are right there, and copy-and-paste works across devices. On select
+phones you can even see the phone's screen and use its apps from the computer. It feels like one
+system rather than two.
 
 But Phone Link only exists on **Windows**. Apple's own Continuity features, like iPhone Mirroring
 and Handoff, only work with an **iPhone**. If you use an Android phone with a Mac, none of that is
@@ -48,6 +50,7 @@ GlassLink is built on its protocol. On a Mac, though, it falls short of what Pho
 - **It isn't really a Mac app.** On macOS it runs as a cross-platform Qt application that doesn't
   look or behave like the rest of your Mac, and KDE describes the Mac build as experimental:
   there's no stable, signed release, only nightly builds.
+- **No screen mirroring.** You can't see or use the phone's screen from the computer.
 - **Copy and paste is text only.** Images you copy on one device can't be pasted on the other.
 - **Screenshots don't travel.** To get a screenshot from your phone to your Mac, you have to share
   it by hand or browse the phone's files.
@@ -60,6 +63,9 @@ GlassLink is built on its protocol. On a Mac, though, it falls short of what Pho
   has a menu bar panel, Notification Center integration with inline replies, and drag-and-drop.
 - **A companion app that adds what was missing.** GlassLink for Android is a fork of KDE Connect
   for Android with new features:
+  - **Screen mirroring on any phone:** the phone's screen, or just one app, live in a window on
+    your Mac. Click, drag, scroll and type to use it, much like Phone Link's app mirroring, but not
+    limited to select phones.
   - **Instant screenshots:** a screenshot taken on the phone is on the Mac's clipboard within about
     a second, with a floating thumbnail you can drag into any app. Screenshots from the Mac go onto
     the phone's clipboard.
@@ -76,25 +82,23 @@ GlassLink is built on its protocol. On a Mac, though, it falls short of what Pho
 
 ### At a glance
 
-| | Phone Link | KDE Connect on Mac | **GlassLink** |
-|---|:---:|:---:|:---:|
-| Runs on a Mac | — (Windows only) | Experimental (Qt) | **✓ native SwiftUI** |
-| Notifications with reply | ✓ | ✓ | **✓** |
-| Text messages (SMS) | ✓ | Partial | **✓** |
-| Incoming call alerts | ✓ | ✓ | **✓** |
-| Answer calls on the computer | ✓ | — | — |
-| Text copy and paste | ✓ | ✓ | **✓** |
-| Image copy and paste | ✓ (select phones) | — | **✓ both ways** |
-| Phone screenshots on the computer | ✓ | — (manual) | **✓ instant, on the clipboard** |
-| Send files | ✓ | ✓ | **✓ drag and drop** |
-| Mirror phone apps | ✓ (select phones) | — | — |
-| No account or cloud needed | — (Microsoft account) | ✓ | **✓** |
-| Open source | — | ✓ | **✓** |
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/comparison-dark.svg">
+    <img src="assets/comparison-light.svg" width="100%" alt="Comparison of Phone Link, KDE Connect on Mac and GlassLink. Runs on a Mac: Phone Link, Windows only; KDE Connect, experimental (Qt); GlassLink, native SwiftUI. Mirror the phone's screen: Phone Link, select phones; KDE Connect, no; GlassLink, any phone. Use it with mouse and keyboard: Phone Link, select phones; KDE Connect, no; GlassLink, yes. Notifications with reply: all three. Text messages (SMS): Phone Link and GlassLink, yes; KDE Connect, partial. Incoming call alerts: all three. Answer calls on the computer: Phone Link only. Text copy and paste: all three. Image copy and paste: Phone Link, select phones; KDE Connect, no; GlassLink, both ways. Phone screenshots on the computer: Phone Link, yes; KDE Connect, manual; GlassLink, instant. Send files: all three; GlassLink with drag and drop. No account or cloud needed: Phone Link needs a Microsoft account; KDE Connect and GlassLink, yes. Open source: KDE Connect and GlassLink.">
+  </picture>
+</p>
 
 ## Features
 
 **On your Mac**
 
+- **Phone Screen:** mirror the phone's screen, or a single app, in a phone-shaped window
+  (**⇧⌘M** or the **Mirror** button). Click to tap, hold for a long press, drag to swipe and
+  scroll with the trackpad. Type on the Mac's keyboard straight into the phone's text fields, with
+  **⌘V** pasting your Mac's clipboard. Right-click or **Esc** goes Back, and Back, Home and
+  Recents buttons sit under the screen. The video is H.264, decoded in hardware, so it's smooth and
+  light on battery. Apps that block screen capture, such as banking apps, show black.
 - **Notifications** with app icons, inline reply, actions and dismiss, mirrored to Notification
   Center.
 - **Messages:** your SMS conversations with contact names, and replies sent from the Mac.
@@ -111,8 +115,8 @@ GlassLink is built on its protocol. On a Mac, though, it falls short of what Pho
 **On your phone**
 
 Everything KDE Connect for Android does (notification sync, SMS, media and file sharing, remote
-input and more), plus the GlassLink extras above, Ring and Ping tiles, and a home screen that shows
-your Mac.
+input and more), plus the GlassLink extras above: screen sharing to your Mac, Ring and Ping tiles,
+and a home screen that shows your Mac.
 
 ## Screenshots
 
@@ -149,6 +153,13 @@ Requires **Android 6.0** or later; Android 10 or later is recommended.
    code, then accept.
 4. Under **Finish setting up**, grant the permissions for the features you want, such as
    notification access, SMS, contacts and calls.
+5. To use the phone from your Mac while mirroring, turn on **GlassLink** in the phone's
+   **Settings › Accessibility**. That's how your clicks and typing reach the phone. If Android says
+   the setting is restricted, open the phone's **Settings › Apps › GlassLink**, tap **⋮**, choose
+   **Allow restricted settings**, and try again. You can watch the screen without this.
+
+Mirroring needs Android 6 or later. Controlling the phone needs Android 7 or later, and typing from
+the Mac needs Android 14 or later.
 
 **Verify the download.** Release files are listed with their SHA-256 hashes in `SHA256SUMS`. The APK
 is signed with the GlassLink release key, whose certificate SHA-256 fingerprint is:
@@ -185,6 +196,9 @@ Without this, use **Send clipboard** on the phone, or **Get Phone's Clipboard** 
   other's certificate and refuses any device that later presents a different one. Access to the
   phone's files is authenticated with the same keys, and the phone's identity is checked.
 - **You confirm each pairing** by comparing the code on both screens.
+- **Mirroring asks every time.** The phone shows Android's own sharing prompt before anything is
+  shared, and a notification with **Stop sharing** for as long as it lasts. The video goes straight
+  to your Mac over a connection encrypted and pinned like the rest.
 - **Nothing piles up.** Synced screenshots and images stay on the clipboard; received files go only
   where you send them.
 
@@ -195,7 +209,7 @@ GlassLink/
 ├── macos/      GlassLink for Mac: Swift package (KDEConnectKit protocol library + SwiftUI app)
 ├── android/    GlassLink for Android: fork of KDE Connect for Android (kept mergeable with upstream)
 ├── tools/      make-icon.swift (both apps' icons), make-banner.swift (the animated README banner),
-│               handshake.svg (Material Symbols, Apache 2.0)
+│               make-comparison.swift (the comparison table), handshake.svg (Material Symbols, Apache 2.0)
 ├── scripts/    release.sh, package-macos.sh, package-android.sh
 ├── assets/     banner, icon, screenshots
 ├── VERSION     one version number for both apps
@@ -224,7 +238,8 @@ cd android
 ```
 
 **Artwork:** `swift tools/make-icon.swift` redraws the Mac and Android icons; `swift tools/make-banner.swift`
-redraws the animated banner (install `gifsicle` to keep it small).
+redraws the animated banner (install `gifsicle` to keep it small); `swift tools/make-comparison.swift`
+redraws the comparison table from the rows in the script.
 
 ## Releasing
 
@@ -242,6 +257,7 @@ certificate and `NOTARY_PROFILE` to a notarytool profile; `scripts/package-macos
 ## Roadmap
 
 - Notarized DMG
+- Phone audio while mirroring
 - Media controls for music playing on the phone
 - A gallery of recent photos
 - Discovery on networks that block broadcasts (mDNS)

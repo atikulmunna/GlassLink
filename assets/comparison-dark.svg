@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="706" viewBox="0 0 900 706" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" role="img">
+<title>Phone Link, KDE Connect on Mac and GlassLink compared</title>
+<rect x="686" y="6" width="200" height="694" rx="20" fill="#ffffff"/>
+<text x="410" y="72" text-anchor="middle" font-size="15" font-weight="600" fill="#f0f6fc">Phone Link</text>
+<text x="590" y="72" text-anchor="middle" font-size="15" font-weight="600" fill="#f0f6fc">KDE Connect on Mac</text>
+<rect x="765" y="11" width="42" height="42" rx="12" fill="#0000001f"/>
+<image href="data:image/png;base64,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" x="770" y="16" width="32" height="32"/>
+<text x="786" y="72" text-anchor="middle" font-size="15" font-weight="700" fill="#000000">GlassLink</text>
+<line x1="16" y1="94" x2="676" y2="94" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="94" x2="868" y2="94" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="122" font-size="15" fill="#f0f6fc">Runs on a Mac</text>
+<text x="410" y="122" text-anchor="middle" font-size="14" font-weight="400" fill="#9198a1">Windows only</text>
+<text x="590" y="122" text-anchor="middle" font-size="14" font-weight="400" fill="#9198a1">Experimental (Qt)</text>
+<text x="786" y="122" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">Native SwiftUI</text>
+<line x1="16" y1="140" x2="676" y2="140" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="140" x2="868" y2="140" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="168" font-size="15" fill="#f0f6fc">Mirror the phone's screen</text>
+<text x="410" y="168" text-anchor="middle" font-size="14" font-weight="400" fill="#9198a1">Select phones</text>
+<line x1="584" y1="163" x2="596" y2="163" stroke="#9198a1" stroke-width="2" stroke-linecap="round"/>
+<text x="786" y="168" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">Any phone</text>
+<line x1="16" y1="186" x2="676" y2="186" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="186" x2="868" y2="186" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="214" font-size="15" fill="#f0f6fc">Use it with mouse and keyboard</text>
+<text x="410" y="214" text-anchor="middle" font-size="14" font-weight="400" fill="#9198a1">Select phones</text>
+<line x1="584" y1="209" x2="596" y2="209" stroke="#9198a1" stroke-width="2" stroke-linecap="round"/>
+<path d="M779 209 l5 5 l10 -10.5" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="16" y1="232" x2="676" y2="232" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="232" x2="868" y2="232" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="260" font-size="15" fill="#f0f6fc">Notifications with reply</text>
+<path d="M403 255 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M583 255 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M779 255 l5 5 l10 -10.5" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="16" y1="278" x2="676" y2="278" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="278" x2="868" y2="278" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="306" font-size="15" fill="#f0f6fc">Text messages (SMS)</text>
+<path d="M403 301 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="590" y="306" text-anchor="middle" font-size="14" font-weight="400" fill="#9198a1">Partial</text>
+<path d="M779 301 l5 5 l10 -10.5" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="16" y1="324" x2="676" y2="324" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="324" x2="868" y2="324" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="352" font-size="15" fill="#f0f6fc">Incoming call alerts</text>
+<path d="M403 347 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M583 347 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M779 347 l5 5 l10 -10.5" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="16" y1="370" x2="676" y2="370" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="370" x2="868" y2="370" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="398" font-size="15" fill="#f0f6fc">Answer calls on the computer</text>
+<path d="M403 393 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="584" y1="393" x2="596" y2="393" stroke="#9198a1" stroke-width="2" stroke-linecap="round"/>
+<line x1="780" y1="393" x2="792" y2="393" stroke="#00000073" stroke-width="2" stroke-linecap="round"/>
+<line x1="16" y1="416" x2="676" y2="416" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="416" x2="868" y2="416" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="444" font-size="15" fill="#f0f6fc">Text copy and paste</text>
+<path d="M403 439 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M583 439 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M779 439 l5 5 l10 -10.5" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="16" y1="462" x2="676" y2="462" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="462" x2="868" y2="462" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="490" font-size="15" fill="#f0f6fc">Image copy and paste</text>
+<text x="410" y="490" text-anchor="middle" font-size="14" font-weight="400" fill="#9198a1">Select phones</text>
+<line x1="584" y1="485" x2="596" y2="485" stroke="#9198a1" stroke-width="2" stroke-linecap="round"/>
+<text x="786" y="490" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">Both ways</text>
+<line x1="16" y1="508" x2="676" y2="508" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="508" x2="868" y2="508" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="536" font-size="15" fill="#f0f6fc">Phone screenshots on the computer</text>
+<path d="M403 531 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="590" y="536" text-anchor="middle" font-size="14" font-weight="400" fill="#9198a1">Manual</text>
+<text x="786" y="536" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">Instant</text>
+<line x1="16" y1="554" x2="676" y2="554" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="554" x2="868" y2="554" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="582" font-size="15" fill="#f0f6fc">Send files</text>
+<path d="M403 577 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M583 577 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="786" y="582" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">Drag and drop</text>
+<line x1="16" y1="600" x2="676" y2="600" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="600" x2="868" y2="600" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="628" font-size="15" fill="#f0f6fc">No account or cloud needed</text>
+<text x="410" y="628" text-anchor="middle" font-size="14" font-weight="400" fill="#9198a1">Microsoft account</text>
+<path d="M583 623 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M779 623 l5 5 l10 -10.5" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="16" y1="646" x2="676" y2="646" stroke="#3d444d" stroke-width="1"/>
+<line x1="704" y1="646" x2="868" y2="646" stroke="#0000001f" stroke-width="1"/>
+<text x="24" y="674" font-size="15" fill="#f0f6fc">Open source</text>
+<line x1="404" y1="669" x2="416" y2="669" stroke="#9198a1" stroke-width="2" stroke-linecap="round"/>
+<path d="M583 669 l5 5 l10 -10.5" fill="none" stroke="#f0f6fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M779 669 l5 5 l10 -10.5" fill="none" stroke="#000000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

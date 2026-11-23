@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Screen mirroring
+
+- **See and use your phone from your Mac.** Click **Mirror** on the Overview (or press **⇧⌘M**),
+  tap **Start** on the phone, and its screen, or just one app on Android 14 or later, appears in a
+  phone-shaped window.
+- Click to tap, hold for a long press, drag to swipe, scroll with the trackpad, and right-click or
+  press **Esc** for Back. Back, Home and Recents buttons sit under the screen.
+- **Type on your Mac's keyboard** into the phone's text fields (Android 14 or later). Return does
+  what the phone's Enter key would, **⌘↩** sends, **⌘A/⌘C/⌘X/⌘Z** work, and **⌘V** pastes the
+  Mac's clipboard.
+- Controlling the phone uses GlassLink's accessibility service. If it's off, the Mac and the phone
+  both explain how to turn it on.
+
+### GlassLink for Android
+
+- The Mac now sees the phone's own name, as set in the phone's settings, instead of its model name.
+
 ## 0.1.2
 
 **Downloads:** `GlassLink-0.1.2.dmg` for macOS 26 or later (Apple silicon and Intel), and

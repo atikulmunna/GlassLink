@@ -32,8 +32,9 @@ import org.kde.kdeconnect_tp.R
  *
  * Packets: the Mac sends `glasslink.mirror.request` (`start`: true/false) and
  * `glasslink.mirror.input` (`action`: tap, longpress, swipe, back, home, recents; positions are
- * fractions of the screen, 0–1). The phone answers with `glasslink.mirror` (`state`: ready with
- * `port`/`width`/`height`, denied, stopped, failed, or noInput).
+ * fractions of the screen, 0–1; or `text` with `text`, and `key` with `key` and shift/ctrl/alt,
+ * typed into the focused field). The phone answers with `glasslink.mirror` (`state`: ready with
+ * `port`/`width`/`height`, denied, stopped, failed, noInput, or noTyping before Android 14).
  */
 @LoadablePlugin
 class MirrorPlugin : Plugin() {
@@ -47,6 +48,7 @@ class MirrorPlugin : Plugin() {
     override val outgoingPacketTypes: Array<String> = arrayOf(PACKET_TYPE_MIRROR)
 
     private var askedForAccessibility = false
+    private var toldNoTyping = false
 
     override fun onPacketReceived(np: NetworkPacket): Boolean {
         when (np.type) {
@@ -111,10 +113,24 @@ class MirrorPlugin : Plugin() {
                 val duration = np.getLong("duration", 250).coerceIn(50, 2000)
                 service.dispatchGesture(stroke(x, y, px("x2", metrics.widthPixels), px("y2", metrics.heightPixels), duration), null, null)
             }
+            "text" -> if (Build.VERSION.SDK_INT >= 34) MirrorKeyboard.type(service, np.getString("text", "")) else noTyping()
+            "key" -> if (Build.VERSION.SDK_INT >= 34) {
+                MirrorKeyboard.key(service, np.getString("key", ""), np.getBoolean("shift", false),
+                    np.getBoolean("ctrl", false), np.getBoolean("alt", false))
+            } else {
+                noTyping()
+            }
             "back" -> service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
             "home" -> service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
             "recents" -> service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
         }
+    }
+
+    /** Before Android 14 the accessibility service can't type; tell the Mac once. */
+    private fun noTyping() {
+        if (toldNoTyping) return
+        toldNoTyping = true
+        device.sendPacket(NetworkPacket(PACKET_TYPE_MIRROR).apply { this["state"] = "noTyping" })
     }
 
     private fun stroke(x: Float, y: Float, x2: Float, y2: Float, durationMs: Long): GestureDescription {

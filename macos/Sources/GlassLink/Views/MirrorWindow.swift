@@ -72,6 +72,15 @@ private struct MirrorContent: View {
             }
             .disabled(controller.state != .streaming)
 
+            if controller.state == .streaming {
+                Label(controller.typingUnavailable ? "Typing from your Mac needs Android 14 or later"
+                                                   : "Tap a text field, then type on your Mac",
+                      systemImage: "keyboard")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .transition(.opacity)
+            }
+
         }
         .padding(20)
         .frame(minWidth: 300, idealWidth: 400, maxWidth: .infinity, minHeight: 560, idealHeight: 860, maxHeight: .infinity)

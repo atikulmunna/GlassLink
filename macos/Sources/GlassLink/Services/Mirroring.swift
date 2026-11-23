@@ -25,6 +25,8 @@ final class MirrorController {
     private(set) var videoSize = CGSize(width: 9, height: 19.5)
     /// The phone can't be controlled until GlassLink's accessibility service is on.
     private(set) var inputUnavailable = false
+    /// Typing from the Mac needs Android 14 or later.
+    private(set) var typingUnavailable = false
 
     @ObservationIgnored let renderer = H264Renderer()
     @ObservationIgnored private weak var device: PhoneDevice?
@@ -77,6 +79,8 @@ final class MirrorController {
             if isActive { state = .ended(packet["state"]?.string == "failed" ? "Screen sharing couldn't start." : "The phone stopped sharing.") }
         case "noInput":
             inputUnavailable = true
+        case "noTyping":
+            typingUnavailable = true
         default:
             break
         }
@@ -113,6 +117,22 @@ final class MirrorController {
         input("swipe", a, extra: ["x2": .double(Double(b.x)), "y2": .double(Double(b.y)), "duration": .int(Int64(duration * 1000))])
     }
     func back() { input("back", nil) }
+
+    /// Types text into the phone's focused field.
+    func type(_ text: String) {
+        guard !text.isEmpty else { return }
+        input("text", nil, extra: ["text": .string(text)])
+    }
+
+    /// Presses a key on the phone (Android names: enter, tab, backspace, delete, arrows, home, end,
+    /// pageup, pagedown, or a letter with ctrl for shortcuts).
+    func key(_ name: String, shift: Bool = false, ctrl: Bool = false, alt: Bool = false) {
+        var extra: [String: JSONValue] = ["key": .string(name)]
+        if shift { extra["shift"] = .bool(true) }
+        if ctrl { extra["ctrl"] = .bool(true) }
+        if alt { extra["alt"] = .bool(true) }
+        input("key", nil, extra: extra)
+    }
     func home() { input("home", nil) }
     func recents() { input("recents", nil) }
 
@@ -290,6 +310,18 @@ final class MirrorNSView: NSView {
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
     // Drags here are swipes on the phone, never window moves.
     override var mouseDownCanMoveWindow: Bool { false }
+    override var acceptsFirstResponder: Bool { true }
+
+    /// Text being composed by an input method (dead keys, non-Latin keyboards); sent once committed.
+    fileprivate var markedText: String?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let window = self.window else { return }
+            window.makeFirstResponder(self)
+        }
+    }
 
     override func layout() {
         super.layout()
@@ -320,6 +352,7 @@ final class MirrorNSView: NSView {
     }
 
     override func mouseDown(with event: NSEvent) {
+        window?.makeFirstResponder(self)
         downPoint = fraction(event)
         downLocation = convert(event.locationInWindow, from: nil)
         downTime = Date()
@@ -367,5 +400,103 @@ final class MirrorNSView: NSView {
         controller?.swipe(from: anchor, to: end, duration: 0.25)
         scrollAnchor = nil
         scrollTotal = .zero
+    }
+}
+
+// MARK: Keyboard: typing on the Mac types into the phone's focused text field.
+
+extension MirrorNSView: NSTextInputClient {
+    private var streaming: Bool { controller?.state == .streaming }
+
+    override func keyDown(with event: NSEvent) {
+        guard streaming, let controller else { return super.keyDown(with: event) }
+        if hasMarkedText() { return interpretKeyEvents([event]) } // let the input method finish
+        if sendSpecialKey(event) { return }
+        let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        if flags.contains(.control), let letter = event.charactersIgnoringModifiers?.lowercased(),
+           letter.count == 1, letter.first!.isLetter, letter.first!.isASCII
+        {
+            return controller.key(letter, shift: flags.contains(.shift), ctrl: true)
+        }
+        interpretKeyEvents([event])
+    }
+
+    /// ⌘ shortcuts (they arrive as key equivalents, before the menus see them).
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        guard window?.firstResponder === self, streaming, let controller else { return super.performKeyEquivalent(with: event) }
+        let flags = event.modifierFlags.intersection([.command, .shift, .option, .control])
+        guard flags.contains(.command), !flags.contains(.control) else { return super.performKeyEquivalent(with: event) }
+        if sendSpecialKey(event) { return true }
+        guard !flags.contains(.option) else { return super.performKeyEquivalent(with: event) }
+        switch event.charactersIgnoringModifiers?.lowercased() {
+        case "a", "c", "x":
+            controller.key(event.charactersIgnoringModifiers!.lowercased(), ctrl: true)
+        case "z":
+            controller.key("z", shift: flags.contains(.shift), ctrl: true)
+        case "v":
+            if let text = NSPasteboard.general.string(forType: .string) { controller.type(text) }
+        default:
+            return super.performKeyEquivalent(with: event)
+        }
+        return true
+    }
+
+    /// Return, Tab, Backspace, arrows and friends, with Mac text-editing modifiers translated to Android's.
+    private func sendSpecialKey(_ event: NSEvent) -> Bool {
+        guard let c = controller else { return false }
+        let f = event.modifierFlags
+        let shift = f.contains(.shift), option = f.contains(.option), command = f.contains(.command)
+        switch Int(event.keyCode) {
+        case 36, 76: c.key("enter", shift: shift, ctrl: command) // ⌘↩ = the field's action (send)
+        case 48: c.key("tab", shift: shift)
+        case 51:
+            if command { c.key("home", shift: true); c.key("backspace") } // delete to line start
+            else { c.key("backspace", ctrl: option) } // ⌥⌫ = word
+        case 117:
+            if command { c.key("end", shift: true); c.key("delete") }
+            else { c.key("delete", ctrl: option) }
+        case 53: c.back()
+        case 123: command ? c.key("home", shift: shift) : c.key("left", shift: shift, ctrl: option)
+        case 124: command ? c.key("end", shift: shift) : c.key("right", shift: shift, ctrl: option)
+        case 126: command ? c.key("home", shift: shift, ctrl: true) : c.key("up", shift: shift)
+        case 125: command ? c.key("end", shift: shift, ctrl: true) : c.key("down", shift: shift)
+        case 115: c.key("home", shift: shift)
+        case 119: c.key("end", shift: shift)
+        case 116: c.key("pageup")
+        case 121: c.key("pagedown")
+        default: return false
+        }
+        return true
+    }
+
+    func insertText(_ string: Any, replacementRange: NSRange) {
+        markedText = nil
+        let text = (string as? NSAttributedString)?.string ?? (string as? String) ?? ""
+        controller?.type(text)
+    }
+
+    override func doCommand(by selector: Selector) {} // no beeps for keys handled above
+
+    func setMarkedText(_ string: Any, selectedRange: NSRange, replacementRange: NSRange) {
+        let text = (string as? NSAttributedString)?.string ?? (string as? String) ?? ""
+        markedText = text.isEmpty ? nil : text
+    }
+
+    func unmarkText() { markedText = nil }
+    func selectedRange() -> NSRange { NSRange(location: NSNotFound, length: 0) }
+    func markedRange() -> NSRange {
+        markedText.map { NSRange(location: 0, length: ($0 as NSString).length) } ?? NSRange(location: NSNotFound, length: 0)
+    }
+    func hasMarkedText() -> Bool { markedText != nil }
+    func attributedSubstring(forProposedRange range: NSRange, actualRange: NSRangePointer?) -> NSAttributedString? { nil }
+    func validAttributesForMarkedText() -> [NSAttributedString.Key] { [] }
+    func characterIndex(for point: NSPoint) -> Int { NSNotFound }
+
+    /// Input-method candidate windows appear near the bottom of the phone's screen, where its keyboard is.
+    func firstRect(forCharacterRange range: NSRange, actualRange: NSRangePointer?) -> NSRect {
+        guard let window else { return .zero }
+        let area = convert(bounds, to: nil)
+        let spot = NSRect(x: area.midX - 40, y: area.minY + area.height * 0.35, width: 80, height: 20)
+        return window.convertToScreen(spot)
     }
 }

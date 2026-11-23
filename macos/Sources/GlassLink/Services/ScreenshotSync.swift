@@ -174,7 +174,7 @@ final class MacScreenshotWatcher: NSObject {
 enum ScreenshotFiles {
     static var folder: URL {
         let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        let folder = caches.appendingPathComponent("dev.local.GlassLink/Clipboard", isDirectory: true)
+        let folder = caches.appendingPathComponent("io.github.atikulmunna.glasslink/Clipboard", isDirectory: true)
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder
     }

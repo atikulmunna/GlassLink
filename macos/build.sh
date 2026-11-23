@@ -33,6 +33,13 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN_DIR/$APP_NAME" "$APP/Contents/MacOS/$APP_NAME"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
+# One version for both apps: ../VERSION ("0.1.0" -> build number 100, as on Android).
+if [[ -f ../VERSION ]]; then
+  VERSION=$(tr -d '[:space:]' < ../VERSION)
+  IFS=. read -r V_MAJOR V_MINOR V_PATCH <<< "$VERSION"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(( ${V_MAJOR:-0} * 10000 + ${V_MINOR:-0} * 100 + ${V_PATCH:-0} ))" "$APP/Contents/Info.plist"
+fi
 [[ -f Resources/AppIcon.icns ]] && cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
 if [[ -n "${SIGN_IDENTITY:-}" ]]; then

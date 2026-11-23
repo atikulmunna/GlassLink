@@ -4,7 +4,7 @@ import Foundation
 import KDEConnectKit
 import os
 
-let appLog = Logger(subsystem: "dev.local.GlassLink", category: "app")
+let appLog = Logger(subsystem: "io.github.atikulmunna.glasslink", category: "app")
 
 /// `GLASSLINK_TRACE=1` also prints app events to stderr.
 func appTrace(_ message: @autoclosure () -> String) {

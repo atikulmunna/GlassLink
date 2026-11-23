@@ -1,10 +1,11 @@
-// Draws the GlassLink app icon. One drawing serves both apps, so they always match:
+// Draws the GlassLink app icon. One drawing serves both apps, so they always match.
+// Run from anywhere:   swift tools/make-icon.swift
 //
-//   swift Scripts/make-icon.swift [preview.png]
-//       writes Resources/AppIcon.icns (macOS: a squircle with a soft shadow)
-//   swift Scripts/make-icon.swift --android <path to GlassLink-Android/src/main/res>
-//       writes the Android adaptive icon (background, foreground, monochrome layers)
-//       and the legacy launcher PNGs
+// Writes:
+//   macos/Resources/AppIcon.icns     macOS icon (squircle with a soft shadow)
+//   android/src/main/res/...         Android adaptive icon (background, foreground, monochrome),
+//                                    legacy launcher PNGs, status-bar icon, in-app logo
+//   assets/icon.png, assets/banner.png   for the README
 //
 // Midnight and white, like both apps: a black field, white frosted glass, no colour.
 import AppKit
@@ -202,6 +203,9 @@ func macIcon(size: Int) -> Data {
     }
 }
 
+/// The repository root (this script lives in tools/).
+let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+
 func writeMacIcon(preview: URL?) throws {
     let fm = FileManager.default
     let iconset = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("GlassLink.iconset")
@@ -211,7 +215,7 @@ func writeMacIcon(preview: URL?) throws {
         try macIcon(size: base).write(to: iconset.appendingPathComponent("icon_\(base)x\(base).png"))
         try macIcon(size: base * 2).write(to: iconset.appendingPathComponent("icon_\(base)x\(base)@2x.png"))
     }
-    let output = URL(fileURLWithPath: "Resources/AppIcon.icns")
+    let output = repo.appendingPathComponent("macos/Resources/AppIcon.icns")
     let iconutil = Process()
     iconutil.executableURL = URL(fileURLWithPath: "/usr/bin/iconutil")
     iconutil.arguments = ["-c", "icns", iconset.path, "-o", output.path]
@@ -276,12 +280,48 @@ func writeAndroidIcon(res: URL, preview: URL?) throws {
     print("Wrote Android icons to \(res.path)")
 }
 
+// MARK: - README artwork
+
+/// A wide midnight banner: the icon, the name, and one line about what GlassLink is.
+func writeBanner(to url: URL) throws {
+    let width = 1600, height = 520
+    let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: width, pixelsHigh: height, bitsPerSample: 8,
+                               samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+                               bytesPerRow: 0, bitsPerPixel: 0)!
+    NSGraphicsContext.saveGraphicsState()
+    NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+    let ctx = NSGraphicsContext.current!.cgContext
+    ctx.setFillColor(color(0x000000))
+    ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
+    let light = CGGradient(colorsSpace: space, colors: [color(0xffffff, 0.07), color(0xffffff, 0)] as CFArray, locations: [0, 1])!
+    ctx.drawRadialGradient(light, startCenter: CGPoint(x: 420, y: 420), startRadius: 0, endCenter: CGPoint(x: 420, y: 420), endRadius: 700, options: [])
+
+    // The icon, drawn at 340 px.
+    let icon = NSImage(data: macIcon(size: 680))!
+    icon.draw(in: NSRect(x: 150, y: 90, width: 340, height: 340))
+
+    // Name and tagline (SF Pro, white and grey).
+    let name = NSAttributedString(string: "GlassLink", attributes: [
+        .font: NSFont.systemFont(ofSize: 128, weight: .bold), .foregroundColor: NSColor.white, .kern: -2.5,
+    ])
+    name.draw(at: NSPoint(x: 560, y: 250))
+    let tagline = NSAttributedString(string: "Your Android phone, on your Mac.", attributes: [
+        .font: NSFont.systemFont(ofSize: 46, weight: .regular), .foregroundColor: NSColor(white: 0.72, alpha: 1),
+    ])
+    tagline.draw(at: NSPoint(x: 566, y: 178))
+    let platforms = NSAttributedString(string: "macOS  ·  Android  ·  open source", attributes: [
+        .font: NSFont.systemFont(ofSize: 28, weight: .medium), .foregroundColor: NSColor(white: 0.45, alpha: 1), .kern: 1.5,
+    ])
+    platforms.draw(at: NSPoint(x: 568, y: 118))
+    NSGraphicsContext.restoreGraphicsState()
+    try rep.representation(using: .png, properties: [:])!.write(to: url)
+}
+
 // MARK: - Main
 
-let args = Array(CommandLine.arguments.dropFirst())
-if let flag = args.firstIndex(of: "--android"), args.count > flag + 1 {
-    let rest = args.enumerated().filter { $0.offset != flag && $0.offset != flag + 1 }.map(\.element)
-    try writeAndroidIcon(res: URL(fileURLWithPath: args[flag + 1]), preview: rest.first.map { URL(fileURLWithPath: $0) })
-} else {
-    try writeMacIcon(preview: args.first.map { URL(fileURLWithPath: $0) })
-}
+let assets = repo.appendingPathComponent("assets")
+try FileManager.default.createDirectory(at: assets, withIntermediateDirectories: true)
+try writeMacIcon(preview: assets.appendingPathComponent("icon.png"))
+try writeAndroidIcon(res: repo.appendingPathComponent("android/src/main/res"), preview: nil)
+try writeBanner(to: assets.appendingPathComponent("banner.png"))
+print("Wrote assets/icon.png and assets/banner.png")

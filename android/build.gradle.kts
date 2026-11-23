@@ -1,3 +1,4 @@
+import java.util.Properties
 import com.android.build.api.instrumentation.AsmClassVisitorFactory
 import com.android.build.api.instrumentation.ClassContext
 import com.android.build.api.instrumentation.ClassData
@@ -34,15 +35,27 @@ kotlin {
     }
 }
 
+// GlassLink: one version for both apps, from ../VERSION (e.g. "0.1.0" -> versionCode 100).
+val glasslinkVersion: String = rootProject.file("../VERSION").takeIf { it.exists() }?.readText()?.trim() ?: "0.0.0"
+val glasslinkVersionCode: Int = glasslinkVersion.split(".").map { it.toIntOrNull() ?: 0 }
+    .let { it.getOrElse(0) { 0 } * 10000 + it.getOrElse(1) { 0 } * 100 + it.getOrElse(2) { 0 } }
+
+// GlassLink release key: kept outside the repo, in ~/.glasslink/keystore.properties
+// (or the file named by GLASSLINK_KEYSTORE_PROPERTIES). See scripts/release.sh.
+val glasslinkSigning = Properties().apply {
+    val path = System.getenv("GLASSLINK_KEYSTORE_PROPERTIES") ?: "${System.getProperty("user.home")}/.glasslink/keystore.properties"
+    File(path).takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+
 android {
     namespace = "org.kde.kdeconnect_tp"
     compileSdk = 37
     defaultConfig {
-        applicationId = "dev.local.glasslink"
+        applicationId = "io.github.atikulmunna.glasslink"
         minSdk = 23
         targetSdk = 37
-        versionCode = 13703
-        versionName = "1.37.3"
+        versionCode = glasslinkVersionCode
+        versionName = glasslinkVersion
         proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
     buildFeatures {
@@ -79,6 +92,14 @@ android {
             keyAlias = "androiddebugkey"
             keyPassword = "android"
         }
+        if (glasslinkSigning.getProperty("storeFile") != null) {
+            create("release") {
+                storeFile = file(glasslinkSigning.getProperty("storeFile"))
+                storePassword = glasslinkSigning.getProperty("storePassword")
+                keyAlias = glasslinkSigning.getProperty("keyAlias")
+                keyPassword = glasslinkSigning.getProperty("keyPassword")
+            }
+        }
     }
     buildTypes {
         getByName("debug") {
@@ -91,6 +112,7 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.findByName("release")
         }
     }
     lint {

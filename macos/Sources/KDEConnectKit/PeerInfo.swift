@@ -1,7 +1,7 @@
 import Foundation
 import os
 
-let lanLog = Logger(subsystem: "dev.local.GlassLink", category: "lan")
+let lanLog = Logger(subsystem: "io.github.atikulmunna.glasslink", category: "lan")
 
 /// `GLASSLINK_TRACE=1` also prints protocol events to stderr (handy under `swift test`).
 let traceEnabled = ProcessInfo.processInfo.environment["GLASSLINK_TRACE"] != nil

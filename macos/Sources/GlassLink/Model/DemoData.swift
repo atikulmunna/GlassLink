@@ -33,6 +33,10 @@ enum DemoData {
         let sending = Transfer(direction: .outgoing, filename: "Quarterly Report.pdf", total: 8_200_000)
         sending.done = 5_100_000
         device.transfers = [sending, received]
+        // GLASSLINK_DEMO_CALL=1: a ringing call, for checking the call banner.
+        if ProcessInfo.processInfo.environment["GLASSLINK_DEMO_CALL"] != nil {
+            device.call = CallState(kind: .ringing, number: "+1 415 555 0142", name: "Maya Chen")
+        }
         return device
     }
 

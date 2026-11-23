@@ -29,14 +29,20 @@ struct MenuBarPanel: View {
                         Image(systemName: "phone.fill").foregroundStyle(.primary)
                         Text(call.name).font(.callout.weight(.semibold))
                         Spacer()
-                        if call.kind == .ringing {
-                            Button("Silence") { device.muteRinger() }.buttonStyle(.glass).controlSize(.small)
-                        }
-                        if device.supportsCallControl {
-                            Button(call.kind == .ringing ? "Decline" : "End") { device.declineCall() }
-                                .buttonStyle(.glass).controlSize(.small)
-                            if call.kind == .ringing {
-                                Button("Answer") { device.answerCall() }.buttonStyle(.glassProminent).controlSize(.small)
+                        GlassEffectContainer(spacing: 8) {
+                            HStack(spacing: 8) {
+                                if call.kind == .ringing {
+                                    CallButton(title: "Silence the ringer", symbol: "bell.slash.fill", size: 30) { device.muteRinger() }
+                                }
+                                if device.supportsCallControl {
+                                    CallButton(title: call.kind == .ringing ? "Decline the call" : "End the call",
+                                               symbol: "phone.down.fill", size: 30) { device.declineCall() }
+                                    if call.kind == .ringing {
+                                        CallButton(title: "Answer on the phone", symbol: "phone.fill", prominent: true, size: 30) {
+                                            device.answerCall()
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

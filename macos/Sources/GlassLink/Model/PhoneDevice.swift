@@ -490,7 +490,7 @@ final class PhoneDevice: Identifiable {
     }
 
     /// GlassLink for Android can answer, decline and end calls.
-    var supportsCallControl: Bool { link?.info.incomingCapabilities.contains(PacketType.glasslinkCallRequest) ?? false }
+    var supportsCallControl: Bool { link?.info.incomingCapabilities.contains(PacketType.glasslinkCallRequest) ?? isDemo }
     /// It can, once the phone allows GlassLink to manage calls.
     var callControlNeedsPermission: Bool { setupMissingKeys.contains("CallControlPlugin") }
 

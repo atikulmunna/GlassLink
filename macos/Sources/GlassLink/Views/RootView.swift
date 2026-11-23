@@ -189,6 +189,39 @@ struct DropOverlay: View {
     }
 }
 
+/// A round call control. Every call button uses it at the same size, so the row is even; Answer
+/// is told apart by its inverted fill, not by being bigger.
+struct CallButton: View {
+    var title: String
+    var symbol: String
+    var prominent = false
+    var size: CGFloat = 40
+    var action: () -> Void
+
+    @Environment(\.isEnabled) private var isEnabled
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: size * 0.4, weight: .semibold))
+                .frame(width: size, height: size)
+                .contentShape(.circle)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(prominent ? AnyShapeStyle(.background) : AnyShapeStyle(.primary))
+        // Answer: a solid inverted disc (white in dark mode, black in light), not tinted glass,
+        // which washed out to grey.
+        .background { if prominent { Circle().fill(.primary) } }
+        .glassEffect(prominent ? .identity : .regular.interactive(), in: .circle)
+        .scaleEffect(hovering ? 1.08 : 1)
+        .onHover { over in hovering = over && isEnabled }
+        .animation(.spring(duration: 0.35, bounce: 0.45), value: hovering)
+        .help(title)
+        .accessibilityLabel(title)
+    }
+}
+
 struct CallBanner: View {
     var device: PhoneDevice
 
@@ -206,27 +239,24 @@ struct CallBanner: View {
                     }
                 }
                 Spacer(minLength: 20)
-                if call.kind == .ringing {
-                    Button("Silence", systemImage: "bell.slash.fill") { device.muteRinger() }
-                        .labelStyle(.iconOnly)
-                        .buttonStyle(.glass)
-                        .help("Silence the ringer")
-                }
-                if device.supportsCallControl {
-                    Button(call.kind == .ringing ? "Decline" : "End", systemImage: "phone.down.fill") { device.declineCall() }
-                        .labelStyle(.iconOnly)
-                        .buttonStyle(.glass)
-                        .help(call.kind == .ringing ? "Decline the call" : "End the call")
-                    if call.kind == .ringing {
-                        Button("Answer", systemImage: "phone.fill") { device.answerCall() }
-                            .labelStyle(.iconOnly)
-                            .buttonStyle(.glassProminent)
-                            .symbolEffect(.wiggle, options: .repeating)
-                            .help(device.callControlNeedsPermission
-                                  ? "Allow GlassLink to manage calls on the phone first"
-                                  : "Answer on the phone, then talk on the phone or its earbuds")
+                GlassEffectContainer(spacing: 10) {
+                    HStack(spacing: 10) {
+                        if call.kind == .ringing {
+                            CallButton(title: "Silence the ringer", symbol: "bell.slash.fill") { device.muteRinger() }
+                        }
+                        if device.supportsCallControl {
+                            CallButton(title: call.kind == .ringing ? "Decline the call" : "End the call",
+                                       symbol: "phone.down.fill") { device.declineCall() }
+                            if call.kind == .ringing {
+                                CallButton(title: device.callControlNeedsPermission
+                                               ? "Allow GlassLink to manage calls on the phone first"
+                                               : "Answer on the phone, then talk on the phone or its earbuds",
+                                           symbol: "phone.fill", prominent: true) { device.answerCall() }
+                            }
+                        }
                     }
-                } else {
+                }
+                if !device.supportsCallControl {
                     Image(systemName: "phone.fill")
                         .foregroundStyle(.primary)
                         .symbolEffect(.wiggle, options: .repeating, isActive: call.kind == .ringing)

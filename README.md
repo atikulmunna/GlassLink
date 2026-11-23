@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.png">
-    <img src="assets/banner-light.png" alt="GlassLink: your Android phone, on your Mac" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.gif">
+    <img src="assets/banner-light.gif" alt="GlassLink: your Android phone, on your Mac" width="640">
   </picture>
 </p>
 
@@ -194,7 +194,7 @@ Without this, use **Send clipboard** on the phone, or **Get Phone's Clipboard** 
 GlassLink/
 ├── macos/      GlassLink for Mac: Swift package (KDEConnectKit protocol library + SwiftUI app)
 ├── android/    GlassLink for Android: fork of KDE Connect for Android (kept mergeable with upstream)
-├── tools/      make-icon.swift: one drawing for both apps' icons and the README artwork
+├── tools/      make-icon.swift (both apps' icons), make-banner.swift (the animated README banner)
 ├── scripts/    release.sh, package-macos.sh, package-android.sh
 ├── assets/     banner, icon, screenshots
 ├── VERSION     one version number for both apps
@@ -222,7 +222,8 @@ cd android
 ./gradlew assembleDebug   # installs alongside a release build, as io.github.atikulmunna.glasslink.debug
 ```
 
-**Icons:** `swift tools/make-icon.swift` redraws the Mac and Android icons and the README artwork.
+**Artwork:** `swift tools/make-icon.swift` redraws the Mac and Android icons; `swift tools/make-banner.swift`
+redraws the animated banner (install `gifsicle` to keep it small).
 
 ## Releasing
 

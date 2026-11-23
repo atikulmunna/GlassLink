@@ -5,7 +5,7 @@
 //   macos/Resources/AppIcon.icns     macOS icon (squircle with a soft shadow)
 //   android/src/main/res/...         Android adaptive icon (background, foreground, monochrome),
 //                                    legacy launcher PNGs, status-bar icon, in-app logo
-//   assets/icon.png, assets/banner-dark.png, assets/banner-light.png   for the README
+//   assets/icon.png                  the icon on its own
 //
 // Midnight and white, like both apps: a black field, white frosted glass, no colour.
 import AppKit
@@ -280,38 +280,10 @@ func writeAndroidIcon(res: URL, preview: URL?) throws {
     print("Wrote Android icons to \(res.path)")
 }
 
-// MARK: - README artwork
-
-/// A transparent banner that floats on the page: the icon (with its soft shadow), the name, and
-/// one line about GlassLink. `dark` is for dark page backgrounds (white type), otherwise black type.
-func writeBanner(to url: URL, dark: Bool) throws {
-    let width = 1600, height = 520
-    let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: width, pixelsHigh: height, bitsPerSample: 8,
-                               samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
-                               bytesPerRow: 0, bitsPerPixel: 0)!
-    NSGraphicsContext.saveGraphicsState()
-    NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-    NSImage(data: macIcon(size: 680))!.draw(in: NSRect(x: 150, y: 90, width: 340, height: 340))
-    let ink = dark ? NSColor.white : NSColor.black
-    NSAttributedString(string: "GlassLink", attributes: [
-        .font: NSFont.systemFont(ofSize: 128, weight: .bold), .foregroundColor: ink, .kern: -2.5,
-    ]).draw(at: NSPoint(x: 560, y: 250))
-    NSAttributedString(string: "Your Android phone, on your Mac.", attributes: [
-        .font: NSFont.systemFont(ofSize: 46, weight: .regular), .foregroundColor: ink.withAlphaComponent(0.7),
-    ]).draw(at: NSPoint(x: 566, y: 178))
-    NSAttributedString(string: "macOS  ·  Android  ·  open source", attributes: [
-        .font: NSFont.systemFont(ofSize: 28, weight: .medium), .foregroundColor: ink.withAlphaComponent(0.45), .kern: 1.5,
-    ]).draw(at: NSPoint(x: 568, y: 118))
-    NSGraphicsContext.restoreGraphicsState()
-    try rep.representation(using: .png, properties: [:])!.write(to: url)
-}
-
 // MARK: - Main
 
 let assets = repo.appendingPathComponent("assets")
 try FileManager.default.createDirectory(at: assets, withIntermediateDirectories: true)
 try writeMacIcon(preview: assets.appendingPathComponent("icon.png"))
 try writeAndroidIcon(res: repo.appendingPathComponent("android/src/main/res"), preview: nil)
-try writeBanner(to: assets.appendingPathComponent("banner-dark.png"), dark: true)
-try writeBanner(to: assets.appendingPathComponent("banner-light.png"), dark: false)
-print("Wrote assets/icon.png, assets/banner-dark.png and assets/banner-light.png")
+print("Wrote assets/icon.png (the README banner is tools/make-banner.swift)")

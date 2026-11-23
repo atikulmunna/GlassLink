@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.1
+
+A small update to 0.1.0.
+
+**Downloads:** `GlassLink-0.1.1.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.1.1.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. The Android app
+installs over 0.1.0 and keeps your pairing.
+
+### GlassLink for Mac
+
+- The sidebar icons are white in dark mode and black in light mode. macOS 27 was colouring them with
+  the system accent colour, which didn't fit the midnight-and-white design.
+
+### GlassLink for Android
+
+- No changes besides the version number.
+
 ## 0.1.0
 
 The first release of GlassLink: a native Mac app and an Android companion that bring your phone to

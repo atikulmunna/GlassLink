@@ -10,6 +10,10 @@ import KDEConnectKit
 enum DemoData {
     static var isEnabled: Bool { ProcessInfo.processInfo.environment["GLASSLINK_DEMO"] != nil }
     static var isScreenshotMode: Bool { ProcessInfo.processInfo.environment["GLASSLINK_SCREENSHOT"] != nil }
+    /// In screenshot mode the Mac calls itself this, and shows this address for the phone.
+    static let sampleMacName = "MacBook Pro"
+    static let sampleAddress = "192.168.1.42"
+
     /// Demo or screenshot mode: sample content, and `GLASSLINK_SECTION` picks the first screen.
     static var showsSampleContent: Bool { isEnabled || isScreenshotMode }
 

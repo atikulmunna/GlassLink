@@ -61,7 +61,9 @@ final class AppModel {
         supportDirectory = base.appendingPathComponent("GlassLink", isDirectory: true)
         try? FileManager.default.createDirectory(at: supportDirectory, withIntermediateDirectories: true)
         trust = TrustStore(directory: supportDirectory)
-        localName = UserDefaults.standard.string(forKey: "deviceName") ?? Host.current().localizedName ?? "Mac"
+        localName = DemoData.isScreenshotMode
+            ? DemoData.sampleMacName // what the phone shows in screenshots; nothing is saved
+            : UserDefaults.standard.string(forKey: "deviceName") ?? Host.current().localizedName ?? "Mac"
         selectedDeviceId = UserDefaults.standard.string(forKey: "selectedDevice")
         if DemoData.isEnabled {
             // Only the pretend phone: never show or touch real paired devices.

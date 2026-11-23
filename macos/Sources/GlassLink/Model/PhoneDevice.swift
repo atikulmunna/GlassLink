@@ -77,7 +77,8 @@ final class PhoneDevice: Identifiable {
     var isPaired: Bool { pairState == .paired }
     var isReady: Bool { isConnected && isPaired }
     var unreadNotifications: Int { notifications.count }
-    var remoteHost: String? { link?.remoteHost }
+    /// The phone's address, for display (screenshot mode shows a made-up one).
+    var remoteHost: String? { DemoData.isScreenshotMode ? DemoData.sampleAddress : link?.remoteHost }
 
     var symbolName: String {
         switch type {

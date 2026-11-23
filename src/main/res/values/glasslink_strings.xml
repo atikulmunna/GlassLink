@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL -->
+<resources>
+    <string name="pref_plugin_glasslink_screenshots">Instant screenshots</string>
+    <string name="pref_plugin_glasslink_screenshots_desc">Send each screenshot to your Mac the moment you take it</string>
+    <string name="pref_plugin_glasslink_image_clipboard">Image copy and paste</string>
+    <string name="pref_plugin_glasslink_image_clipboard_desc">Copy an image on one device and paste it on the other</string>
+    <string name="pref_plugin_glasslink_wallpaper">Wallpaper</string>
+    <string name="pref_plugin_glasslink_wallpaper_desc">Show your phone\'s wallpaper on your Mac</string>
+    <string name="glasslink_get_mac_clipboard">Get Mac\'s clipboard</string>
+    <string name="glasslink_connected_wifi">Connected over Wi-Fi</string>
+    <string name="glasslink_needs_permission">Needs a permission</string>
+    <string name="glasslink_optional_permission">Works better with a permission</string>
+    <string name="pref_plugin_glasslink_quick_actions">Quick actions</string>
+    <string name="pref_plugin_glasslink_quick_actions_desc">Ring or ping your Mac from the device screen</string>
+    <string name="glasslink_ring">Ring</string>
+    <string name="glasslink_ping">Ping</string>
+    <string name="glasslink_finish_setup">Finish setting up</string>
+    <string name="glasslink_optional_extras">Optional extras</string>
+</resources>

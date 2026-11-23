@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL -->
+<!-- GlassLink midnight palette for the classic (non-Compose) screens; mirrors GlassLinkPalette.kt. -->
+<resources>
+    <color name="gl_primary">#000000</color>
+    <color name="gl_on_primary">#FFFFFF</color>
+    <color name="gl_primary_container">#EDEDED</color>
+    <color name="gl_on_primary_container">#000000</color>
+    <color name="gl_secondary">#1A1A1A</color>
+    <color name="gl_secondary_container">#E8E8E8</color>
+    <color name="gl_on_secondary_container">#000000</color>
+    <color name="gl_background">#FFFFFF</color>
+    <color name="gl_surface">#FFFFFF</color>
+    <color name="gl_on_surface">#0A0A0A</color>
+    <color name="gl_on_surface_variant">#666666</color>
+    <color name="gl_surface_container_low">#FAFAFA</color>
+    <color name="gl_surface_container">#F5F5F5</color>
+    <color name="gl_surface_container_high">#EFEFEF</color>
+    <color name="gl_surface_container_highest">#E8E8E8</color>
+    <color name="gl_outline">#BDBDBD</color>
+    <color name="gl_outline_variant">#E3E3E3</color>
+</resources>

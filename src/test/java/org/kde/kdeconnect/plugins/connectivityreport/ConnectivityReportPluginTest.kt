@@ -1,0 +1,189 @@
+package org.kde.kdeconnect.plugins.connectivityreport
+
+import android.app.Application
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.unmockkObject
+import io.mockk.verify
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.kde.kdeconnect.Device
+import org.kde.kdeconnect.NetworkPacket
+
+@RunWith(AndroidJUnit4::class)
+class ConnectivityReportPluginTest {
+
+    private lateinit var plugin: ConnectivityReportPlugin
+    private lateinit var context: Context
+    private lateinit var device: Device
+    private var packet: NetworkPacket? = null
+
+    @Before
+    fun setup() {
+        context = ApplicationProvider.getApplicationContext<Application>()
+
+        device = mockk {
+            val packetSlot = slot<NetworkPacket>()
+            every { sendPacket(capture(packetSlot)) } answers {
+                packet = packetSlot.captured
+            }
+            every { onPluginsChanged() } returns Unit
+        }
+
+        plugin = ConnectivityReportPlugin().also {
+            it.setContext(context, device)
+        }
+    }
+
+    @After
+    fun cleanup() {
+        packet = null
+        unmockkObject(ConnectivityListener.Companion)
+    }
+
+    // LOCAL -> REMOTE
+
+    @Test
+    fun testSendsEmptyReportWhenStatesEmpty() {
+        plugin.listener.statesChanged(emptyMap())
+
+        val signalStrengths = checkNotNull(packet).getJsonObject("signalStrengths")!!
+        assertTrue(signalStrengths.isEmpty())
+    }
+
+    @Test
+    fun testSendsConnectivityStateSingle() {
+        val subState = ConnectivityListener.SubscriptionState(signalStrength = 3, networkType = "4G")
+
+        plugin.listener.statesChanged(mapOf(6 to subState))
+
+        val sent = checkNotNull(packet)
+
+        assertEquals("kdeconnect.connectivity_report", sent.type)
+
+        val signalStrengths = sent.getJsonObject("signalStrengths")!!
+        val subInfo = signalStrengths.getValue("6").jsonObject
+        assertEquals("4G", subInfo.getValue("networkType").jsonPrimitive.content)
+        assertEquals(3, subInfo.getValue("signalStrength").jsonPrimitive.int)
+        assertFalse(subInfo.containsKey("name"))
+        assertFalse(subInfo.containsKey("slot"))
+    }
+
+    @Test
+    fun testSendsConnectivityStateMultiple() {
+        val subState1 = ConnectivityListener.SubscriptionState(
+            signalStrength = 4, networkType = "5G", name = "Vodafone", slot = 1
+        )
+        val subState2 = ConnectivityListener.SubscriptionState(
+            signalStrength = 2, networkType = "HSPA", name = "Telekom", slot = 2
+        )
+
+        plugin.listener.statesChanged(mapOf(6 to subState1, 17 to subState2))
+
+        val sent = checkNotNull(packet)
+
+        val signalStrengths = sent.getJsonObject("signalStrengths")!!
+        val subInfo1 = signalStrengths.getValue("6").jsonObject
+        val subInfo2 = signalStrengths.getValue("17").jsonObject
+
+        assertEquals("5G", subInfo1.getValue("networkType").jsonPrimitive.content)
+        assertEquals(4, subInfo1.getValue("signalStrength").jsonPrimitive.int)
+        assertEquals("Vodafone", subInfo1.getValue("name").jsonPrimitive.content)
+        assertEquals(1, subInfo1.getValue("slot").jsonPrimitive.int)
+
+        assertEquals("HSPA", subInfo2.getValue("networkType").jsonPrimitive.content)
+        assertEquals(2, subInfo2.getValue("signalStrength").jsonPrimitive.int)
+        assertEquals("Telekom", subInfo2.getValue("name").jsonPrimitive.content)
+        assertEquals(2, subInfo2.getValue("slot").jsonPrimitive.int)
+    }
+
+    @Test
+    fun testSendsEmptyReportWhenAllSubscriptionsOff() {
+        plugin.listener.statesChanged(mapOf(6 to ConnectivityListener.SubscriptionState(isOff = true)))
+
+        val signalStrengths = checkNotNull(packet).getJsonObject("signalStrengths")!!
+        assertTrue(signalStrengths.isEmpty())
+        verify(exactly = 1) { device.sendPacket(any()) }
+    }
+
+    @Test
+    fun testOmitsPoweredOffSubscriptions() {
+        val activeState = ConnectivityListener.SubscriptionState(signalStrength = 3, networkType = "4G")
+        val offState = ConnectivityListener.SubscriptionState(isOff = true)
+
+        plugin.listener.statesChanged(mapOf(6 to activeState, 17 to offState))
+
+        val signalStrengths = checkNotNull(packet).getJsonObject("signalStrengths")!!
+        assertEquals(setOf("6"), signalStrengths.keys)
+        val subInfo = signalStrengths.getValue("6").jsonObject
+        assertEquals("4G", subInfo.getValue("networkType").jsonPrimitive.content)
+        assertEquals(3, subInfo.getValue("signalStrength").jsonPrimitive.int)
+    }
+
+    // REMOTE -> LOCAL
+
+    @Test
+    fun testReceivesConnectivityReportPacket() {
+        val np = NetworkPacket("kdeconnect.connectivity_report").apply {
+            val signalStrengths =  buildJsonObject {
+                val sub1 = buildJsonObject {
+                    put("networkType", JsonPrimitive("5G"))
+                    put("signalStrength", JsonPrimitive(4))
+                }
+                val sub2 = buildJsonObject {
+                    put("networkType", JsonPrimitive("LTE"))
+                    put("signalStrength", JsonPrimitive(2))
+                }
+                put("1", sub1)
+                put("2", sub2)
+            }
+            set("signalStrengths", signalStrengths)
+        }
+
+        val handled = plugin.onPacketReceived(np)
+        org.junit.Assert.assertTrue(handled)
+
+        val info = plugin.remoteConnectivityInfo
+        assertEquals(2, info.size)
+        assertEquals("5G", info["1"]?.networkType)
+        assertEquals(4, info["1"]?.signalStrength)
+        assertEquals("LTE", info["2"]?.networkType)
+        assertEquals(2, info["2"]?.signalStrength)
+
+        verify(exactly = 1) { device.onPluginsChanged() }
+    }
+
+    @Test
+    fun testIgnoresOtherPacketTypes() {
+        assertFalse(plugin.onPacketReceived(NetworkPacket("some.other.type")))
+        verify(exactly = 0) { device.onPluginsChanged() }
+    }
+
+    @Test
+    fun testRegistersAndUnregistersStateListener() {
+        val connectivityListener = mockk<ConnectivityListener>(relaxed = true)
+
+        io.mockk.mockkObject(ConnectivityListener.Companion)
+        every { ConnectivityListener.getInstance(context) } returns connectivityListener
+
+        plugin.onCreate()
+        verify(exactly = 1) { connectivityListener.listenStateChanges(plugin.listener) }
+
+        plugin.onDestroy()
+        verify(exactly = 1) { connectivityListener.cancelActiveListener(plugin.listener) }
+    }
+}

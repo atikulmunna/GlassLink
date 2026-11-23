@@ -54,6 +54,12 @@ final class AppModel {
     @ObservationIgnored let macScreenshots = MacScreenshotWatcher()
     @ObservationIgnored private var pathMonitor: NWPathMonitor?
     @ObservationIgnored private var heartbeat: Task<Void, Never>?
+    @ObservationIgnored private var networkAddresses: Set<String>?
+
+    enum NotificationPermission { case allowed, notAsked, off }
+    /// Whether macOS lets GlassLink show banners. Without them, phone notifications and calls only
+    /// appear inside the app, so the Overview says so.
+    var notificationPermission = NotificationPermission.allowed
     @ObservationIgnored private var findMacSound: NSSound?
 
     private init() {
@@ -156,6 +162,14 @@ final class AppModel {
         NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { _ in
             Task { @MainActor in AppModel.shared.rediscover() }
         }
+        // Coming back to the app (perhaps from System Settings or the phone): re-check what's allowed.
+        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
+            Task { @MainActor in
+                let app = AppModel.shared
+                app.notifier.refreshPermission()
+                for device in app.pairedDevices where device.isReady { device.requestSetupStatus() }
+            }
+        }
     }
 
     func stop() {
@@ -187,18 +201,46 @@ final class AppModel {
 
     private func watchNetwork() {
         let monitor = NWPathMonitor()
-        var isFirstUpdate = true
         monitor.pathUpdateHandler = { path in
-            // The first update is the current network, not a change; we just broadcast at launch.
-            defer { isFirstUpdate = false }
-            guard path.status == .satisfied, !isFirstUpdate else { return }
-            Task { @MainActor in
-                try? await Task.sleep(for: .seconds(1))
-                AppModel.shared.rediscover()
+            guard path.status == .satisfied else { return }
+            MainActor.assumeIsolated { AppModel.shared.networkPathUpdated() }
+        }
+        monitor.start(queue: .main)
+        pathMonitor = monitor
+    }
+
+    /// macOS reports path updates every few seconds without anything changing. Announcing on each
+    /// one made the phone drop its connection and reconnect, losing whatever was in flight (calls,
+    /// notifications), so only announce when this Mac's addresses really changed. The first update
+    /// is the current network: we already announced at launch.
+    private func networkPathUpdated() {
+        let addresses = Self.localIPv4Addresses()
+        defer { networkAddresses = addresses }
+        guard let previous = networkAddresses, previous != addresses else { return }
+        trace("network changed: \(addresses.sorted().joined(separator: ", "))")
+        Task {
+            try? await Task.sleep(for: .seconds(1))
+            rediscover()
+        }
+    }
+
+    /// This Mac's IPv4 addresses, as "interface=address".
+    nonisolated static func localIPv4Addresses() -> Set<String> {
+        var result = Set<String>()
+        var list: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&list) == 0, let first = list else { return result }
+        defer { freeifaddrs(list) }
+        for entry in sequence(first: first, next: { $0.pointee.ifa_next }) {
+            let flags = Int32(entry.pointee.ifa_flags)
+            guard let address = entry.pointee.ifa_addr, address.pointee.sa_family == UInt8(AF_INET),
+                  flags & IFF_UP != 0, flags & IFF_LOOPBACK == 0
+            else { continue }
+            var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+            if getnameinfo(address, socklen_t(address.pointee.sa_len), &host, socklen_t(host.count), nil, 0, NI_NUMERICHOST) == 0 {
+                result.insert("\(String(cString: entry.pointee.ifa_name))=\(String(cString: host))")
             }
         }
-        monitor.start(queue: .global(qos: .utility))
-        pathMonitor = monitor
+        return result
     }
 
     // MARK: Devices
@@ -287,7 +329,7 @@ final class AppModel {
             PacketType.contactsResponseUIDs, PacketType.contactsResponseVCards,
             PacketType.findMyPhone, PacketType.sftp,
             PacketType.glasslinkScreenshot, PacketType.glasslinkClipboardImage, PacketType.glasslinkWallpaper,
-            PacketType.glasslinkClipboardRequest, PacketType.glasslinkMirror,
+            PacketType.glasslinkClipboardRequest, PacketType.glasslinkMirror, PacketType.glasslinkSetup,
         ],
         outgoing: [
             PacketType.ping, PacketType.clipboard, PacketType.clipboardConnect,
@@ -298,7 +340,7 @@ final class AppModel {
             PacketType.contactsRequestAllUIDs, PacketType.contactsRequestVCards,
             PacketType.sftpRequest, PacketType.glasslinkClipboardImage,
             PacketType.glasslinkClipboardRequest, PacketType.glasslinkWallpaperRequest,
-            PacketType.glasslinkMirrorRequest, PacketType.glasslinkMirrorInput,
+            PacketType.glasslinkMirrorRequest, PacketType.glasslinkMirrorInput, PacketType.glasslinkSetupRequest,
         ]
     )
 

@@ -51,6 +51,10 @@ final class PhoneDevice: Identifiable {
     @ObservationIgnored private var lastSync: Date?
     @ObservationIgnored private var screenshotWatcher: PhoneScreenshotWatcher?
     @ObservationIgnored var fileServerFailures = 0
+    /// Features waiting for a permission on the phone ("Finish setting up"), as the phone names them.
+    var setupMissing: [String] = []
+    /// Features running without an optional permission (for example calls without contact names).
+    var setupLimited: [String] = []
     /// Phone screen mirroring (GlassLink for Android).
     @ObservationIgnored lazy var mirror = MirrorController(device: self)
 
@@ -195,6 +199,7 @@ final class PhoneDevice: Identifiable {
             return
         }
         send(NetworkPacket(type: PacketType.notificationRequest, body: ["request": true]))
+        requestSetupStatus()
         requestConversations()
         send(NetworkPacket(type: PacketType.contactsRequestAllUIDs))
         if link?.info.outgoingCapabilities.contains(PacketType.glasslinkWallpaper) == true {
@@ -361,6 +366,10 @@ final class PhoneDevice: Identifiable {
             receiveWallpaper(packet)
         case PacketType.glasslinkMirror:
             mirror.receive(packet)
+        case PacketType.glasslinkSetup:
+            setupMissing = packet["missing"]?.array?.compactMap(\.string) ?? []
+            setupLimited = packet["limited"]?.array?.compactMap(\.string) ?? []
+            trace("\(name) setup: missing [\(setupMissing.joined(separator: ", "))], limited [\(setupLimited.joined(separator: ", "))]")
         case PacketType.glasslinkClipboardRequest:
             sendClipboard() // the phone tapped "Get Mac's clipboard"
         default:
@@ -586,6 +595,12 @@ final class PhoneDevice: Identifiable {
                 appTrace("wallpaper download failed: \(error)")
             }
         }
+    }
+
+    /// Asks the phone which features still need a permission; `show` also opens its setup screen.
+    func requestSetupStatus(show: Bool = false) {
+        guard isReady, link?.info.outgoingCapabilities.contains(PacketType.glasslinkSetup) == true else { return }
+        send(NetworkPacket(type: PacketType.glasslinkSetupRequest, body: show ? ["show": true] : [:]))
     }
 
     /// The phone can share its screen (GlassLink for Android).

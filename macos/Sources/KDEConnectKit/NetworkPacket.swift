@@ -128,4 +128,8 @@ public enum PacketType {
     public static let glasslinkMirror = "glasslink.mirror"
     public static let glasslinkMirrorRequest = "glasslink.mirror.request"
     public static let glasslinkMirrorInput = "glasslink.mirror.input"
+    /// Which features are still waiting for a permission on the phone (`missing`, `limited`); the
+    /// Mac asks with `glasslink.setup.request` (`show`: true opens the phone's setup screen).
+    public static let glasslinkSetup = "glasslink.setup"
+    public static let glasslinkSetupRequest = "glasslink.setup.request"
 }

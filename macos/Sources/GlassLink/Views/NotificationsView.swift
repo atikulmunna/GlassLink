@@ -10,7 +10,7 @@ struct NotificationsView: View {
                     Label("No Notifications", systemImage: "bell.slash")
                 } description: {
                     Text(device.isConnected
-                        ? "New notifications from \(device.name) appear here. If none arrive, allow notification access for KDE Connect in the phone's settings."
+                        ? "New notifications from \(device.name) appear here. If none arrive, allow notification access for GlassLink in the phone's settings."
                         : "Connect \(device.name) to see its notifications.")
                 }
             } else {

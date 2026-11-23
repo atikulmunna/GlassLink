@@ -175,6 +175,9 @@ public final class LanLinkProvider: @unchecked Sendable {
         let (udp, identity, port, hosts) = state.withLockedValue { ($0.udp, $0.identity, $0.tcpPort, $0.customHosts) }
         guard let udp, let data = try? identity.discoveryPacket(tcpPort: port).serialized() else { return }
 
+        // 255.255.255.255 plus each interface's subnet broadcast. Phones may hear this twice, and
+        // Android reconnects on every announcement it hears, so callers only announce when a phone
+        // is missing or the network really changed, never while everything is connected.
         var targets: [String] = ["255.255.255.255"]
         for device in (try? System.enumerateDevices()) ?? [] {
             guard let broadcast = device.broadcastAddress, case .v4 = broadcast, let ip = broadcast.ipAddress else { continue }

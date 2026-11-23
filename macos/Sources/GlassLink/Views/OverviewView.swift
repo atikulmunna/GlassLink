@@ -9,6 +9,7 @@ struct OverviewView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 hero
+                SetupNotices(device: device)
                 HStack(alignment: .top, spacing: 18) {
                     recentNotifications
                     recentMessages
@@ -18,6 +19,8 @@ struct OverviewView: View {
             .frame(maxWidth: 1100)
             .frame(maxWidth: .infinity)
         }
+        .animation(.glass, value: device.setupMissing)
+        .animation(.glass, value: model.notificationPermission)
         .background(alignment: .top) { HeroBackdrop(connected: device.isConnected) }
         .navigationTitle(device.name)
         .toolbar {

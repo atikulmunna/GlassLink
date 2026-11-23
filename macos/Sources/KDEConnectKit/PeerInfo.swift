@@ -6,7 +6,7 @@ let lanLog = Logger(subsystem: "io.github.atikulmunna.glasslink", category: "lan
 /// `GLASSLINK_TRACE=1` also prints protocol events to stderr (handy under `swift test`).
 let traceEnabled = ProcessInfo.processInfo.environment["GLASSLINK_TRACE"] != nil
 
-func trace(_ message: @autoclosure () -> String) {
+public func trace(_ message: @autoclosure () -> String) {
     guard traceEnabled else { return }
     FileHandle.standardError.write(Data(("[kdeconnect] " + message() + "\n").utf8))
 }

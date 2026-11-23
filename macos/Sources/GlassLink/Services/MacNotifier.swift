@@ -48,7 +48,38 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
                 UNNotificationAction(identifier: Action.reveal, title: "Show in Finder", options: [.foreground]),
             ], intentIdentifiers: []),
         ])
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
+            Task { @MainActor in self.refreshPermission() }
+        }
+    }
+
+    /// Reads whether banners are allowed (the user may have declined, or never answered, the prompt).
+    func refreshPermission() {
+        guard let center else { return }
+        center.getNotificationSettings { settings in
+            let permission: AppModel.NotificationPermission
+            switch settings.authorizationStatus {
+            case .notDetermined: permission = .notAsked
+            case .denied: permission = .off
+            default: permission = settings.alertSetting == .disabled ? .off : .allowed
+            }
+            trace("Mac notifications: \(permission)")
+            Task { @MainActor in self.app?.notificationPermission = permission }
+        }
+    }
+
+    /// Asks again if macOS never got an answer; otherwise opens GlassLink in System Settings › Notifications.
+    func fixPermission() {
+        if app?.notificationPermission == .notAsked, let center {
+            center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
+                Task { @MainActor in self.refreshPermission() }
+            }
+            return
+        }
+        let id = Bundle.main.bundleIdentifier ?? ""
+        if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=\(id)") {
+            NSWorkspace.shared.open(url)
+        }
     }
 
     // MARK: Posting
@@ -95,7 +126,6 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
         content.title = "Incoming call"
         content.body = name == number || number.isEmpty ? name : "\(name) · \(number)"
         content.sound = .default
-        content.interruptionLevel = .timeSensitive
         content.categoryIdentifier = Category.call
         content.userInfo = ["device": device.id]
         add(content, id: "call/\(device.id)")
@@ -115,7 +145,9 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
     }
 
     private func add(_ content: UNMutableNotificationContent, id: String) {
-        center?.add(UNNotificationRequest(identifier: id, content: content, trigger: nil))
+        center?.add(UNNotificationRequest(identifier: id, content: content, trigger: nil)) { error in
+            if let error { trace("notification not shown: \(error)") }
+        }
     }
 
     private static func notificationKey(_ deviceId: String, _ id: String) -> String { "n/\(deviceId)/\(id)" }

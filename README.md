@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.gif">
-    <img src="assets/banner-light.gif" alt="GlassLink: a MacBook writing hello and an Android phone, joined by a handshake" width="480">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/greeting-dark.gif">
+    <img src="assets/greeting-light.gif" alt="GlassLink: a MacBook writing hello and an Android phone, joined by a handshake" width="480">
   </picture>
 </p>
 

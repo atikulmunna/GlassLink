@@ -1,6 +1,6 @@
 // Draws the README's animated banner: a MacBook writing "hello" (as in GlassLink for Android), a
 // handshake, and an Android phone on which the Android robot assembles itself. No text. Writes
-// assets/banner-dark.gif and assets/banner-light.gif, on backgrounds matching GitHub's dark and
+// assets/greeting-dark.gif and assets/greeting-light.gif, on backgrounds matching GitHub's dark and
 // light themes so the banner seems to float.
 //
 // The Android robot is reproduced or modified from work created and shared by Google and used
@@ -384,7 +384,7 @@ let themes = [
     Theme(name: "light", background: color(0xFFFFFF), handshake: handshakeImage(ink: "#1A1A1A")), // GitHub light
 ]
 for theme in themes {
-    let url = assets.appendingPathComponent("banner-\(theme.name).gif")
+    let url = assets.appendingPathComponent("greeting-\(theme.name).gif")
     try writeGIF(theme, to: url)
     // Optimise: store only what changes between frames.
     let gifsicle = ["/opt/homebrew/bin/gifsicle", "/usr/local/bin/gifsicle"].first { FileManager.default.fileExists(atPath: $0) }
@@ -396,5 +396,5 @@ for theme in themes {
         p.waitUntilExit()
     }
     let size = (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int) ?? 0
-    print("Wrote assets/banner-\(theme.name).gif (\(size / 1024) KB)")
+    print("Wrote assets/greeting-\(theme.name).gif (\(size / 1024) KB)")
 }

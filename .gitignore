@@ -1,0 +1,11 @@
+# Release output
+dist/
+
+# macOS
+.DS_Store
+
+# Android signing secrets never go in the repo (see scripts/release.sh)
+*.jks
+*.keystore
+!android/debug.keystore
+keystore.properties

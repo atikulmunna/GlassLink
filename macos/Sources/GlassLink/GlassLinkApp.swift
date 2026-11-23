@@ -29,11 +29,19 @@ struct GlassLinkApp: App {
                 Button("Get Phone's Clipboard") { model.current?.requestPhoneClipboard() }
                     .disabled(model.current?.supportsClipboardRequest != true)
                 Button("Ping") { model.current?.ping() }
+                MirrorCommand(model: model)
                 Divider()
                 Button("Refresh Connection") { model.refresh() }
                     .keyboardShortcut("r")
             }
         }
+
+        Window("Phone Screen", id: "mirror") {
+            MirrorWindow()
+                .environment(model)
+                .midnightWindow()
+        }
+        .defaultSize(width: 400, height: 860)
 
         MenuBarExtra {
             MenuBarPanel()

@@ -287,7 +287,7 @@ final class AppModel {
             PacketType.contactsResponseUIDs, PacketType.contactsResponseVCards,
             PacketType.findMyPhone, PacketType.sftp,
             PacketType.glasslinkScreenshot, PacketType.glasslinkClipboardImage, PacketType.glasslinkWallpaper,
-            PacketType.glasslinkClipboardRequest,
+            PacketType.glasslinkClipboardRequest, PacketType.glasslinkMirror,
         ],
         outgoing: [
             PacketType.ping, PacketType.clipboard, PacketType.clipboardConnect,
@@ -298,6 +298,7 @@ final class AppModel {
             PacketType.contactsRequestAllUIDs, PacketType.contactsRequestVCards,
             PacketType.sftpRequest, PacketType.glasslinkClipboardImage,
             PacketType.glasslinkClipboardRequest, PacketType.glasslinkWallpaperRequest,
+            PacketType.glasslinkMirrorRequest, PacketType.glasslinkMirrorInput,
         ]
     )
 

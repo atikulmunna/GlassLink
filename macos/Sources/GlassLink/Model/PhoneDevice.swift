@@ -51,6 +51,8 @@ final class PhoneDevice: Identifiable {
     @ObservationIgnored private var lastSync: Date?
     @ObservationIgnored private var screenshotWatcher: PhoneScreenshotWatcher?
     @ObservationIgnored var fileServerFailures = 0
+    /// Phone screen mirroring (GlassLink for Android).
+    @ObservationIgnored lazy var mirror = MirrorController(device: self)
 
     init(trusted: TrustedDevice, app: AppModel) {
         id = trusted.id
@@ -135,6 +137,7 @@ final class PhoneDevice: Identifiable {
         guard self.link === link else { return }
         self.link = nil
         lastSync = nil
+        mirror.linkLost()
         fileServerFailures = 0
         screenshotWatcher?.stop()
         screenshotWatcher = nil
@@ -356,6 +359,8 @@ final class PhoneDevice: Identifiable {
             receivePushedImage(packet, isScreenshot: false)
         case PacketType.glasslinkWallpaper:
             receiveWallpaper(packet)
+        case PacketType.glasslinkMirror:
+            mirror.receive(packet)
         case PacketType.glasslinkClipboardRequest:
             sendClipboard() // the phone tapped "Get Mac's clipboard"
         default:
@@ -582,6 +587,9 @@ final class PhoneDevice: Identifiable {
             }
         }
     }
+
+    /// The phone can share its screen (GlassLink for Android).
+    var supportsMirroring: Bool { link?.info.outgoingCapabilities.contains(PacketType.glasslinkMirror) ?? false }
 
     var supportsClipboardRequest: Bool {
         link?.info.incomingCapabilities.contains(PacketType.glasslinkClipboardRequest) ?? false

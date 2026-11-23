@@ -17,4 +17,11 @@
     <string name="glasslink_ping">Ping</string>
     <string name="glasslink_finish_setup">Finish setting up</string>
     <string name="glasslink_optional_extras">Optional extras</string>
+    <string name="pref_plugin_glasslink_mirror">Screen mirroring</string>
+    <string name="pref_plugin_glasslink_mirror_desc">Show and control this phone\'s screen from your Mac</string>
+    <string name="glasslink_mirror_request_title">%s wants to mirror your screen</string>
+    <string name="glasslink_mirror_request_text">Tap to choose what to share</string>
+    <string name="glasslink_mirror_notification_title">Sharing your screen with %s</string>
+    <string name="glasslink_mirror_notification_text">Your Mac can see and control what\'s shared</string>
+    <string name="glasslink_mirror_stop">Stop sharing</string>
 </resources>

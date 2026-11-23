@@ -123,4 +123,9 @@ public enum PacketType {
     /// The phone's lock-screen wallpaper (payload: JPEG; body: `colors` as "#RRGGBB").
     public static let glasslinkWallpaper = "glasslink.wallpaper"
     public static let glasslinkWallpaperRequest = "glasslink.wallpaper.request"
+    /// Screen mirroring: the Mac asks (`start`), the phone answers with its state and stream port,
+    /// and the Mac sends touches (`action`: tap, longpress, swipe, back, home, recents).
+    public static let glasslinkMirror = "glasslink.mirror"
+    public static let glasslinkMirrorRequest = "glasslink.mirror.request"
+    public static let glasslinkMirrorInput = "glasslink.mirror.input"
 }

@@ -49,6 +49,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
@@ -211,6 +212,20 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
             android:name="org.kde.kdeconnect.plugins.clipboard.ClipboardFloatingActivity"
             android:theme="@style/Theme.Transparent"
             android:excludeFromRecents="true"/>
+
+        <!-- GlassLink screen mirroring -->
+        <activity
+            android:name="org.kde.kdeconnect.plugins.glasslink.MirrorPermissionActivity"
+            android:theme="@style/Theme.Transparent"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:launchMode="singleTask" />
+
+        <service
+            android:name="org.kde.kdeconnect.plugins.glasslink.MirrorService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
 
         <activity
             android:name="org.kde.kdeconnect.plugins.mpris.MprisActivity"

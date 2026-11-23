@@ -143,6 +143,7 @@ struct EmptyCardText: View {
 /// on hover, bounce when tapped, and pop in one after another when the screen appears.
 struct QuickActions: View {
     var device: PhoneDevice
+    @Environment(\.openWindow) private var openWindow
     @State private var rang = 0
     @State private var sentFiles = 0
     @State private var sentClipboard = 0
@@ -179,6 +180,11 @@ struct QuickActions: View {
                 GlassActionButton(title: "Ping", symbol: "hand.wave", trigger: pinged, index: 3, appeared: appeared) {
                     device.ping()
                     pinged += 1
+                }
+                if device.supportsMirroring {
+                    GlassActionButton(title: "Mirror", symbol: "rectangle.on.rectangle", trigger: 0, index: 4, appeared: appeared) {
+                        openWindow(id: "mirror")
+                    }
                 }
             }
         }

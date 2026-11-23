@@ -102,15 +102,7 @@ struct MenuBarPanel: View {
     }
 
     private func small(_ title: String, _ symbol: String, run: @escaping () -> Void) -> some View {
-        Button(action: run) {
-            VStack(spacing: 4) {
-                Image(systemName: symbol).font(.system(size: 14, weight: .medium)).frame(height: 18)
-                Text(title).font(.caption2)
-            }
+        GlassActionButton(title: title, symbol: symbol, trigger: 0, size: 40, action: run)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-        }
-        .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 14))
     }
 }

@@ -139,26 +139,30 @@ struct EmptyCardText: View {
     }
 }
 
-/// The big round buttons under the device name. They share one glass container so they
-/// blend into each other as the window resizes.
+/// The round Liquid Glass buttons under the device name. They share one glass container, spring
+/// on hover, bounce when tapped, and pop in one after another when the screen appears.
 struct QuickActions: View {
     var device: PhoneDevice
     @State private var rang = 0
+    @State private var sentFiles = 0
     @State private var sentClipboard = 0
+    @State private var pinged = 0
     @State private var clipboardNote: String?
+    @State private var appeared = false
 
     var body: some View {
-        GlassEffectContainer(spacing: 14) {
-            HStack(spacing: 14) {
-                action("Ring", symbol: "bell.and.waves.left.and.right", trigger: rang) {
+        GlassEffectContainer(spacing: 12) {
+            HStack(spacing: 20) {
+                GlassActionButton(title: "Ring", symbol: "bell.and.waves.left.and.right", trigger: rang, index: 0, appeared: appeared) {
                     device.ring()
                     rang += 1
                 }
-                action("Send Files", symbol: "square.and.arrow.up", trigger: 0) {
+                GlassActionButton(title: "Send Files", symbol: "square.and.arrow.up", trigger: sentFiles, index: 1, appeared: appeared) {
+                    sentFiles += 1
                     FilePicker.sendFiles(to: device)
                 }
-                action(clipboardNote ?? "Clipboard", symbol: clipboardNote == nil ? "doc.on.clipboard" : "checkmark",
-                       trigger: sentClipboard) {
+                GlassActionButton(title: clipboardNote ?? "Clipboard", symbol: clipboardNote == nil ? "doc.on.clipboard" : "checkmark",
+                                  trigger: sentClipboard, index: 2, appeared: appeared) {
                     let result = device.sendClipboard()
                     sentClipboard += 1
                     note(result == .nothing ? "Empty" : "Sent")
@@ -172,10 +176,14 @@ struct QuickActions: View {
                         }
                     }
                 }
-                action("Ping", symbol: "hand.wave", trigger: 0) { device.ping() }
+                GlassActionButton(title: "Ping", symbol: "hand.wave", trigger: pinged, index: 3, appeared: appeared) {
+                    device.ping()
+                    pinged += 1
+                }
             }
         }
         .disabled(!device.isReady)
+        .onAppear { appeared = true }
     }
 
     private func note(_ text: String) {
@@ -185,23 +193,47 @@ struct QuickActions: View {
             withAnimation(.glass) { clipboardNote = nil }
         }
     }
+}
 
-    private func action(_ title: String, symbol: String, trigger: Int, run: @escaping () -> Void) -> some View {
-        Button(action: run) {
-            VStack(spacing: 6) {
+/// One round glass button with its label underneath.
+struct GlassActionButton: View {
+    var title: String
+    var symbol: String
+    var trigger: Int
+    var index = 0
+    var appeared = true
+    var size: CGFloat = 52
+    var action: () -> Void
+
+    @Environment(\.isEnabled) private var isEnabled
+    @State private var hovering = false
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Button(action: action) {
                 Image(systemName: symbol)
-                    .font(.system(size: 18, weight: .medium))
-                    .symbolEffect(.bounce, value: trigger)
+                    .font(.system(size: size * 0.36, weight: .medium))
+                    .symbolEffect(.bounce.up, value: trigger)
                     .contentTransition(.symbolEffect(.replace))
-                    .frame(width: 44, height: 44)
-                Text(title).font(.caption.weight(.medium))
-                    .contentTransition(.opacity)
+                    .frame(width: size, height: size)
+                    .contentShape(.circle)
             }
-            .frame(width: 74)
-            .padding(.vertical, 6)
+            .buttonStyle(.plain)
+            .glassEffect(.regular.interactive(), in: .circle)
+            .scaleEffect(hovering ? 1.08 : 1)
+            .onHover { over in hovering = over && isEnabled }
+            .animation(.spring(duration: 0.35, bounce: 0.45), value: hovering)
+
+            Text(title)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .contentTransition(.opacity)
         }
-        .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 18))
+        .frame(minWidth: size + 18)
+        .opacity(appeared ? 1 : 0)
+        .scaleEffect(appeared ? 1 : 0.6)
+        .animation(.spring(duration: 0.5, bounce: 0.35).delay(Double(index) * 0.06), value: appeared)
         .help(title)
     }
 }

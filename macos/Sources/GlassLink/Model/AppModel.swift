@@ -134,15 +134,20 @@ final class AppModel {
         // Phones only see broadcasts sent while they're listening, so keep announcing
         // while a paired phone is away (cheap: one small UDP packet per network).
         heartbeat = Task { [weak self] in
+            // Android reconnects every time it hears a broadcast, even when already connected, so
+            // announce sparingly: 15 s, then doubling up to 5 min while a paired phone is missing.
+            // A phone that comes back announces itself anyway.
+            var delay = 15.0
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(15))
+                try? await Task.sleep(for: .seconds(delay))
                 guard let self else { return }
-                // A phone that hears us reconnects even when already connected, so stay quiet
-                // unless a paired phone is missing or nothing is connected at all.
                 let pairedMissing = self.pairedDevices.contains { !$0.isConnected }
                 let nothingConnected = !self.devices.values.contains { $0.isConnected }
                 if pairedMissing || nothingConnected {
                     self.provider?.broadcast()
+                    delay = min(delay * 2, 300)
+                } else {
+                    delay = 15
                 }
             }
         }

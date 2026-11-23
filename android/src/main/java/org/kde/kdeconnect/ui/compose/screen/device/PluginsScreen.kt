@@ -8,6 +8,12 @@
 package org.kde.kdeconnect.ui.compose.screen.device
 
 import androidx.compose.animation.core.Spring
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -155,75 +161,119 @@ private fun PluginButtons(
     numColumns: Int,
     onButtonClick: (Plugin.PluginUiButton) -> Unit
 ) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        buttons.chunked(numColumns).forEach { row ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                row.forEach { button ->
-                    PluginButton(button = button, modifier = Modifier.weight(1f), onClick = { onButtonClick(button) })
+    // Round glass buttons, four to a row, like the Mac app's quick actions.
+    var appeared by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { appeared = true }
+    val perRow = maxOf(4, numColumns)
+    Column(
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+    ) {
+        buttons.chunked(perRow).forEachIndexed { rowIndex, row ->
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                row.forEachIndexed { i, button ->
+                    GlassCircleButton(
+                        button = button,
+                        index = rowIndex * perRow + i,
+                        appeared = appeared,
+                        modifier = Modifier.weight(1f),
+                        onClick = { onButtonClick(button) },
+                    )
                 }
-                repeat(numColumns - row.size) { Spacer(modifier = Modifier.weight(1f)) }
+                repeat(perRow - row.size) { Spacer(modifier = Modifier.weight(1f)) }
             }
         }
     }
 }
 
-/** An action tile, like the Mac's quick actions: white icon on a dark disc, springy press. */
+/** Frosted glass disc: translucent fill brighter at the top, a thin light rim, springy press. */
 @Composable
-private fun PluginButton(
+private fun GlassCircleButton(
     button: Plugin.PluginUiButton,
+    index: Int,
+    appeared: Boolean,
     modifier: Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val ink = scheme.onSurface
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.95f else 1f,
-        animationSpec = spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessMedium),
+    val pressScale by animateFloatAsState(
+        targetValue = if (pressed) 0.9f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium),
         label = "press",
     )
-    val shape = RoundedCornerShape(24.dp)
+    val enter by animateFloatAsState(
+        targetValue = if (appeared) 1f else 0f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow),
+        label = "enter",
+    )
+    // The icon pops each time the button is tapped.
+    val pop = remember { Animatable(1f) }
+    var taps by remember { mutableIntStateOf(0) }
+    LaunchedEffect(taps) {
+        if (taps > 0) {
+            pop.animateTo(1.25f, spring(dampingRatio = 0.4f, stiffness = Spring.StiffnessHigh))
+            pop.animateTo(1f, spring(dampingRatio = 0.45f, stiffness = Spring.StiffnessMediumLow))
+        }
+    }
     Column(
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-        modifier = modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .clip(shape)
-            .background(scheme.surfaceContainer)
-            .border(1.dp, scheme.outlineVariant, shape)
-            .clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(), onClick = onClick)
-            .semantics { role = Role.Button }
-            .padding(16.dp)
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = modifier.graphicsLayer {
+            // Staggered entrance: each button arrives a beat after the previous one.
+            val delayed = ((enter * 1.6f) - index * 0.15f).coerceIn(0f, 1f)
+            alpha = delayed
+            scaleX = 0.7f + 0.3f * delayed
+            scaleY = 0.7f + 0.3f * delayed
+        }
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(44.dp)
+                .size(64.dp)
+                .graphicsLayer {
+                    scaleX = pressScale
+                    scaleY = pressScale
+                }
                 .clip(CircleShape)
-                .background(scheme.surfaceContainerHighest)
+                .background(Brush.verticalGradient(listOf(ink.copy(alpha = if (pressed) 0.20f else 0.13f), ink.copy(alpha = 0.04f))))
+                .border(1.dp, Brush.verticalGradient(listOf(ink.copy(alpha = 0.34f), ink.copy(alpha = 0.06f))), CircleShape)
+                .clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(bounded = true)) {
+                    taps++
+                    onClick()
+                }
+                .semantics { role = Role.Button }
         ) {
+            // A soft highlight across the top of the glass.
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .background(Brush.radialGradient(listOf(ink.copy(alpha = 0.10f), Color.Transparent),
+                        center = androidx.compose.ui.geometry.Offset(60f, 30f), radius = 120f))
+            )
             Icon(
                 painter = painterResource(id = button.iconRes),
-                tint = scheme.onSurface,
+                tint = ink,
                 contentDescription = null,
+                modifier = Modifier
+                    .size(26.dp)
+                    .graphicsLayer {
+                        scaleX = pop.value
+                        scaleY = pop.value
+                    },
             )
         }
         Text(
             text = button.name,
             maxLines = 2,
-            minLines = 2,
-            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
+            fontSize = 13.sp,
+            lineHeight = 16.sp,
             fontWeight = FontWeight.Medium,
-            lineHeight = 20.sp,
-            color = scheme.onSurface,
-            overflow = TextOverflow.Ellipsis
+            color = scheme.onSurfaceVariant,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

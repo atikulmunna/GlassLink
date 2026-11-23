@@ -43,7 +43,23 @@ private struct MirrorContent: View {
             .overlay {
                 RoundedRectangle(cornerRadius: 36, style: .continuous)
                     .strokeBorder(.primary.opacity(0.14), lineWidth: 1)
+                    .allowsHitTesting(false)
             }
+            .overlay(alignment: .top) {
+                if controller.inputUnavailable, controller.state == .streaming {
+                    Label("Turn on GlassLink in the phone's Accessibility settings to tap and swipe from here",
+                          systemImage: "hand.tap")
+                        .font(.callout.weight(.medium))
+                        .multilineTextAlignment(.leading)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .glassEffect(.regular, in: .rect(cornerRadius: 16))
+                        .padding(.top, 34)
+                        .padding(.horizontal, 16)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .animation(.glass, value: controller.inputUnavailable)
             .shadow(color: .black.opacity(0.35), radius: 20, y: 10)
             .animation(.glass, value: controller.state)
 
@@ -56,14 +72,6 @@ private struct MirrorContent: View {
             }
             .disabled(controller.state != .streaming)
 
-            if controller.inputUnavailable {
-                Label("To control the phone with your mouse, turn on GlassLink in the phone's Settings › Accessibility.",
-                      systemImage: "hand.tap")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 320)
-            }
         }
         .padding(20)
         .frame(minWidth: 300, idealWidth: 400, maxWidth: .infinity, minHeight: 560, idealHeight: 860, maxHeight: .infinity)

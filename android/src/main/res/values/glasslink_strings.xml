@@ -24,4 +24,6 @@
     <string name="glasslink_mirror_notification_title">Sharing your screen with %s</string>
     <string name="glasslink_mirror_notification_text">Your Mac can see and control what\'s shared</string>
     <string name="glasslink_mirror_stop">Stop sharing</string>
+    <string name="glasslink_mirror_control_title">Let %s control this phone</string>
+    <string name="glasslink_mirror_control_text">To tap and swipe from your Mac, turn on GlassLink in Accessibility settings. If Android says it\'s a restricted setting, first open App info for GlassLink, tap ⋮ and choose Allow restricted settings.</string>
 </resources>

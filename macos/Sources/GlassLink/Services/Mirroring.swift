@@ -41,7 +41,7 @@ final class MirrorController {
 
     func start() {
         guard let device, device.isReady, !isActive else { return }
-        inputUnavailable = false
+        inputUnavailable = false // re-checked on the first touch
         state = .asking
         device.send(NetworkPacket(type: PacketType.glasslinkMirrorRequest, body: ["start": true]))
     }
@@ -288,6 +288,8 @@ final class MirrorNSView: NSView {
 
     override var isFlipped: Bool { true }
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    // Drags here are swipes on the phone, never window moves.
+    override var mouseDownCanMoveWindow: Bool { false }
 
     override func layout() {
         super.layout()

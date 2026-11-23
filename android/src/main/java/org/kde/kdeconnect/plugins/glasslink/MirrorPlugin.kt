@@ -46,6 +46,8 @@ class MirrorPlugin : Plugin() {
     override val supportedPacketTypes: Array<String> = arrayOf(PACKET_TYPE_MIRROR_REQUEST, PACKET_TYPE_MIRROR_INPUT)
     override val outgoingPacketTypes: Array<String> = arrayOf(PACKET_TYPE_MIRROR)
 
+    private var askedForAccessibility = false
+
     override fun onPacketReceived(np: NetworkPacket): Boolean {
         when (np.type) {
             PACKET_TYPE_MIRROR_REQUEST -> if (np.getBoolean("start", true)) askToShare() else MirrorService.stop(context)
@@ -79,6 +81,20 @@ class MirrorPlugin : Plugin() {
         val service = KdeConnectAccessibilityService.instance
         if (service == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             device.sendPacket(NetworkPacket(PACKET_TYPE_MIRROR).apply { this["state"] = "noInput" })
+            if (!askedForAccessibility) {
+                askedForAccessibility = true
+                val settings = PendingIntent.getActivity(context, 1,
+                    Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_IMMUTABLE)
+                val notification = NotificationCompat.Builder(context, NotificationHelper.Channels.HIGHPRIORITY)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentTitle(context.getString(R.string.glasslink_mirror_control_title, device.name))
+                    .setContentText(context.getString(R.string.glasslink_mirror_control_text))
+                    .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.glasslink_mirror_control_text)))
+                    .setContentIntent(settings)
+                    .setAutoCancel(true)
+                    .build()
+                runCatching { NotificationManagerCompat.from(context).notify(CONTROL_NOTIFICATION_ID, notification) }
+            }
             return
         }
         val metrics = DisplayMetrics().also {
@@ -114,6 +130,7 @@ class MirrorPlugin : Plugin() {
         const val PACKET_TYPE_MIRROR_REQUEST = "glasslink.mirror.request"
         const val PACKET_TYPE_MIRROR_INPUT = "glasslink.mirror.input"
         private const val REQUEST_NOTIFICATION_ID = 0x6C6E
+        private const val CONTROL_NOTIFICATION_ID = 0x6C6F
 
         fun reportState(deviceId: String, state: String) {
             KdeConnect.getInstance().getDevice(deviceId)?.sendPacket(NetworkPacket(PACKET_TYPE_MIRROR).apply { this["state"] = state })

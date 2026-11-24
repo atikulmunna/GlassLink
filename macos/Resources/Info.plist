@@ -29,7 +29,7 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>GlassLink finds your Android phone on this network and connects to it with KDE Connect.</string>
+	<string>GlassLink finds your Android phone on this network and connects to it directly, without the internet.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSSupportsAutomaticTermination</key>

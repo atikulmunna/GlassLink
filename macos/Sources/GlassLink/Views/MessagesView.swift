@@ -65,7 +65,7 @@ struct MessagesView: View {
                     Label("No Messages", systemImage: "message.badge")
                 } description: {
                     Text(device.isConnected
-                        ? "Grant KDE Connect permission to read SMS on \(device.name), then reload."
+                        ? "Grant \(device.phoneAppName) permission to read SMS on \(device.name), then reload."
                         : "Connect \(device.name) to load messages.")
                 }
             }

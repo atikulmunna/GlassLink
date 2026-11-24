@@ -15,18 +15,24 @@ struct WelcomeView: View {
                         .symbolEffect(.breathe, options: .repeating)
                     Text("Link Your Android Phone")
                         .font(.system(size: 30, weight: .bold, design: .rounded))
-                    Text("Notifications, messages, calls, files and your clipboard — on your Mac.")
+                    Text("Your phone's screen, notifications, messages, calls, files and clipboard — on your Mac.")
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
                 .padding(.top, 30)
 
                 HStack(alignment: .top, spacing: 16) {
-                    Step(number: 1, title: "Install KDE Connect", detail: "Get it from Google Play or F-Droid on your phone. It's free and open source.")
+                    Step(number: 1, title: "Install GlassLink", detail: "Get GlassLink for Android on your phone. It's free and open source. The original KDE Connect app works too, with fewer features.")
                     Step(number: 2, title: "Same Wi-Fi", detail: "Keep the phone and this Mac on the same network.")
                     Step(number: 3, title: "Pair", detail: "Pick your phone below, or tap “\(model.localName)” in the app on your phone.")
                 }
                 .frame(maxWidth: 760)
+
+                Link(destination: URL(string: "https://github.com/atikulmunna/GlassLink/releases/latest")!) {
+                    Label("Get GlassLink for Android", systemImage: "arrow.down.circle")
+                }
+                .buttonStyle(.glass)
+                .help("Opens the download page. Open it on your phone, or send the link to it.")
 
                 nearby
                     .frame(maxWidth: 520)
@@ -51,7 +57,7 @@ struct WelcomeView: View {
                         .buttonStyle(.glass)
                 }
                 if model.nearbyDevices.isEmpty {
-                    Text("Looking for phones running KDE Connect…")
+                    Text("Looking for phones running GlassLink…")
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, minHeight: 50)
                 } else {

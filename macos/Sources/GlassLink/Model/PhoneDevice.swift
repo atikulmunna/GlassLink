@@ -628,6 +628,13 @@ final class PhoneDevice: Identifiable {
     /// The phone can share its screen (GlassLink for Android).
     var supportsMirroring: Bool { link?.info.outgoingCapabilities.contains(PacketType.glasslinkMirror) ?? false }
 
+    /// The app this phone runs, for instructions: GlassLink, unless it's connected and turns out to
+    /// be the original KDE Connect app (which GlassLink for Mac also works with).
+    var phoneAppName: String {
+        guard let link else { return "GlassLink" }
+        return link.info.outgoingCapabilities.contains { $0.hasPrefix("glasslink.") } ? "GlassLink" : "KDE Connect"
+    }
+
     var supportsClipboardRequest: Bool {
         link?.info.incomingCapabilities.contains(PacketType.glasslinkClipboardRequest) ?? false
     }

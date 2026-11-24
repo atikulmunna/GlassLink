@@ -74,7 +74,7 @@ struct OverviewView: View {
             return "Connected over Wi-Fi" + (device.remoteHost.map { " · \($0)" } ?? "")
         }
         if let seen = device.lastSeen { return "Last seen \(seen.formatted(.relative(presentation: .named)))" }
-        return "Open KDE Connect on your phone to connect"
+        return "Open \(device.phoneAppName) on your phone to connect"
     }
 
     // MARK: Cards
@@ -110,7 +110,7 @@ struct OverviewView: View {
             VStack(alignment: .leading, spacing: 12) {
                 SectionTitle(title: "Messages", action: ("Open", { section = .messages }))
                 if device.conversations.isEmpty {
-                    EmptyCardText(device.isConnected ? "Allow SMS access in KDE Connect on your phone to see messages." : "Not connected.")
+                    EmptyCardText(device.isConnected ? "Allow SMS access in \(device.phoneAppName) on your phone to see messages." : "Not connected.")
                 } else {
                     ForEach(device.conversations.prefix(4)) { conversation in
                         HStack(spacing: 10) {
@@ -288,7 +288,7 @@ struct ScreenshotStatusLine: View {
         case .connecting: return ("camera.viewfinder", "Connecting to the phone's screenshots…", .secondary)
         case .watching: return ("camera.viewfinder", "Screenshots on the phone are copied to this Mac instantly", .primary)
         case .pushed: return ("bolt.fill", "Screenshots and copied images sync instantly (GlassLink for Android)", .primary)
-        case .needsPermission: return ("exclamationmark.lock", "Allow “All files access” for KDE Connect on the phone to sync screenshots", .secondary)
+        case .needsPermission: return ("exclamationmark.lock", "Allow “All files access” for \(device.phoneAppName) on the phone to sync screenshots", .secondary)
         case .failed(let reason): return ("exclamationmark.triangle", "Screenshot sync: \(reason)", .secondary)
         }
     }

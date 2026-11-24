@@ -14,6 +14,8 @@ enum Prefs {
     static var sendMacScreenshots: Bool { defaults.object(forKey: "sendMacScreenshots") as? Bool ?? true }
     static var sendCopiedImages: Bool { defaults.object(forKey: "sendCopiedImages") as? Bool ?? false }
     static var syncImageClipboard: Bool { defaults.object(forKey: "syncImageClipboard") as? Bool ?? true }
+    /// Look for a new GlassLink on GitHub once a day.
+    static var checkForUpdates: Bool { defaults.object(forKey: "checkForUpdates") as? Bool ?? true }
     static var customHosts: [String] { (defaults.string(forKey: "customHosts") ?? "").split(whereSeparator: { $0 == "," || $0.isWhitespace }).map(String.init) }
 
     static var downloadsFolder: URL {
@@ -49,6 +51,8 @@ final class AppModel {
     @ObservationIgnored private(set) var provider: LanLinkProvider?
     @ObservationIgnored let clipboard = ClipboardSync()
     @ObservationIgnored let notifier = MacNotifier()
+    /// New versions from GitHub (checked daily unless turned off in Settings).
+    let updater = Updater()
     @ObservationIgnored let supportDirectory: URL
     @ObservationIgnored var identityDirectory: URL { supportDirectory.appendingPathComponent("Identity", isDirectory: true) }
     @ObservationIgnored let macScreenshots = MacScreenshotWatcher()
@@ -114,6 +118,7 @@ final class AppModel {
             NSApp.terminate(nil)
             return
         }
+        updater.startAutomaticChecks()
         if DemoData.isEnabled {
             // Demo mode is for UI work: no network, no notifications, no clipboard.
             status = .running

@@ -36,6 +36,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.kde.kdeconnect.BackgroundService
+import org.kde.kdeconnect.glasslink.Updater
 import org.kde.kdeconnect.extensions.setupBottomPadding
 import org.kde.kdeconnect.helpers.CreateFileParams
 import org.kde.kdeconnect.helpers.CreateFileResultContract
@@ -66,6 +67,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             trustedNetworkPref(context),
             devicesByIpPref(context),
             bluetoothSupportPref(context),
+            updateCheckPref(context),
+            automaticUpdatesPref(context),
             exportLogsPref(context),
             moreSettingsPref(context),
         ).forEach(screen::addPreference)
@@ -247,6 +250,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
             BackgroundService.ForceRefreshConnections(context) // Restarts the BluetoothLinkProvider
             true
         }
+    }
+
+    // GlassLink: in-app updates from GitHub releases
+    private fun updateCheckPref(context: Context) = Preference(context).apply {
+        isPersistent = false
+        setTitle(R.string.glasslink_update_check)
+        summary = context.getString(R.string.glasslink_update_check_summary, Updater.currentVersion)
+        setOnPreferenceClickListener {
+            val activity = activity as? androidx.appcompat.app.AppCompatActivity ?: return@setOnPreferenceClickListener true
+            summary = context.getString(R.string.glasslink_update_checking)
+            Updater.checkNow(activity) { result -> summary = result }
+            true
+        }
+    }
+
+    private fun automaticUpdatesPref(context: Context) = SwitchPreference(context).apply {
+        key = Updater.KEY_AUTOMATIC
+        setDefaultValue(true)
+        setTitle(R.string.glasslink_update_automatic)
+        setSummary(R.string.glasslink_update_automatic_summary)
     }
 
     private fun exportLogsPref(context: Context) = Preference(context).apply {

@@ -9,9 +9,17 @@ struct SetupNotices: View {
 
     private var phoneNeeds: [String] { device.isReady ? device.setupMissing : [] }
 
+    private var updateShown: Bool {
+        switch model.updater.state {
+        case .available, .downloading, .installing: true
+        default: false
+        }
+    }
+
     var body: some View {
-        if model.notificationPermission != .allowed || !phoneNeeds.isEmpty {
+        if model.notificationPermission != .allowed || !phoneNeeds.isEmpty || updateShown {
             VStack(spacing: 12) {
+                if updateShown { UpdateNotice(updater: model.updater) }
                 if model.notificationPermission != .allowed {
                     notice(symbol: "bell.slash",
                            title: "Notifications are off for GlassLink",
@@ -48,6 +56,51 @@ struct SetupNotices: View {
                 Spacer(minLength: 12)
                 Button(button, action: action).buttonStyle(.glassProminent)
             }
+        }
+    }
+}
+
+/// "GlassLink 0.2.3 is available", with Install, then progress while it downloads and installs.
+private struct UpdateNotice: View {
+    var updater: Updater
+
+    var body: some View {
+        GlassCard(cornerRadius: 20, padding: 16) {
+            HStack(alignment: .center, spacing: 14) {
+                Image(systemName: "arrow.down.circle")
+                    .font(.system(size: 20, weight: .medium))
+                    .frame(width: 30)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title).font(.headline)
+                    Text(detail).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 12)
+                switch updater.state {
+                case .available(let release):
+                    Link("What's New", destination: release.page).font(.callout)
+                    Button("Install") { Task { await updater.install() } }.buttonStyle(.glassProminent)
+                case .downloading(let fraction):
+                    ProgressView(value: fraction).frame(width: 110)
+                default:
+                    ProgressView().controlSize(.small)
+                }
+            }
+        }
+    }
+
+    private var title: String {
+        switch updater.state {
+        case .available(let release): "GlassLink \(release.version) is available"
+        case .downloading: "Downloading the update…"
+        default: "Installing the update…"
+        }
+    }
+
+    private var detail: String {
+        switch updater.state {
+        case .available: "You have \(Updater.currentVersion). It installs and reopens in a few seconds."
+        case .downloading(let fraction): "\(Int(fraction * 100))%"
+        default: "GlassLink quits and reopens by itself."
         }
     }
 }

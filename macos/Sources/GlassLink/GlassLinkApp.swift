@@ -16,6 +16,10 @@ struct GlassLinkApp: App {
         .defaultSize(width: 1040, height: 700)
         .windowToolbarStyle(.unified)
         .commands {
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") { UpdatePrompt.checkNow(model.updater) }
+                    .disabled(model.updater.isBusy)
+            }
             CommandGroup(after: .newItem) {
                 Button("Send Files…") { FilePicker.sendFiles(to: model.current) }
                     .keyboardShortcut("o")

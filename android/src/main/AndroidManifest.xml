@@ -214,6 +214,11 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
             android:theme="@style/Theme.Transparent"
             android:excludeFromRecents="true"/>
 
+        <!-- GlassLink: Disconnect / Reconnect from notifications -->
+        <receiver
+            android:name="org.kde.kdeconnect.glasslink.ConnectionSwitchReceiver"
+            android:exported="false" />
+
         <!-- GlassLink screen mirroring -->
         <activity
             android:name="org.kde.kdeconnect.plugins.glasslink.MirrorPermissionActivity"

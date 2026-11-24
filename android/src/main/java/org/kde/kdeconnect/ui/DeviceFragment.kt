@@ -28,6 +28,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.kde.kdeconnect.BackgroundService
+import org.kde.kdeconnect.glasslink.ConnectionSwitch
 import org.kde.kdeconnect.Device
 import org.kde.kdeconnect.Device.PluginsChangedListener
 import org.kde.kdeconnect.KdeConnect
@@ -96,6 +97,7 @@ class DeviceFragment : BaseFragment<ActivityDeviceBinding>() {
     private val menuProvider = object : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menu.clear()
+            ConnectionSwitch.addMenuItem(menu, requireActivity()) // GlassLink: power button
             val device = device ?: return
 
             //Plugins button list

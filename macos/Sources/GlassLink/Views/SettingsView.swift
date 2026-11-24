@@ -71,6 +71,8 @@ private struct GeneralSettings: View {
                 }
             }
 
+            UpdateSettings(updater: model.updater)
+
             SwiftUI.Section {
                 TextField("IP addresses", text: $customHosts, prompt: Text("192.168.1.20, 10.0.0.5"))
                     .onSubmit { model.refresh() }
@@ -117,5 +119,45 @@ private struct DeviceSettings: View {
             }
         }
         .formStyle(.grouped)
+    }
+}
+
+/// Settings › General › Updates: the current version, a check button, and automatic checks.
+private struct UpdateSettings: View {
+    var updater: Updater
+    @AppStorage("checkForUpdates") private var automatic = true
+
+    var body: some View {
+        SwiftUI.Section {
+            LabeledContent("GlassLink \(Updater.currentVersion)") {
+                switch updater.state {
+                case .available(let release):
+                    Button("Install \(release.version)") { Task { await updater.install() } }
+                        .buttonStyle(.glassProminent)
+                case .downloading(let fraction):
+                    ProgressView(value: fraction).frame(width: 120)
+                case .checking, .installing:
+                    ProgressView().controlSize(.small)
+                default:
+                    Button("Check for Updates") { Task { await updater.check() } }
+                }
+            }
+            Toggle("Check for updates automatically", isOn: $automatic)
+        } header: {
+            Text("Updates")
+        } footer: {
+            Text(status).foregroundStyle(.secondary)
+        }
+    }
+
+    private var status: String {
+        switch updater.state {
+        case .upToDate: "You have the latest version."
+        case .available(let release): "GlassLink \(release.version) is available. It installs and reopens in a few seconds."
+        case .downloading: "Downloading…"
+        case .installing: "Installing. GlassLink reopens by itself."
+        case .failed(let reason): reason
+        default: "GlassLink checks GitHub's releases once a day. Nothing else is sent."
+        }
     }
 }

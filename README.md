@@ -52,6 +52,10 @@ three. It still speaks the KDE Connect protocol, so the Mac app also works with 
 - **Screenshots:** on the other device's clipboard within a second, never saved as files.
 - **Files:** drag onto the window to send.
 - **Find my phone,** battery and signal, and a menu bar panel.
+- **Disconnect** from the phone's notification or the power button in its app; it stays off until
+  you reconnect.
+- **Updates in the apps:** both check GitHub once a day (or on demand) and install new versions
+  for you.
 
 <p align="center">
   <img src="assets/screenshots/mac-messages.png" alt="Messages: SMS conversations on the Mac" width="49%">
@@ -97,7 +101,9 @@ per reboot.
 
 Everything stays on your Wi-Fi: no accounts, servers or analytics. Connections use TLS with
 certificates pinned at pairing. Mirroring needs your OK on the phone each time, and can be stopped
-from its notification.
+from its notification. The only internet request is the update check to GitHub's releases page,
+which you can turn off in either app's settings. Mac updates install only if they're signed with
+GlassLink's release key; the phone only accepts updates signed with the same key as the app.
 
 ## Development
 
@@ -113,7 +119,9 @@ cd android && ./gradlew assembleDebug     # JDK 21, Android SDK 37
 - **Artwork:** `swift tools/make-icon.swift`, `make-banner.swift` and `make-comparison.swift` redraw
   the icons, banner and table.
 - **Releasing:** bump `VERSION`, add a `CHANGELOG.md` section, and run `scripts/release.sh --publish`.
-  The APK signing key is read from `~/.glasslink/keystore.properties`; keep a backup.
+  It signs the APK with `~/.glasslink/keystore.properties` and the checksums with
+  `~/.glasslink/update-signing.key` (create it once with `swift tools/release-signing.swift keygen`).
+  Back up both: without them, installed apps won't accept updates.
 
 **Roadmap:** notarized DMG, phone audio while mirroring, media controls, recent photos, and mDNS
 discovery.

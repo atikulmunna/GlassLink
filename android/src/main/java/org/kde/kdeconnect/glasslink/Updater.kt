@@ -1,0 +1,209 @@
+/*
+ * SPDX-FileCopyrightText: 2026 GlassLink contributors
+ *
+ * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+ */
+package org.kde.kdeconnect.glasslink
+
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import androidx.core.content.edit
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import org.kde.kdeconnect_tp.BuildConfig
+import org.kde.kdeconnect_tp.R
+import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
+import java.security.MessageDigest
+
+/**
+ * Checks GitHub for a newer GlassLink, downloads the APK, checks it against the release's
+ * SHA256SUMS, and opens Android's installer. Android itself only installs it over this app if it's
+ * signed with the same GlassLink release key, so a tampered APK can't replace the app. The only
+ * request is to GitHub's public releases API, with no identifying data.
+ */
+object Updater {
+    private const val LATEST = "https://api.github.com/repos/atikulmunna/GlassLink/releases/latest"
+    const val KEY_AUTOMATIC = "glasslink_check_for_updates"
+    private const val KEY_LAST_CHECK = "glasslink_last_update_check"
+    private const val DAY_MS = 24 * 60 * 60 * 1000L
+
+    data class Release(val version: String, val notes: String, val apk: String, val apkName: String, val sums: String)
+
+    val currentVersion: String get() = BuildConfig.VERSION_NAME
+
+    fun automaticChecks(context: Context): Boolean =
+        PreferenceManager.getDefaultSharedPreferences(context).getBoolean(KEY_AUTOMATIC, true)
+
+    /** The latest release, or null if this is already the newest. Throws if GitHub can't be reached. */
+    suspend fun newerRelease(): Release? = withContext(Dispatchers.IO) {
+        val json = JSONObject(String(fetch(LATEST, json = true)))
+        val tag = json.getString("tag_name")
+        val version = tag.removePrefix("v")
+        if (!isVersion(version, newerThan = currentVersion)) return@withContext null
+        val assets = json.getJSONArray("assets")
+        fun asset(name: String): String? = (0 until assets.length()).map { assets.getJSONObject(it) }
+            .firstOrNull { it.getString("name") == name }?.getString("browser_download_url")
+        val apkName = "GlassLink-$version.apk"
+        val apk = asset(apkName) ?: return@withContext null
+        val sums = asset("SHA256SUMS") ?: return@withContext null
+        Release(version, json.optString("body"), apk, apkName, sums)
+    }
+
+    /** "0.10.0" is newer than "0.9.3". */
+    fun isVersion(a: String, newerThan: String): Boolean {
+        fun parts(v: String) = v.split(Regex("[^0-9]+")).filter { it.isNotEmpty() }.map { it.toInt() }
+        val (x, y) = parts(a) to parts(newerThan)
+        for (i in 0 until maxOf(x.size, y.size)) {
+            val (p, q) = x.getOrElse(i) { 0 } to y.getOrElse(i) { 0 }
+            if (p != q) return p > q
+        }
+        return false
+    }
+
+    /** When the app opens: at most once a day, quietly, and only says something if there's an update. */
+    fun checkAutomatically(activity: AppCompatActivity) {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(activity)
+        if (!automaticChecks(activity)) return
+        if (System.currentTimeMillis() - prefs.getLong(KEY_LAST_CHECK, 0) < DAY_MS) return
+        activity.lifecycleScope.launch {
+            val release = runCatching { newerRelease() }.getOrNull()
+            prefs.edit { putLong(KEY_LAST_CHECK, System.currentTimeMillis()) }
+            if (release != null && !activity.isFinishing) offer(activity, release)
+        }
+    }
+
+    /** "Check for updates" in Settings: always answers. */
+    fun checkNow(activity: AppCompatActivity, onResult: (String) -> Unit = {}) {
+        activity.lifecycleScope.launch {
+            val result = runCatching { newerRelease() }
+            PreferenceManager.getDefaultSharedPreferences(activity).edit { putLong(KEY_LAST_CHECK, System.currentTimeMillis()) }
+            val release = result.getOrNull()
+            when {
+                result.isFailure -> onResult(activity.getString(R.string.glasslink_update_failed_check))
+                release == null -> onResult(activity.getString(R.string.glasslink_update_none, currentVersion))
+                else -> {
+                    onResult(activity.getString(R.string.glasslink_update_available_short, release.version))
+                    offer(activity, release)
+                }
+            }
+        }
+    }
+
+    private fun offer(activity: AppCompatActivity, release: Release) {
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(activity.getString(R.string.glasslink_update_available, release.version))
+            .setMessage(activity.getString(R.string.glasslink_update_you_have, currentVersion) + "\n\n" + summary(release.notes))
+            .setPositiveButton(R.string.glasslink_update_install) { _, _ -> install(activity, release) }
+            .setNegativeButton(R.string.glasslink_update_later, null)
+            .show()
+    }
+
+    private fun install(activity: AppCompatActivity, release: Release) {
+        // Android 8+ asks per app; before that it's the global "Unknown sources" setting, and the
+        // installer explains it itself.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && !activity.packageManager.canRequestPackageInstalls()) {
+            Toast.makeText(activity, R.string.glasslink_update_allow_installs, Toast.LENGTH_LONG).show()
+            activity.startActivity(
+                Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${activity.packageName}"))
+            )
+            return
+        }
+        val bar = LinearProgressIndicator(activity).apply { max = 100; isIndeterminate = true; setPadding(64, 32, 64, 0) }
+        val dialog: AlertDialog = MaterialAlertDialogBuilder(activity)
+            .setTitle(activity.getString(R.string.glasslink_update_downloading, release.version))
+            .setView(bar)
+            .setCancelable(false)
+            .show()
+        activity.lifecycleScope.launch {
+            val apk = runCatching { download(activity, release) { percent -> bar.isIndeterminate = false; bar.progress = percent } }
+            dialog.dismiss()
+            apk.onSuccess { openInstaller(activity, it) }.onFailure {
+                Toast.makeText(activity, R.string.glasslink_update_failed_download, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    /** Downloads the APK into the cache and checks it against SHA256SUMS. */
+    private suspend fun download(context: Context, release: Release, progress: (Int) -> Unit): File {
+        val folder = File(context.cacheDir, "updates").apply { deleteRecursively(); mkdirs() }
+        val file = File(folder, release.apkName)
+        val expected = withContext(Dispatchers.IO) {
+            String(fetch(release.sums)).lines().map { it.trim().split(Regex("\\s+")) }
+                .firstOrNull { it.size == 2 && it[1] == release.apkName }?.get(0)?.lowercase()
+        } ?: error("No checksum for ${release.apkName}")
+        val digest = MessageDigest.getInstance("SHA-256")
+        withContext(Dispatchers.IO) {
+            val connection = open(release.apk)
+            val total = connection.contentLengthLong
+            connection.inputStream.use { input ->
+                file.outputStream().use { output ->
+                    val buffer = ByteArray(64 * 1024)
+                    var done = 0L
+                    var shown = -1
+                    while (true) {
+                        val n = input.read(buffer)
+                        if (n < 0) break
+                        output.write(buffer, 0, n)
+                        digest.update(buffer, 0, n)
+                        done += n
+                        val percent = if (total > 0) (done * 100 / total).toInt() else -1
+                        if (percent >= 0 && percent != shown) {
+                            shown = percent
+                            withContext(Dispatchers.Main) { progress(percent) }
+                        }
+                    }
+                }
+            }
+        }
+        val actual = digest.digest().joinToString("") { "%02x".format(it) }
+        if (actual != expected) {
+            file.delete()
+            error("Checksum mismatch")
+        }
+        return file
+    }
+
+    private fun openInstaller(activity: Activity, apk: File) {
+        val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", apk)
+        activity.startActivity(
+            Intent(Intent.ACTION_VIEW)
+                .setDataAndType(uri, "application/vnd.android.package-archive")
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
+    }
+
+    private fun open(url: String, json: Boolean = false): HttpURLConnection =
+        (URL(url).openConnection() as HttpURLConnection).apply {
+            connectTimeout = 15_000
+            readTimeout = 30_000
+            instanceFollowRedirects = true
+            setRequestProperty("User-Agent", "GlassLink-Updater")
+            if (json) setRequestProperty("Accept", "application/vnd.github+json")
+            if (responseCode != HttpURLConnection.HTTP_OK) error("HTTP $responseCode")
+        }
+
+    private fun fetch(url: String, json: Boolean = false): ByteArray = open(url, json).inputStream.use { it.readBytes() }
+
+    /** Release notes as plain text, short enough for a dialog. */
+    private fun summary(notes: String): String {
+        val plain = notes.replace("**", "").replace("`", "").lines()
+            .filterNot { it.startsWith("#") || it.startsWith("Downloads:") }
+            .joinToString("\n").trim()
+        return if (plain.length > 700) plain.take(700) + "…" else plain
+    }
+}

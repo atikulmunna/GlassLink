@@ -31,6 +31,7 @@ import org.kde.kdeconnect.backends.BaseLinkProvider
 import org.kde.kdeconnect.backends.BaseLinkProvider.ConnectionReceiver
 import org.kde.kdeconnect.backends.bluetooth.BluetoothLinkProvider
 import org.kde.kdeconnect.backends.lan.LanLinkProvider
+import org.kde.kdeconnect.glasslink.ConnectionSwitch
 import org.kde.kdeconnect.helpers.NotificationHelper
 import org.kde.kdeconnect.plugins.clipboard.ClipboardFloatingActivity
 import org.kde.kdeconnect.plugins.clipboard.ClipboardPlugin
@@ -241,6 +242,9 @@ class BackgroundService : Service() {
                 }
             }
         }
+        // GlassLink: turn the connection off from the notification.
+        notification.addAction(0, getString(R.string.glasslink_disconnect),
+            ConnectionSwitch.pendingIntent(this, ConnectionSwitch.ACTION_DISCONNECT))
         return notification.build()
     }
 
@@ -315,6 +319,11 @@ class BackgroundService : Service() {
         }
 
         private fun startService(context: Context, intent: Intent) {
+            // GlassLink: stays off after Disconnect until the user reconnects.
+            if (ConnectionSwitch.isDisconnected(context)) {
+                Log.i(TAG, "Not starting: disconnected by the user")
+                return
+            }
             try {
                 ContextCompat.startForegroundService(context, intent)
             } catch (e: IllegalStateException) { // To catch ForegroundServiceStartNotAllowedException

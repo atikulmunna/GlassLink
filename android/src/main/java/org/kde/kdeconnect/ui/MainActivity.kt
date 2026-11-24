@@ -37,6 +37,8 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationView
 import org.kde.kdeconnect.BackgroundService
+import org.kde.kdeconnect.glasslink.ConnectionSwitch
+import org.kde.kdeconnect.glasslink.Updater
 import org.kde.kdeconnect.Device
 import org.kde.kdeconnect.KdeConnect
 import org.kde.kdeconnect.extensions.setOnApplyWindowInsetsListenerCompat
@@ -121,6 +123,13 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
         val mNavViewDeviceType = mDrawerHeader.findViewById<ImageView>(R.id.device_type)
 
         setSupportActionBar(binding.toolbarLayout.toolbar)
+        // GlassLink: the power button (Disconnect / Reconnect) on every screen.
+        addMenuProvider(object : androidx.core.view.MenuProvider {
+            override fun onCreateMenu(menu: android.view.Menu, menuInflater: android.view.MenuInflater) {
+                ConnectionSwitch.addMenuItem(menu, this@MainActivity)
+            }
+            override fun onMenuItemSelected(menuItem: android.view.MenuItem) = false
+        })
         mDrawerLayout?.let {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             val mDrawerToggle = DrawerToggle(it).apply { syncState() }
@@ -306,6 +315,8 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
 
     override fun onStart() {
         super.onStart()
+        Updater.checkAutomatically(this)
+        invalidateOptionsMenu()
         BackgroundService.ForceRefreshConnections(applicationContext)
         KdeConnect.getInstance().addDeviceListChangedCallback("MainActivity") { runOnUiThread { updateDeviceList() } }
         updateDeviceList()

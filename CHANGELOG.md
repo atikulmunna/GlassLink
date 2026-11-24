@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### New
+
+- **Updates inside the apps.** GlassLink for Mac and for Android check GitHub once a day (or when
+  you choose Check for Updates) and install the new version for you. On the Mac it downloads,
+  verifies, replaces itself and reopens; on the phone you tap Update in Android's installer.
+  Mac updates must be signed with GlassLink's release key, and Android only installs updates
+  signed like the app. Turn automatic checks off in Settings on either side.
+- **Disconnect on the phone**, from its notification or the new power button in the app's top
+  bar. GlassLink stays off, and the Mac can't reach the phone, until you tap it again (or
+  Reconnect in the notification).
+- The Mac app's welcome screen and hints now say GlassLink instead of KDE Connect, with a Get
+  GlassLink for Android button.
+
 ## 0.2.2
 
 **Downloads:** `GlassLink-0.2.2.dmg` for macOS 26 or later (Apple silicon and Intel), and

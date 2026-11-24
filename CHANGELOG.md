@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.2.3
+
+**Downloads:** `GlassLink-0.2.3.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.3.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. If you have
+0.2.2 or older, download both once more by hand: from this version on, the apps update themselves.
+The Android app installs over earlier versions and keeps your pairing.
 
 ### New
 

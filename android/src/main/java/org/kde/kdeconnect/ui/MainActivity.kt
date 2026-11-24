@@ -18,6 +18,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -50,6 +51,7 @@ import org.kde.kdeconnect_tp.databinding.ActivityMainBinding
 private const val MENU_ENTRY_ADD_DEVICE = 1 //0 means no-selection
 private const val MENU_ENTRY_SETTINGS = 2
 private const val MENU_ENTRY_ABOUT = 3
+private const val MENU_ENTRY_UPDATES = 4 // GlassLink: an action, not a screen
 private const val MENU_ENTRY_DEVICE_FIRST_ID = 1000 //All subsequent ids are devices in the menu
 private const val MENU_ENTRY_DEVICE_UNKNOWN = 9999 //It's still a device, but we don't know which one yet
 private const val STATE_SELECTED_MENU_ENTRY = "selected_entry" //Saved only in onSaveInstanceState
@@ -147,6 +149,12 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
         mNavViewDeviceType?.setImageDrawable(DeviceHelper.deviceType.getIcon(this))
         mNavViewDeviceName.text = deviceName
         mNavigationView.setNavigationItemSelectedListener { menuItem: MenuItem ->
+            if (menuItem.itemId == MENU_ENTRY_UPDATES) {
+                mDrawerLayout?.closeDrawer(mNavigationView)
+                Toast.makeText(this, R.string.glasslink_update_checking, Toast.LENGTH_SHORT).show()
+                Updater.checkNow(this) { result -> Toast.makeText(this, result, Toast.LENGTH_LONG).show() }
+                return@setNavigationItemSelectedListener false
+            }
             mCurrentMenuEntry = menuItem.itemId
             when (mCurrentMenuEntry) {
                 MENU_ENTRY_ADD_DEVICE -> {
@@ -302,6 +310,8 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
         val settingsItem = menu.add(Menu.FIRST, MENU_ENTRY_SETTINGS, 1000, R.string.settings)
         settingsItem.setIcon(R.drawable.ic_settings_white_32dp)
         settingsItem.isCheckable = true
+        val updatesItem = menu.add(Menu.FIRST, MENU_ENTRY_UPDATES, 1000, R.string.glasslink_update_check)
+        updatesItem.setIcon(R.drawable.glasslink_ic_update_24)
         val aboutItem = menu.add(Menu.FIRST, MENU_ENTRY_ABOUT, 1000, R.string.about)
         aboutItem.setIcon(R.drawable.ic_baseline_info_24)
         aboutItem.isCheckable = true

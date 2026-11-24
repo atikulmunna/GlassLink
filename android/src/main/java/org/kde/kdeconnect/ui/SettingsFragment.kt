@@ -63,12 +63,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         listOf(
             deviceNamePref(context),
             themePref(context),
+            updateCheckPref(context),
+            automaticUpdatesPref(context),
             persistentNotificationPref(context),
             trustedNetworkPref(context),
             devicesByIpPref(context),
             bluetoothSupportPref(context),
-            updateCheckPref(context),
-            automaticUpdatesPref(context),
             exportLogsPref(context),
             moreSettingsPref(context),
         ).forEach(screen::addPreference)

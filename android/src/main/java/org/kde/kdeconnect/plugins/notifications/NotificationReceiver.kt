@@ -87,6 +87,10 @@ class NotificationReceiver : NotificationListenerService() {
     }
 
     override fun onListenerConnected() {
+        // GlassLink: Android reconnects this after an update (when it may not send
+        // MY_PACKAGE_REPLACED) and after a reboot, so bring the connection back too (unless the
+        // user disconnected).
+        org.kde.kdeconnect.BackgroundService.Start(this)
         super.onListenerConnected()
         for (listener in listeners) {
             listener.onListenerConnected(this)

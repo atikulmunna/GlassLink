@@ -325,6 +325,7 @@ class MainActivity : AppCompatActivity(), OnSharedPreferenceChangeListener {
 
     override fun onStart() {
         super.onStart()
+        Updater.showReminder(this) // a known update, from an earlier check
         Updater.checkAutomatically(this)
         invalidateOptionsMenu()
         BackgroundService.ForceRefreshConnections(applicationContext)

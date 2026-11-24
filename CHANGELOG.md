@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Updates
+
+- **The phone reminds you about updates** with a bar at the bottom of the app ("GlassLink … is
+  available · Update") until you install it, instead of a one-time dialog.
+- **The phone reconnects by itself after updating.** Android doesn't always tell an app it was
+  updated, so GlassLink also starts its connection when Android reconnects its notification access
+  or accessibility service.
+- **The Mac reconnects after updating.** It now waits a moment before reopening, because macOS
+  blocks the network for a new app version for its first second; and if announcing ever fails on
+  every network, it makes new network connections instead of staying cut off.
+
 ## 0.2.3
 
 **Downloads:** `GlassLink-0.2.3.dmg` for macOS 26 or later (Apple silicon and Intel), and

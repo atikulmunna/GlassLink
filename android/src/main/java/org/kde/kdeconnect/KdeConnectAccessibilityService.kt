@@ -84,6 +84,8 @@ open class KdeConnectAccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
+        // GlassLink: see NotificationReceiver.onListenerConnected.
+        BackgroundService.Start(this)
         cursorView = View.inflate(baseContext, R.layout.mouse_receiver_cursor, null).apply {
             // https://developer.android.com/training/system-ui/navigation.html#behind
             systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN

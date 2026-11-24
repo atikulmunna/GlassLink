@@ -19,6 +19,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.google.android.material.snackbar.Snackbar
+import android.view.View
+import java.util.WeakHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,6 +43,8 @@ object Updater {
     private const val LATEST = "https://api.github.com/repos/atikulmunna/GlassLink/releases/latest"
     const val KEY_AUTOMATIC = "glasslink_check_for_updates"
     private const val KEY_LAST_CHECK = "glasslink_last_update_check"
+    private const val KEY_PENDING = "glasslink_pending_update"
+    private val reminders = WeakHashMap<Activity, Snackbar>()
     private const val DAY_MS = 24 * 60 * 60 * 1000L
 
     data class Release(val version: String, val notes: String, val apk: String, val apkName: String, val sums: String)
@@ -83,7 +88,10 @@ object Updater {
         activity.lifecycleScope.launch {
             val release = runCatching { newerRelease() }.getOrNull()
             prefs.edit { putLong(KEY_LAST_CHECK, System.currentTimeMillis()) }
-            if (release != null && !activity.isFinishing) offer(activity, release)
+            if (release != null) {
+                remember(activity, release)
+                if (!activity.isFinishing) showReminder(activity)
+            }
         }
     }
 
@@ -98,10 +106,43 @@ object Updater {
                 release == null -> onResult(activity.getString(R.string.glasslink_update_none, currentVersion))
                 else -> {
                     onResult(activity.getString(R.string.glasslink_update_available_short, release.version))
+                    remember(activity, release)
+                    showReminder(activity)
                     offer(activity, release)
                 }
             }
         }
+    }
+
+    /** Keeps the found release, so the reminder survives restarts until the app is updated. */
+    private fun remember(context: Context, release: Release) {
+        val json = JSONObject().put("version", release.version).put("notes", release.notes)
+            .put("apk", release.apk).put("apkName", release.apkName).put("sums", release.sums)
+        PreferenceManager.getDefaultSharedPreferences(context).edit { putString(KEY_PENDING, json.toString()) }
+    }
+
+    /** The remembered release, while it's still newer than this app. */
+    private fun pending(context: Context): Release? {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val json = prefs.getString(KEY_PENDING, null)?.let { runCatching { JSONObject(it) }.getOrNull() } ?: return null
+        val release = Release(json.optString("version"), json.optString("notes"), json.optString("apk"),
+            json.optString("apkName"), json.optString("sums"))
+        if (!isVersion(release.version, newerThan = currentVersion)) {
+            prefs.edit { remove(KEY_PENDING) } // updated since
+            return null
+        }
+        return release
+    }
+
+    /** A bar at the bottom of the app: "GlassLink 0.2.4 is available · Update", until it's installed. */
+    fun showReminder(activity: AppCompatActivity) {
+        val release = pending(activity) ?: return
+        if (reminders[activity]?.isShownOrQueued == true) return
+        val root = activity.findViewById<View>(android.R.id.content) ?: return
+        val bar = Snackbar.make(root, activity.getString(R.string.glasslink_update_available, release.version), Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.glasslink_update_install) { install(activity, release) }
+        reminders[activity] = bar
+        bar.show()
     }
 
     private fun offer(activity: AppCompatActivity, release: Release) {
@@ -135,6 +176,8 @@ object Updater {
             apk.onSuccess { openInstaller(activity, it) }.onFailure {
                 Toast.makeText(activity, R.string.glasslink_update_failed_download, Toast.LENGTH_LONG).show()
             }
+            reminders.remove(activity)
+            showReminder(activity)
         }
     }
 

@@ -256,6 +256,9 @@ final class Updater {
           if ditto "$NEW" "$DEST"; then rm -rf "$backup"; else rm -rf "$DEST"; mv "$backup" "$DEST"; fi
         fi
         xattr -dr com.apple.quarantine "$DEST" 2>/dev/null
+        # macOS takes a moment to register the new binary for local network access; opened
+        # sooner, the app's sockets stay blocked until it restarts.
+        sleep 3
         open "$DEST"
         """
         let process = Process()

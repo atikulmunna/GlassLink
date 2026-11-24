@@ -33,6 +33,7 @@ public final class LanLinkProvider: @unchecked Sendable {
         var tcp: Channel?
         var tcpPort = LanLinkProvider.udpPort
         var stopping = false
+        var lastSocketRefresh = Date.distantPast
     }
 
     private let state: NIOLockedValueBox<State>
@@ -130,6 +131,22 @@ public final class LanLinkProvider: @unchecked Sendable {
         }
     }
 
+    /// When no packet of an announcement can be sent, macOS is probably blocking this process's
+    /// sockets: right after an update replaced the app, before macOS registered the new binary for
+    /// local network access, or before the person answered the local network prompt. Sockets made
+    /// later get the current permission, so make new ones (at most every 30 seconds); watch()
+    /// reopens both and announces again.
+    private func refreshSocketsAfterFailedAnnouncement() {
+        let channels: [Channel] = state.withLockedValue { state in
+            guard !state.stopping, Date().timeIntervalSince(state.lastSocketRefresh) > 30 else { return [] }
+            state.lastSocketRefresh = Date()
+            return [state.udp, state.tcp].compactMap { $0 }
+        }
+        guard !channels.isEmpty else { return }
+        trace("couldn't announce on any network; making new sockets")
+        for channel in channels { channel.close(promise: nil) }
+    }
+
     public func stop() {
         let (udp, tcp, links) = state.withLockedValue { state in
             state.stopping = true
@@ -184,11 +201,17 @@ public final class LanLinkProvider: @unchecked Sendable {
             if !targets.contains(ip) { targets.append(ip) }
         }
         targets += hosts
+        let failures = NIOLockedValueBox(0)
         for ip in targets {
             guard let address = try? SocketAddress(ipAddress: ip, port: Self.udpPort) else { continue }
             let envelope = AddressedEnvelope(remoteAddress: address, data: udp.allocator.buffer(data: data))
-            udp.writeAndFlush(envelope).whenFailure { error in
+            udp.writeAndFlush(envelope).whenFailure { [weak self] error in
                 trace("UDP send to \(ip) failed: \(error)")
+                let everyOneFailed = failures.withLockedValue { count in
+                    count += 1
+                    return count == targets.count
+                }
+                if everyOneFailed { self?.refreshSocketsAfterFailedAnnouncement() }
             }
         }
         trace("broadcast identity to \(targets.joined(separator: ", ")) (tcpPort \(port))")

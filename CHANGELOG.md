@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- **Update checks no longer fail on busy networks.** They used GitHub's API, which allows 60
+  requests an hour per internet address, shared by everyone behind it; on many home and mobile
+  networks that ran out and the apps said GitHub couldn't be reached. They now read a small
+  `latest.json` from the release itself, which has no such limit, and say plainly when GitHub is
+  limiting requests.
+
 ## 0.2.5
 
 **Downloads:** `GlassLink-0.2.5.dmg` for macOS 26 or later (Apple silicon and Intel), and

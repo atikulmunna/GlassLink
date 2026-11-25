@@ -40,7 +40,15 @@ import java.security.MessageDigest
  * request is to GitHub's public releases API, with no identifying data.
  */
 object Updater {
+    /** Version and notes of the newest release, served from its files: not limited like GitHub's API. */
+    private const val MANIFEST = "https://github.com/atikulmunna/GlassLink/releases/latest/download/latest.json"
+    /** Only for releases from before latest.json (60 anonymous requests an hour per network). */
     private const val LATEST = "https://api.github.com/repos/atikulmunna/GlassLink/releases/latest"
+    private fun download(version: String, file: String) =
+        "https://github.com/atikulmunna/GlassLink/releases/download/v$version/$file"
+
+    /** GitHub refused because too many requests came from this network. */
+    class RateLimited : Exception("GitHub rate limit")
     const val KEY_AUTOMATIC = "glasslink_check_for_updates"
     private const val KEY_LAST_CHECK = "glasslink_last_update_check"
     private const val KEY_PENDING = "glasslink_pending_update"
@@ -56,17 +64,19 @@ object Updater {
 
     /** The latest release, or null if this is already the newest. Throws if GitHub can't be reached. */
     suspend fun newerRelease(): Release? = withContext(Dispatchers.IO) {
-        val json = JSONObject(String(fetch(LATEST, json = true)))
-        val tag = json.getString("tag_name")
-        val version = tag.removePrefix("v")
+        val (version, notes) = try {
+            val manifest = JSONObject(String(fetch(MANIFEST)))
+            manifest.getString("version") to manifest.optString("notes")
+        } catch (e: RateLimited) {
+            throw e
+        } catch (e: Exception) {
+            // Releases before latest.json: ask the API instead.
+            val json = JSONObject(String(fetch(LATEST, json = true)))
+            json.getString("tag_name").removePrefix("v") to json.optString("body")
+        }
         if (!isVersion(version, newerThan = currentVersion)) return@withContext null
-        val assets = json.getJSONArray("assets")
-        fun asset(name: String): String? = (0 until assets.length()).map { assets.getJSONObject(it) }
-            .firstOrNull { it.getString("name") == name }?.getString("browser_download_url")
         val apkName = "GlassLink-$version.apk"
-        val apk = asset(apkName) ?: return@withContext null
-        val sums = asset("SHA256SUMS") ?: return@withContext null
-        Release(version, json.optString("body"), apk, apkName, sums)
+        Release(version, notes, download(version, apkName), apkName, download(version, "SHA256SUMS"))
     }
 
     /** "0.10.0" is newer than "0.9.3". */
@@ -102,6 +112,7 @@ object Updater {
             PreferenceManager.getDefaultSharedPreferences(activity).edit { putLong(KEY_LAST_CHECK, System.currentTimeMillis()) }
             val release = result.getOrNull()
             when {
+                result.exceptionOrNull() is RateLimited -> onResult(activity.getString(R.string.glasslink_update_rate_limited))
                 result.isFailure -> onResult(activity.getString(R.string.glasslink_update_failed_check))
                 release == null -> onResult(activity.getString(R.string.glasslink_update_none, currentVersion))
                 else -> {
@@ -237,7 +248,9 @@ object Updater {
             instanceFollowRedirects = true
             setRequestProperty("User-Agent", "GlassLink-Updater")
             if (json) setRequestProperty("Accept", "application/vnd.github+json")
-            if (responseCode != HttpURLConnection.HTTP_OK) error("HTTP $responseCode")
+            val code = responseCode
+            if (code == HttpURLConnection.HTTP_FORBIDDEN || code == 429) throw RateLimited()
+            if (code != HttpURLConnection.HTTP_OK) error("HTTP $code")
         }
 
     private fun fetch(url: String, json: Boolean = false): ByteArray = open(url, json).inputStream.use { it.readBytes() }

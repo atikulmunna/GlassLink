@@ -60,4 +60,5 @@
     <string name="glasslink_restricted_open">Open App info</string>
     <string name="glasslink_restricted_app_info">App info</string>
     <string name="glasslink_restricted_hint">If Android says this setting is restricted, tap App info below, then ⋮ › Allow restricted settings, and try again.</string>
+    <string name="glasslink_update_rate_limited">GitHub is limiting requests from your network right now. Try again later.</string>
 </resources>

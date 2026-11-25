@@ -39,7 +39,15 @@ final class Updater {
 
     /// Public half of ~/.glasslink/update-signing.key.
     static let publicKey = "fXcfXBe7X9z5t+qrvENAkKFdQD46ReYKrx6OI2WTtQA="
+    /// Version and notes of the newest release. Served from the release's files, so it isn't limited
+    /// like GitHub's API (60 anonymous requests an hour, shared by everyone behind one address).
+    static let latestManifest = URL(string: "https://github.com/atikulmunna/GlassLink/releases/latest/download/latest.json")!
+    /// Only for releases from before latest.json existed.
     static let latestRelease = URL(string: "https://api.github.com/repos/atikulmunna/GlassLink/releases/latest")!
+
+    static func download(_ version: String, _ file: String) -> URL {
+        URL(string: "https://github.com/atikulmunna/GlassLink/releases/download/v\(version)/\(file)")!
+    }
     static var currentVersion: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0" }
 
     var available: Release? {
@@ -109,26 +117,35 @@ final class Updater {
 
     /// The latest release if it's newer than this app, else nil.
     private static func fetchLatest() async throws -> Release? {
-        struct APIRelease: Decodable {
-            struct Asset: Decodable {
-                let name: String
-                let browser_download_url: URL
-            }
-            let tag_name: String
-            let body: String?
-            let html_url: URL
-            let assets: [Asset]
-        }
-        let release = try JSONDecoder().decode(APIRelease.self, from: try await fetch(latestRelease, json: true))
-        let version = release.tag_name.hasPrefix("v") ? String(release.tag_name.dropFirst()) : release.tag_name
+        let (version, notes) = try await latestVersion()
         guard isVersion(version, newerThan: currentVersion) else { return nil }
-        func asset(_ name: String) -> URL? { release.assets.first { $0.name == name }?.browser_download_url }
         let dmgName = "GlassLink-\(version).dmg"
-        guard let dmg = asset(dmgName), let sums = asset("SHA256SUMS"), let signature = asset("SHA256SUMS.sig") else {
-            throw UpdateError.incomplete
+        return Release(version: version, notes: notes,
+                       page: URL(string: "https://github.com/atikulmunna/GlassLink/releases/tag/v\(version)")!,
+                       dmg: download(version, dmgName), dmgName: dmgName,
+                       sums: download(version, "SHA256SUMS"), signature: download(version, "SHA256SUMS.sig"))
+    }
+
+    private static func latestVersion() async throws -> (version: String, notes: String) {
+        struct Manifest: Decodable {
+            let version: String
+            let notes: String?
         }
-        return Release(version: version, notes: release.body ?? "", page: release.html_url, dmg: dmg,
-                       dmgName: dmgName, sums: sums, signature: signature)
+        do {
+            let manifest = try JSONDecoder().decode(Manifest.self, from: try await fetch(latestManifest))
+            return (manifest.version, manifest.notes ?? "")
+        } catch UpdateError.rateLimited {
+            throw UpdateError.rateLimited
+        } catch {
+            // Releases before latest.json: ask the API instead.
+            struct APIRelease: Decodable {
+                let tag_name: String
+                let body: String?
+            }
+            let release = try JSONDecoder().decode(APIRelease.self, from: try await fetch(latestRelease, json: true))
+            let tag = release.tag_name
+            return (tag.hasPrefix("v") ? String(tag.dropFirst()) : tag, release.body ?? "")
+        }
     }
 
     private static func fetch(_ url: URL, json: Bool = false) async throws -> Data {
@@ -136,7 +153,9 @@ final class Updater {
         request.setValue("GlassLink-Updater", forHTTPHeaderField: "User-Agent")
         if json { request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept") }
         let (data, response) = try await URLSession.shared.data(for: request)
-        guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw UpdateError.server }
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        if status == 403 || status == 429 { throw UpdateError.rateLimited }
+        guard status == 200 else { throw UpdateError.server }
         return data
     }
 
@@ -271,11 +290,12 @@ final class Updater {
     }
 
     enum UpdateError: LocalizedError {
-        case server, incomplete, unsigned, corrupt, installFailed
+        case server, rateLimited, incomplete, unsigned, corrupt, installFailed
 
         var errorDescription: String? {
             switch self {
             case .server: "GitHub didn't answer. Check your internet connection."
+            case .rateLimited: "GitHub is limiting requests from your network right now. Try again later."
             case .incomplete: "The release is missing its download or checksums."
             case .unsigned: "The release isn't signed with GlassLink's key, so it wasn't installed."
             case .corrupt: "The download didn't match its checksum."

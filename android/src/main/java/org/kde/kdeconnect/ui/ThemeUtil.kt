@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.DynamicColorsOptions
 
 /**
  * Utilities for working with android [Themes][android.content.res.Resources.Theme].
@@ -55,7 +56,16 @@ object ThemeUtil {
         val appTheme = PreferenceManager
             .getDefaultSharedPreferences(application)
             .getString("theme_pref", DEFAULT_MODE)!!
-        // GlassLink: keep the brand palette (shared with the Mac app) instead of wallpaper colours.
         applyTheme(appTheme)
+        // GlassLink: dark mode keeps the midnight palette shared with the Mac app; light mode
+        // follows Android's Material colours, from the wallpaper (Material You) where available.
+        DynamicColors.applyToActivitiesIfAvailable(
+            application,
+            DynamicColorsOptions.Builder().setPrecondition { activity, _ -> !isNight(activity) }.build(),
+        )
     }
+
+    private fun isNight(context: android.content.Context): Boolean =
+        context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
 }

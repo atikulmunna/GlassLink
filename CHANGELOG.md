@@ -6,6 +6,9 @@
   the sidebar, quick actions and signal bars; each contact and app gets its own pastel circle;
   the battery is green (orange, then red, when it runs low); the connected dot is green; and on
   calls, Answer is green and Decline red. Dark mode stays midnight black and white.
+- **Material colours in light mode on the phone.** Light mode follows Android's Material design:
+  your wallpaper's Material You colours on Android 12 and later, Material's standard palette
+  before that. Dark mode stays midnight black and white.
 
 ## 0.2.7
 

@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-- **Switching the Mac's theme repaints everything.** Choosing Light or Dark in Settings only
-  changed the sidebar until GlassLink was restarted; the whole window now follows straight away,
-  and System follows macOS live. Contact circles are light grey with dark initials in light mode.
-
 ## 0.2.7
 
 **Downloads:** `GlassLink-0.2.7.dmg` for macOS 26 or later (Apple silicon and Intel), and
@@ -19,7 +13,8 @@ keeps your pairing.
   notification and a Found it button that stops it.
 - **Ping is now Wave**, on both apps; the other device shows "Waved at you 👋".
 - **Theme setting on the Mac:** Settings › General › Theme: System, Light or Dark (the phone has
-  had this under Settings › Choose theme).
+  had this under Settings › Choose theme). The whole window switches straight away, and System
+  follows macOS live. In light mode, contact circles are light grey with dark initials.
 - **Light mode fix:** prominent buttons such as Show on Phone, Install and Allow showed black text
   on a dark button. They're now solid black with white text in light mode (white with black text
   in dark mode).

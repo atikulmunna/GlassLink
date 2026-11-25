@@ -50,7 +50,7 @@ struct GlassLinkApp: App {
         MenuBarExtra {
             MenuBarPanel()
                 .environment(model)
-                .tint(.primary)
+                .midnightTheme()
         } label: {
             MenuBarLabel()
                 .environment(model)
@@ -60,7 +60,7 @@ struct GlassLinkApp: App {
         Settings {
             SettingsView()
                 .environment(model)
-                .tint(.primary)
+                .midnightTheme()
         }
     }
 }

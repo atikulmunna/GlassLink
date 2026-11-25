@@ -105,6 +105,7 @@ struct Avatar: View {
     var name: String
     var size: CGFloat = 36
     var image: NSImage?
+    @Environment(\.colorScheme) private var scheme
 
     private var initials: String {
         let words = name.split(separator: " ").prefix(2)
@@ -114,7 +115,7 @@ struct Avatar: View {
     }
 
     private var color: Color {
-        let palette = Midnight.greys
+        let palette = scheme == .dark ? Midnight.greys : Midnight.lightGreys
         let hash = name.unicodeScalars.reduce(5381) { ($0 &* 33) &+ Int($1.value) }
         return palette[abs(hash) % palette.count]
     }
@@ -128,7 +129,7 @@ struct Avatar: View {
                     LinearGradient(colors: [color.opacity(0.95), color.opacity(0.65)], startPoint: .top, endPoint: .bottom)
                     Text(initials)
                         .font(.system(size: size * 0.38, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(scheme == .dark ? Color.white : Color.black.opacity(0.72))
                 }
             }
         }

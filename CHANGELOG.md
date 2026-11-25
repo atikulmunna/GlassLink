@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Switching the Mac's theme repaints everything.** Choosing Light or Dark in Settings only
+  changed the sidebar until GlassLink was restarted; the whole window now follows straight away,
+  and System follows macOS live. Contact circles are light grey with dark initials in light mode.
+
 ## 0.2.7
 
 **Downloads:** `GlassLink-0.2.7.dmg` for macOS 26 or later (Apple silicon and Intel), and

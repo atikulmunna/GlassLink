@@ -10,13 +10,20 @@ enum Midnight {
         appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? .black : .white
     })
 
-    /// Greys for avatars and placeholders, from light to dark.
+    /// Greys for avatars and placeholders in dark mode (with white initials), from light to dark.
     static let greys: [Color] = [0.62, 0.54, 0.46, 0.38, 0.30].map { Color(white: $0) }
+    /// The same in light mode (with dark initials).
+    static let lightGreys: [Color] = [0.90, 0.86, 0.82, 0.78, 0.74].map { Color(white: $0) }
 }
 
 /// Settings › Theme: follow macOS, or always light or dark.
 @MainActor
 enum Theme {
+    /// Whether macOS itself is in Dark mode right now.
+    static var systemIsDark: Bool {
+        UserDefaults(suiteName: UserDefaults.globalDomain)?.string(forKey: "AppleInterfaceStyle") == "Dark"
+    }
+
     static func apply(_ choice: String) {
         switch choice {
         case "light": NSApp.appearance = NSAppearance(named: .aqua)
@@ -26,11 +33,41 @@ enum Theme {
     }
 }
 
+/// Applies Settings › Theme through SwiftUI, so every view repaints when it changes (setting
+/// NSApp.appearance alone only updated the AppKit parts, like the sidebar). "System" follows macOS
+/// live. GLASSLINK_APPEARANCE=light or dark overrides it, for checking a look.
+struct ThemedWindow: ViewModifier {
+    @AppStorage("theme") private var theme = "system"
+    @State private var systemDark = Theme.systemIsDark
+
+    private var scheme: ColorScheme {
+        switch ProcessInfo.processInfo.environment["GLASSLINK_APPEARANCE"] ?? theme {
+        case "light": .light
+        case "dark": .dark
+        default: systemDark ? .dark : .light
+        }
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .preferredColorScheme(scheme)
+            .onReceive(DistributedNotificationCenter.default().publisher(for: Notification.Name("AppleInterfaceThemeChangedNotification"))) { _ in
+                systemDark = Theme.systemIsDark
+            }
+    }
+}
+
 extension View {
-    /// Monochrome controls on a black (or white) window.
+    /// Monochrome controls on a black (or white) window, in the chosen theme.
     func midnightWindow() -> some View {
         tint(.primary)
             .containerBackground(Midnight.background, for: .window)
+            .modifier(ThemedWindow())
+    }
+
+    /// The theme alone, for the menu bar panel and Settings.
+    func midnightTheme() -> some View {
+        tint(.primary).modifier(ThemedWindow())
     }
 }
 

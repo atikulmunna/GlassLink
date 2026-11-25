@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import org.kde.kdeconnect.KdeConnect
+import org.kde.kdeconnect.glasslink.RestrictedSettings
 import org.kde.kdeconnect.plugins.share.ShareSettingsFragment
 import org.kde.kdeconnect_tp.R
 
@@ -26,6 +27,12 @@ class PermissionsAlertDialogFragment : AlertDialogFragment() {
         val reloadPlugins = arguments?.getBoolean(KEY_RELOAD_PLUGINS_ON_RESULT, false) ?: false
         if (reloadPlugins && results.containsValue(true)) {
             KdeConnect.getInstance().reloadAllDevicePlugins()
+        }
+        // GlassLink: Android refuses SMS and call-log permissions to apps installed from a file
+        // until restricted settings are allowed; say how, instead of failing silently.
+        val refused = results.filterValues { !it }.keys
+        if (RestrictedSettings.involves(refused) && RestrictedSettings.mayApply(requireContext())) {
+            RestrictedSettings.explain(requireActivity())
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && results[Manifest.permission.WRITE_EXTERNAL_STORAGE] == true) {
             // To get a writeable path manually on Android 10 and later for Share and Receive Plugin.

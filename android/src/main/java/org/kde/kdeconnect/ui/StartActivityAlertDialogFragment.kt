@@ -10,6 +10,7 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
 import org.kde.kdeconnect.KdeConnect
+import org.kde.kdeconnect.glasslink.RestrictedSettings
 
 class StartActivityAlertDialogFragment : AlertDialogFragment() {
 
@@ -56,6 +57,18 @@ class StartActivityAlertDialogFragment : AlertDialogFragment() {
                 }
             }
         }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): android.app.Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        // GlassLink: Accessibility and Notification access are locked for apps installed from a file.
+        val action = arguments?.getString(KEY_INTENT_ACTION)
+        if (dialog is androidx.appcompat.app.AlertDialog && messageResId != 0 &&
+            RestrictedSettings.involvesScreen(action) && RestrictedSettings.mayApply(requireContext())
+        ) {
+            RestrictedSettings.addHint(dialog, requireContext(), getString(messageResId))
+        }
+        return dialog
     }
 
     class Builder : AbstractBuilder<Builder, StartActivityAlertDialogFragment>() {

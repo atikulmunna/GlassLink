@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Explains Android's "restricted settings".** Android 13 and later hold back SMS and call-log
+  permissions, accessibility and notification access from apps installed from a download. When
+  Android refuses one, GlassLink now says how to allow it (App info › ⋮ › Allow restricted
+  settings, once) with an Open App info button, instead of failing silently.
+
 ## 0.2.4
 
 **Downloads:** `GlassLink-0.2.4.dmg` for macOS 26 or later (Apple silicon and Intel), and

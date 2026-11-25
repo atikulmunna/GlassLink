@@ -22,7 +22,8 @@ open class AlertDialogFragment : DialogFragment() {
     private var titleResId = 0
     private var title: String? = null
     @StringRes
-    private var messageResId = 0
+    protected var messageResId = 0 // GlassLink: read by StartActivityAlertDialogFragment
+        private set
     @StringRes
     private var positiveButtonResId = 0
     @StringRes

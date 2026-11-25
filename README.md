@@ -74,10 +74,11 @@ Applications. It isn't notarized yet, so on first launch click **Done**, then **
 1. Install the `.apk` from the [latest release](https://github.com/atikulmunna/GlassLink/releases/latest).
    Disable KDE Connect first if you have it; both use the same port.
 2. On the same Wi-Fi, pair from either device and check that both show the same code.
-3. Grant the permissions you want under **Finish setting up**.
-4. To control the phone while mirroring, turn on GlassLink in **Settings › Accessibility**. If it's
-   marked restricted, go to **Settings › Apps › GlassLink › ⋮ › Allow restricted settings** first.
-   Typing from the Mac needs Android 14 or later.
+3. Android 13 and later restrict SMS, accessibility and notification access for apps installed
+   from a download. Allow them once: **Settings › Apps › GlassLink › ⋮ › Allow restricted settings**.
+4. Grant the permissions you want under **Finish setting up**. To control the phone while
+   mirroring, turn on GlassLink in **Settings › Accessibility**; typing from the Mac needs Android 14
+   or later.
 
 **Verify:** files are listed in `SHA256SUMS`. The APK's signing certificate SHA-256 is:
 

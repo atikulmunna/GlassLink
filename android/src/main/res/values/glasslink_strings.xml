@@ -55,4 +55,9 @@
     <string name="glasslink_update_allow_installs">Allow GlassLink to install updates, then tap Update again.</string>
     <string name="glasslink_update_failed_check">Couldn\'t reach GitHub. Check your internet connection.</string>
     <string name="glasslink_update_failed_download">The update didn\'t download completely. Try again.</string>
+    <string name="glasslink_restricted_title">Android blocked this permission</string>
+    <string name="glasslink_restricted_text">Android holds back some permissions from apps installed from a download, like GlassLink. To allow them, open App info, tap ⋮ in the top corner, choose Allow restricted settings and confirm. Then come back and try again. You only need to do this once.</string>
+    <string name="glasslink_restricted_open">Open App info</string>
+    <string name="glasslink_restricted_app_info">App info</string>
+    <string name="glasslink_restricted_hint">If Android says this setting is restricted, tap App info below, then ⋮ › Allow restricted settings, and try again.</string>
 </resources>

@@ -35,6 +35,8 @@ final class Updater {
     private(set) var state = State.idle
     private(set) var lastChecked: Date?
     @ObservationIgnored private var automaticChecks: Task<Void, Never>?
+    /// Called when an automatic check finds a version not announced before (for the banner).
+    @ObservationIgnored var onFoundAutomatically: ((Release) -> Void)?
     @ObservationIgnored private var progressObservation: NSKeyValueObservation?
 
     /// Public half of ~/.glasslink/update-signing.key.
@@ -81,6 +83,11 @@ final class Updater {
             let release = try await Self.fetchLatest()
             lastChecked = .now
             state = release.map(State.available) ?? .upToDate
+            // Automatic checks announce each new version once, in Notification Center.
+            if quietly, let release, UserDefaults.standard.string(forKey: "announcedUpdate") != release.version {
+                UserDefaults.standard.set(release.version, forKey: "announcedUpdate")
+                onFoundAutomatically?(release)
+            }
         } catch {
             trace("update check failed: \(error)")
             state = quietly ? .idle : .failed("Couldn't check for updates. \(error.localizedDescription)")

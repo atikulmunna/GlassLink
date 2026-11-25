@@ -66,4 +66,5 @@
     <string name="glasslink_ring_text">Tap Found it to stop.</string>
     <string name="glasslink_mirror_to_mac">Mirror to Mac</string>
     <string name="glasslink_lock_mac">Lock Mac</string>
+    <string name="glasslink_update_notification_text">You have %s. Tap to update.</string>
 </resources>

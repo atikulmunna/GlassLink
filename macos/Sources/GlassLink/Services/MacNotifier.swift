@@ -12,6 +12,7 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
         static let call = "call.incoming"
         static let callControl = "call.incoming.control"
         static let file = "file.received"
+        static let update = "update.available"
     }
 
     private enum Action {
@@ -23,6 +24,7 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
         static let answer = "answer"
         static let declineCall = "declineCall"
         static let reveal = "reveal"
+        static let install = "install"
     }
 
     private weak var app: AppModel?
@@ -54,6 +56,9 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
             ], intentIdentifiers: []),
             UNNotificationCategory(identifier: Category.file, actions: [
                 UNNotificationAction(identifier: Action.reveal, title: "Show in Finder", options: [.foreground]),
+            ], intentIdentifiers: []),
+            UNNotificationCategory(identifier: Category.update, actions: [
+                UNNotificationAction(identifier: Action.install, title: "Install and Reopen"),
             ], intentIdentifiers: []),
         ])
         center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
@@ -143,6 +148,16 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
         center?.removeDeliveredNotifications(withIdentifiers: ["call/\(deviceId)"])
     }
 
+    /// "GlassLink 0.2.9 is available", from the daily check; Install updates and reopens.
+    func postUpdateAvailable(version: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "GlassLink \(version) is available"
+        content.body = "You have \(Updater.currentVersion). It installs and reopens in a few seconds."
+        content.categoryIdentifier = Category.update
+        content.userInfo = ["update": version]
+        add(content, id: "update/\(version)")
+    }
+
     func postFileReceived(_ url: URL, from device: PhoneDevice) {
         let content = UNMutableNotificationContent()
         content.title = "Received from \(device.name)"
@@ -189,9 +204,25 @@ final class MacNotifier: NSObject, UNUserNotificationCenterDelegate {
         let notificationId = info["notification"] as? String
         let replyId = info["replyId"] as? String
         let file = info["file"] as? String
+        let update = info["update"] as? String
         Task { @MainActor in
+            if update != nil {
+                self.handleUpdate(action: action)
+                completionHandler()
+                return
+            }
             self.handle(action: action, deviceId: deviceId, notificationId: notificationId, replyId: replyId, text: typed, file: file)
             completionHandler()
+        }
+    }
+
+    private func handleUpdate(action: String) {
+        guard let app else { return }
+        if action == Action.install {
+            Task { await app.updater.install() }
+        } else {
+            app.mainWindowRequests += 1 // the Overview shows the update card
+            NSApp.activate()
         }
     }
 

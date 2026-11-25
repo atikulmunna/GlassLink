@@ -1,7 +1,15 @@
 # Changelog
 
-## Unreleased
+## 0.2.9
 
+**Downloads:** `GlassLink-0.2.9.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.9.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. On 0.2.3 or
+later, both apps offer this update themselves. The Android app installs over earlier versions and
+keeps your pairing.
+
+- **Update notifications.** When a new version comes out, the Mac shows a Notification Center
+  banner with Install and Reopen, and the phone, which now checks once a day even if GlassLink
+  isn't opened, posts a notification that opens the Update bar. Each version is announced once.
 - **The Mac reconnects to the phone after updating itself.** Sometimes the reopened version had no
   local network access until it was restarted by hand, so the phone stayed disconnected. The
   updater now reopens GlassLink through macOS's launcher (like opening it from the Dock), and

@@ -64,6 +64,8 @@ final class AppModel {
 
     /// Bumped when the phone asks to mirror; the menu bar label (always alive) opens the window.
     var mirrorWindowRequests = 0
+    /// Bumped to bring up the main window (for example from the update banner).
+    var mainWindowRequests = 0
 
     enum NotificationPermission { case allowed, notAsked, off }
     /// Whether macOS lets GlassLink show banners. Without them, phone notifications and calls only
@@ -125,6 +127,7 @@ final class AppModel {
             NSApp.terminate(nil)
             return
         }
+        updater.onFoundAutomatically = { [weak self] release in self?.notifier.postUpdateAvailable(version: release.version) }
         updater.startAutomaticChecks()
         updater.runDebugRelaunchIfAsked()
         reopenIfCutOffAfterUpdate()

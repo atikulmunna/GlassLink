@@ -20,6 +20,10 @@ struct MenuBarLabel: View {
             openWindow(id: "mirror")
             NSApp.activate()
         }
+        .onChange(of: model.mainWindowRequests) { _, _ in
+            openWindow(id: "main")
+            NSApp.activate()
+        }
     }
 }
 

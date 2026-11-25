@@ -52,6 +52,9 @@ object Updater {
     const val KEY_AUTOMATIC = "glasslink_check_for_updates"
     private const val KEY_LAST_CHECK = "glasslink_last_update_check"
     private const val KEY_PENDING = "glasslink_pending_update"
+    private const val KEY_ANNOUNCED = "glasslink_announced_update"
+    private const val UPDATE_NOTIFICATION_ID = 0x6C72
+    private var backgroundChecks: kotlinx.coroutines.Job? = null
     private val reminders = WeakHashMap<Activity, Snackbar>()
     private const val DAY_MS = 24 * 60 * 60 * 1000L
 
@@ -103,6 +106,58 @@ object Updater {
                 if (!activity.isFinishing) showReminder(activity)
             }
         }
+    }
+
+    /**
+     * From the connection service, which runs all the time: checks at most once a day even if the
+     * app is never opened, and announces each new version once with a notification.
+     */
+    fun startBackgroundChecks(context: Context) {
+        if (backgroundChecks?.isActive == true) return
+        val app = context.applicationContext
+        backgroundChecks = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO).launch {
+            kotlinx.coroutines.delay(30_000) // let the connection come up first
+            while (true) {
+                runCatching { checkInBackground(app) }
+                kotlinx.coroutines.delay(6 * 60 * 60 * 1000L) // looks every 6 hours; asks GitHub at most daily
+            }
+        }
+    }
+
+    fun stopBackgroundChecks() {
+        backgroundChecks?.cancel()
+        backgroundChecks = null
+    }
+
+    private suspend fun checkInBackground(context: Context) {
+        if (!automaticChecks(context)) return
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        if (System.currentTimeMillis() - prefs.getLong(KEY_LAST_CHECK, 0) >= DAY_MS) {
+            val release = runCatching { newerRelease() }.getOrNull()
+            prefs.edit { putLong(KEY_LAST_CHECK, System.currentTimeMillis()) }
+            if (release != null) remember(context, release)
+        }
+        pending(context)?.let { announce(context, it) }
+    }
+
+    /** "GlassLink 0.2.9 is available": once per version; tapping opens the app (and its Update bar). */
+    private fun announce(context: Context, release: Release) {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        if (prefs.getString(KEY_ANNOUNCED, null) == release.version) return
+        val open = android.app.PendingIntent.getActivity(
+            context, 4,
+            Intent(context, org.kde.kdeconnect.ui.MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+        val notification = androidx.core.app.NotificationCompat.Builder(context, org.kde.kdeconnect.helpers.NotificationHelper.Channels.DEFAULT)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.glasslink_update_available, release.version))
+            .setContentText(context.getString(R.string.glasslink_update_notification_text, currentVersion))
+            .setContentIntent(open)
+            .setAutoCancel(true)
+            .build()
+        runCatching { androidx.core.app.NotificationManagerCompat.from(context).notify(UPDATE_NOTIFICATION_ID, notification) }
+        prefs.edit { putString(KEY_ANNOUNCED, release.version) }
     }
 
     /** "Check for updates" in Settings: always answers. */

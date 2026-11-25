@@ -106,6 +106,7 @@ class BackgroundService : Service() {
         instance = this
 
         KdeConnect.getInstance().addDeviceListChangedCallback("BackgroundService", this::updateForegroundNotification)
+        org.kde.kdeconnect.glasslink.Updater.startBackgroundChecks(this) // GlassLink: daily update check
 
         // Register screen on listener
         val filter = IntentFilter(Intent.ACTION_SCREEN_ON)
@@ -255,6 +256,7 @@ class BackgroundService : Service() {
             linkProvider.onStop()
         }
         KdeConnect.getInstance().removeDeviceListChangedCallback("BackgroundService")
+        org.kde.kdeconnect.glasslink.Updater.stopBackgroundChecks()
         screenOnReceiver?.let { unregisterReceiver(it) }
         screenOnReceiver = null
         networkCallback?.let { getSystemService<ConnectivityManager>()?.unregisterNetworkCallback(it) }

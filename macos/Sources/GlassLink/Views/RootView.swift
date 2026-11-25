@@ -89,6 +89,8 @@ struct RootView: View {
 // MARK: - Sidebar
 
 struct Sidebar: View {
+    @Environment(\.colorScheme) private var scheme
+    private var sidebarTint: ListItemTint { scheme == .dark ? .monochrome : .preferred(.accentColor) }
     @Environment(AppModel.self) private var model
     var device: PhoneDevice
     @Binding var section: Section
@@ -102,7 +104,7 @@ struct Sidebar: View {
             ForEach(Section.allCases) { item in
                 Label(item.title, systemImage: item.symbol)
                     .badge(badge(for: item))
-                    .listItemTint(.monochrome) // midnight and white: no accent-coloured sidebar icons
+                    .listItemTint(sidebarTint) // midnight and white in dark mode; the accent colour in light mode
                     .tag(item)
             }
 
@@ -114,7 +116,7 @@ struct Sidebar: View {
                         } label: {
                             HStack {
                                 Label(other.name, systemImage: other.symbolName)
-                                    .listItemTint(.monochrome)
+                                    .listItemTint(sidebarTint)
                                 Spacer()
                                 ConnectionDot(connected: other.isConnected)
                             }
@@ -195,11 +197,16 @@ struct CallButton: View {
     var title: String
     var symbol: String
     var prominent = false
+    /// Light mode only: Answer's fill (green) or Decline's icon (red). Dark mode stays midnight.
+    var color: Color? = nil
     var size: CGFloat = 40
     var action: () -> Void
 
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.colorScheme) private var scheme
     @State private var hovering = false
+
+    private var light: Bool { scheme == .light }
 
     var body: some View {
         Button(action: action) {
@@ -209,16 +216,21 @@ struct CallButton: View {
                 .contentShape(.circle)
         }
         .buttonStyle(.plain)
-        .foregroundStyle(prominent ? AnyShapeStyle(.background) : AnyShapeStyle(.primary))
-        // Answer: a solid inverted disc (white in dark mode, black in light), not tinted glass,
-        // which washed out to grey.
-        .background { if prominent { Circle().fill(.primary) } }
+        .foregroundStyle(iconStyle)
+        // Answer: a solid disc (white in dark mode; green, or the accent colour, in light mode).
+        .background { if prominent { Circle().fill(light ? (color ?? .accentColor) : .primary) } }
         .glassEffect(prominent ? .identity : .regular.interactive(), in: .circle)
         .scaleEffect(hovering ? 1.08 : 1)
         .onHover { over in hovering = over && isEnabled }
         .animation(.spring(duration: 0.35, bounce: 0.45), value: hovering)
         .help(title)
         .accessibilityLabel(title)
+    }
+
+    private var iconStyle: AnyShapeStyle {
+        if prominent { return light ? AnyShapeStyle(Color.white) : AnyShapeStyle(.background) }
+        if light, let color { return AnyShapeStyle(color) }
+        return AnyShapeStyle(.primary)
     }
 }
 
@@ -246,12 +258,12 @@ struct CallBanner: View {
                         }
                         if device.supportsCallControl {
                             CallButton(title: call.kind == .ringing ? "Decline the call" : "End the call",
-                                       symbol: "phone.down.fill") { device.declineCall() }
+                                       symbol: "phone.down.fill", color: .red) { device.declineCall() }
                             if call.kind == .ringing {
                                 CallButton(title: device.callControlNeedsPermission
                                                ? "Allow GlassLink to manage calls on the phone first"
                                                : "Answer on the phone, then talk on the phone or its earbuds",
-                                           symbol: "phone.fill", prominent: true) { device.answerCall() }
+                                           symbol: "phone.fill", prominent: true, color: .green) { device.answerCall() }
                             }
                         }
                     }

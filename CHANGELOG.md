@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Colourful light mode on the Mac.** Light mode now uses your macOS accent colour for buttons,
+  the sidebar, quick actions and signal bars; each contact and app gets its own pastel circle;
+  the battery is green (orange, then red, when it runs low); the connected dot is green; and on
+  calls, Answer is green and Decline red. Dark mode stays midnight black and white.
+
 ## 0.2.7
 
 **Downloads:** `GlassLink-0.2.7.dmg` for macOS 26 or later (Apple silicon and Intel), and

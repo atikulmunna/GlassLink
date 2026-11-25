@@ -36,9 +36,9 @@ struct MenuBarPanel: View {
                                 }
                                 if device.supportsCallControl {
                                     CallButton(title: call.kind == .ringing ? "Decline the call" : "End the call",
-                                               symbol: "phone.down.fill", size: 30) { device.declineCall() }
+                                               symbol: "phone.down.fill", color: .red, size: 30) { device.declineCall() }
                                     if call.kind == .ringing {
-                                        CallButton(title: "Answer on the phone", symbol: "phone.fill", prominent: true, size: 30) {
+                                        CallButton(title: "Answer on the phone", symbol: "phone.fill", prominent: true, color: .green, size: 30) {
                                             device.answerCall()
                                         }
                                     }

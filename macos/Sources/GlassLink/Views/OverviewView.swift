@@ -222,6 +222,7 @@ struct GlassActionButton: View {
             Button(action: action) {
                 Image(systemName: symbol)
                     .font(.system(size: size * 0.36, weight: .medium))
+                    .foregroundStyle(.tint) // white in dark mode, the accent colour in light mode
                     .symbolEffect(.bounce.up, value: trigger)
                     .contentTransition(.symbolEffect(.replace))
                     .frame(width: size, height: size)

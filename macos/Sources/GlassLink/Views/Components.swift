@@ -45,8 +45,14 @@ struct SectionTitle: View {
 struct BatteryGauge: View {
     var battery: BatteryState?
     var compact = false
+    @Environment(\.colorScheme) private var scheme
 
-    private var tint: Color { battery == nil ? .secondary : .primary }
+    private var tint: Color {
+        guard let battery else { return .secondary }
+        guard scheme == .light else { return .primary }
+        if battery.isCharging { return .green }
+        return battery.level <= 10 ? .red : battery.level <= 20 ? .orange : .green
+    }
 
     var body: some View {
         HStack(spacing: 6) {
@@ -62,7 +68,7 @@ struct BatteryGauge: View {
                 if battery?.isCharging == true {
                     Image(systemName: "bolt.fill")
                         .font(.system(size: compact ? 7 : 9, weight: .bold))
-                        .foregroundStyle(Midnight.background)
+                        .foregroundStyle(scheme == .light ? Color.white : Midnight.background)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -90,7 +96,7 @@ struct SignalBars: View {
         HStack(alignment: .bottom, spacing: 2) {
             ForEach(0..<4) { bar in
                 RoundedRectangle(cornerRadius: 1, style: .continuous)
-                    .fill(bar < strength ? Color.primary : Color.secondary.opacity(0.3))
+                    .fill(bar < strength ? AnyShapeStyle(.tint) : AnyShapeStyle(Color.secondary.opacity(0.3)))
                     .frame(width: height / 4, height: height * CGFloat(bar + 1) / 4)
             }
         }
@@ -115,9 +121,8 @@ struct Avatar: View {
     }
 
     private var color: Color {
-        let palette = scheme == .dark ? Midnight.greys : Midnight.lightGreys
         let hash = name.unicodeScalars.reduce(5381) { ($0 &* 33) &+ Int($1.value) }
-        return palette[abs(hash) % palette.count]
+        return Midnight.greys[abs(hash) % Midnight.greys.count]
     }
 
     var body: some View {
@@ -125,11 +130,22 @@ struct Avatar: View {
             if let image {
                 Image(nsImage: image).resizable().scaledToFill()
             } else {
-                ZStack {
-                    LinearGradient(colors: [color.opacity(0.95), color.opacity(0.65)], startPoint: .top, endPoint: .bottom)
-                    Text(initials)
-                        .font(.system(size: size * 0.38, weight: .semibold, design: .rounded))
-                        .foregroundStyle(scheme == .dark ? Color.white : Color.black.opacity(0.72))
+                if scheme == .dark {
+                    ZStack {
+                        LinearGradient(colors: [color.opacity(0.95), color.opacity(0.65)], startPoint: .top, endPoint: .bottom)
+                        Text(initials)
+                            .font(.system(size: size * 0.38, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white)
+                    }
+                } else {
+                    // Light mode: a pastel of its own for each contact.
+                    let pastel = Midnight.pastel(for: name)
+                    ZStack {
+                        pastel.fill
+                        Text(initials)
+                            .font(.system(size: size * 0.38, weight: .semibold, design: .rounded))
+                            .foregroundStyle(pastel.ink)
+                    }
                 }
             }
         }
@@ -143,6 +159,7 @@ struct AppIcon: View {
     var image: NSImage?
     var appName: String
     var size: CGFloat = 32
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         Group {
@@ -151,11 +168,12 @@ struct AppIcon: View {
             } else {
                 Text(appName.prefix(1).uppercased())
                     .font(.system(size: size * 0.45, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(scheme == .dark ? AnyShapeStyle(.secondary) : AnyShapeStyle(Midnight.pastel(for: appName).ink))
             }
         }
         .frame(width: size, height: size)
-        .background(.quaternary.opacity(0.6), in: .rect(cornerRadius: size * 0.28, style: .continuous))
+        .background(scheme == .dark || image != nil ? AnyShapeStyle(.quaternary.opacity(0.6)) : AnyShapeStyle(Midnight.pastel(for: appName).fill),
+                    in: .rect(cornerRadius: size * 0.28, style: .continuous))
     }
 }
 
@@ -228,12 +246,15 @@ struct PhoneIllustration: View {
 
 struct ConnectionDot: View {
     var connected: Bool
+    @Environment(\.colorScheme) private var scheme
+
+    private var on: Color { scheme == .light ? .green : .primary }
 
     var body: some View {
         Circle()
-            .fill(connected ? Color.primary : Color.secondary.opacity(0.5))
+            .fill(connected ? on : Color.secondary.opacity(0.5))
             .frame(width: 8, height: 8)
-            .overlay { if connected { Circle().stroke(Color.primary.opacity(0.2), lineWidth: 3) } }
+            .overlay { if connected { Circle().stroke(on.opacity(0.25), lineWidth: 3) } }
             .animation(.glass, value: connected)
     }
 }

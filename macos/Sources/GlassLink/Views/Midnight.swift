@@ -1,9 +1,9 @@
 import AppKit
 import SwiftUI
 
-/// GlassLink's look on both platforms: midnight and white. Pure black (or white, in light mode),
-/// white (or black) type and controls, greyscale everything else. The Android app uses the same
-/// palette (GlassLinkPalette.kt).
+/// GlassLink's look. Dark mode: midnight and white (pure black, white type and controls,
+/// greyscale everything else; the Android app's GlassLinkPalette.kt matches). Light mode is
+/// colourful: the macOS accent colour on controls, pastel contact circles, a green battery.
 enum Midnight {
     /// Black in dark mode, white in light mode.
     static let background = Color(nsColor: NSColor(name: "GlassLinkBackground") { appearance in
@@ -12,8 +12,21 @@ enum Midnight {
 
     /// Greys for avatars and placeholders in dark mode (with white initials), from light to dark.
     static let greys: [Color] = [0.62, 0.54, 0.46, 0.38, 0.30].map { Color(white: $0) }
-    /// The same in light mode (with dark initials).
-    static let lightGreys: [Color] = [0.90, 0.86, 0.82, 0.78, 0.74].map { Color(white: $0) }
+    /// Light mode: soft pastel circles, with initials in a darker shade of the same hue.
+    static let pastels: [(fill: Color, ink: Color)] = [
+        (Color(red: 0.89, green: 0.85, blue: 0.98), Color(red: 0.40, green: 0.25, blue: 0.72)), // violet
+        (Color(red: 0.84, green: 0.95, blue: 0.87), Color(red: 0.12, green: 0.50, blue: 0.26)), // green
+        (Color(red: 1.00, green: 0.90, blue: 0.80), Color(red: 0.72, green: 0.38, blue: 0.06)), // orange
+        (Color(red: 0.84, green: 0.91, blue: 1.00), Color(red: 0.15, green: 0.38, blue: 0.78)), // blue
+        (Color(red: 0.99, green: 0.86, blue: 0.91), Color(red: 0.72, green: 0.18, blue: 0.40)), // pink
+        (Color(red: 0.82, green: 0.94, blue: 0.94), Color(red: 0.08, green: 0.47, blue: 0.50)), // teal
+    ]
+
+    /// The same name always gets the same pastel.
+    static func pastel(for name: String) -> (fill: Color, ink: Color) {
+        let hash = name.unicodeScalars.reduce(5381) { ($0 &* 33) &+ Int($1.value) }
+        return pastels[abs(hash) % pastels.count]
+    }
 }
 
 /// Settings › Theme: follow macOS, or always light or dark.
@@ -50,6 +63,8 @@ struct ThemedWindow: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            // Midnight controls in dark mode; the macOS accent colour in light mode.
+            .tint(scheme == .dark ? Color.primary : Color.accentColor)
             .preferredColorScheme(scheme)
             .onReceive(DistributedNotificationCenter.default().publisher(for: Notification.Name("AppleInterfaceThemeChangedNotification"))) { _ in
                 systemDark = Theme.systemIsDark
@@ -60,20 +75,19 @@ struct ThemedWindow: ViewModifier {
 extension View {
     /// Monochrome controls on a black (or white) window, in the chosen theme.
     func midnightWindow() -> some View {
-        tint(.primary)
-            .containerBackground(Midnight.background, for: .window)
+        containerBackground(Midnight.background, for: .window)
             .modifier(ThemedWindow())
     }
 
     /// The theme alone, for the menu bar panel and Settings.
     func midnightTheme() -> some View {
-        tint(.primary).modifier(ThemedWindow())
+        modifier(ThemedWindow())
     }
 }
 
-/// GlassLink's prominent buttons: a solid capsule in the text color (black in light mode, white in
-/// dark mode) with the opposite color for the label, so it always reads. The system's
-/// .glassProminent with the window's .primary tint drew black text on a dark button in light mode.
+/// GlassLink's prominent buttons: white with black text in dark mode, the accent colour with white
+/// text in light mode, so the label always reads. (The system's .glassProminent with a .primary
+/// tint drew black text on a dark button in light mode.)
 struct MidnightProminentButtonStyle: ButtonStyle {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.isEnabled) private var isEnabled
@@ -86,7 +100,7 @@ struct MidnightProminentButtonStyle: ButtonStyle {
             .foregroundStyle(scheme == .dark ? Color.black : Color.white)
             .padding(.horizontal, small ? 10 : 14)
             .padding(.vertical, small ? 3 : 6)
-            .background(Capsule().fill(scheme == .dark ? Color.white : Color.black))
+            .background(Capsule().fill(scheme == .dark ? Color.white : Color.accentColor))
             .contentShape(Capsule())
             .opacity(isEnabled ? (configuration.isPressed ? 0.75 : 1) : 0.35)
             .scaleEffect(configuration.isPressed ? 0.96 : 1)

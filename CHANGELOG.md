@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **The Mac's System theme follows macOS.** With Theme set to System, GlassLink stayed light even
+  when macOS was dark. It now matches macOS, and switches with it.
 - **Colourful light mode on the Mac.** Light mode now uses your macOS accent colour for buttons,
   the sidebar, quick actions and signal bars; each contact and app gets its own pastel circle;
   the battery is green (orange, then red, when it runs low); the connected dot is green; and on

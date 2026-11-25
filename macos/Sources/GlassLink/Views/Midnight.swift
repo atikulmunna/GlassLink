@@ -32,9 +32,14 @@ enum Midnight {
 /// Settings › Theme: follow macOS, or always light or dark.
 @MainActor
 enum Theme {
-    /// Whether macOS itself is in Dark mode right now.
+    /// Whether macOS itself is in Dark mode right now. In System mode NSApp.appearance is nil, so the
+    /// app's effective appearance is macOS's. (A UserDefaults suite for the global domain isn't
+    /// allowed and always read nil, which made System look light.)
     static var systemIsDark: Bool {
-        UserDefaults(suiteName: UserDefaults.globalDomain)?.string(forKey: "AppleInterfaceStyle") == "Dark"
+        if NSApp.appearance == nil {
+            return NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        }
+        return UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark"
     }
 
     static func apply(_ choice: String) {
@@ -66,9 +71,11 @@ struct ThemedWindow: ViewModifier {
             // Midnight controls in dark mode; the macOS accent colour in light mode.
             .tint(scheme == .dark ? Color.primary : Color.accentColor)
             .preferredColorScheme(scheme)
+            .onReceive(NSApp.publisher(for: \.effectiveAppearance)) { _ in systemDark = Theme.systemIsDark }
             .onReceive(DistributedNotificationCenter.default().publisher(for: Notification.Name("AppleInterfaceThemeChangedNotification"))) { _ in
                 systemDark = Theme.systemIsDark
             }
+            .onChange(of: theme) { _, _ in systemDark = Theme.systemIsDark }
     }
 }
 

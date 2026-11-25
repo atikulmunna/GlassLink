@@ -106,7 +106,7 @@ struct NotificationCard: View {
                         .glassEffect(.regular, in: .capsule)
                     Button("Send", systemImage: "arrow.up") { send(replyId) }
                         .labelStyle(.iconOnly)
-                        .buttonStyle(.glassProminent)
+                        .buttonStyle(.midnightProminent)
                         .buttonBorderShape(.circle)
                         .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty)
                 }

@@ -283,7 +283,7 @@ struct FindMacOverlay: View {
                     .symbolEffect(.pulse, options: .repeating)
                 Text("\(device.name) is looking for this Mac").font(.title2.weight(.semibold))
                 Button("Found It") { model.stopFindingMac() }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.midnightProminent)
                     .controlSize(.large)
                     .keyboardShortcut(.defaultAction)
             }

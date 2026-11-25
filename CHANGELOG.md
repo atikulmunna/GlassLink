@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- **Theme setting on the Mac:** Settings › General › Theme: System, Light or Dark (the phone has
+  had this under Settings › Choose theme).
+- **Light mode fix:** prominent buttons such as Show on Phone, Install and Allow showed black text
+  on a dark button. They're now solid black with white text in light mode (white with black text
+  in dark mode).
+
 ## 0.2.6
 
 **Downloads:** `GlassLink-0.2.6.dmg` for macOS 26 or later (Apple silicon and Intel), and

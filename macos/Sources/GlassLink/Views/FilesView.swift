@@ -39,7 +39,7 @@ struct FilesView: View {
             Text("They land in the phone's Downloads folder.")
                 .foregroundStyle(.secondary)
             Button("Choose Files…") { FilePicker.sendFiles(to: device) }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.midnightProminent)
                 .controlSize(.large)
         }
         .frame(maxWidth: .infinity)

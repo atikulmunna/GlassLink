@@ -108,7 +108,7 @@ private struct MirrorContent: View {
                 Text(device.supportsMirroring ? "Mirror \(device.name)" : "Mirroring needs GlassLink for Android")
                     .font(.headline)
                 if device.supportsMirroring {
-                    Button("Start Mirroring") { controller.start() }.buttonStyle(.glassProminent)
+                    Button("Start Mirroring") { controller.start() }.buttonStyle(.midnightProminent)
                 }
             case .asking:
                 statusIcon("hand.tap")
@@ -122,11 +122,11 @@ private struct MirrorContent: View {
             case .declined:
                 statusIcon("xmark.circle")
                 Text("Screen sharing was declined").font(.headline)
-                Button("Try Again") { controller.start() }.buttonStyle(.glassProminent)
+                Button("Try Again") { controller.start() }.buttonStyle(.midnightProminent)
             case .ended(let reason):
                 statusIcon("rectangle.on.rectangle.slash")
                 Text(reason).font(.headline).multilineTextAlignment(.center)
-                Button("Mirror Again") { controller.start() }.buttonStyle(.glassProminent)
+                Button("Mirror Again") { controller.start() }.buttonStyle(.midnightProminent)
             case .streaming:
                 EmptyView()
             }

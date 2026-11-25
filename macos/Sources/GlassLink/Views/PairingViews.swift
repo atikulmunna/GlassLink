@@ -154,10 +154,10 @@ private struct NearbyRow: View {
                     .buttonStyle(.glass)
             case .requestedByPeer:
                 Button("Respond") { AppModel.shared.pairingRequest = device }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.midnightProminent)
             default:
                 Button("Pair") { withAnimation(.glass) { device.requestPairing() } }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.midnightProminent)
             }
         }
         .padding(.vertical, 4)
@@ -201,7 +201,7 @@ struct PairRequestSheet: View {
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.midnightProminent)
             }
             .controlSize(.large)
         }

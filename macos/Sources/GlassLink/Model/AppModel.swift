@@ -14,6 +14,8 @@ enum Prefs {
     static var sendMacScreenshots: Bool { defaults.object(forKey: "sendMacScreenshots") as? Bool ?? true }
     static var sendCopiedImages: Bool { defaults.object(forKey: "sendCopiedImages") as? Bool ?? false }
     static var syncImageClipboard: Bool { defaults.object(forKey: "syncImageClipboard") as? Bool ?? true }
+    /// "system", "light" or "dark".
+    static var theme: String { defaults.string(forKey: "theme") ?? "system" }
     /// Look for a new GlassLink on GitHub once a day.
     static var checkForUpdates: Bool { defaults.object(forKey: "checkForUpdates") as? Bool ?? true }
     static var customHosts: [String] { (defaults.string(forKey: "customHosts") ?? "").split(whereSeparator: { $0 == "," || $0.isWhitespace }).map(String.init) }
@@ -110,6 +112,8 @@ final class AppModel {
 
     func start() async {
         guard provider == nil else { return }
+        // Settings › Theme; GLASSLINK_APPEARANCE=light (or dark) overrides it, for checking a look.
+        Theme.apply(ProcessInfo.processInfo.environment["GLASSLINK_APPEARANCE"] ?? Prefs.theme)
         if Self.anotherCopyIsRunning() {
             // Two copies would share one identity, so the phone would keep switching between them
             // and lose packets. The copy that started first keeps running.

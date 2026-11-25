@@ -54,7 +54,7 @@ struct SetupNotices: View {
                     Text(detail).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
                 Spacer(minLength: 12)
-                Button(button, action: action).buttonStyle(.glassProminent)
+                Button(button, action: action).buttonStyle(.midnightProminent)
             }
         }
     }
@@ -78,7 +78,7 @@ private struct UpdateNotice: View {
                 switch updater.state {
                 case .available(let release):
                     Link("What's New", destination: release.page).font(.callout)
-                    Button("Install") { Task { await updater.install() } }.buttonStyle(.glassProminent)
+                    Button("Install") { Task { await updater.install() } }.buttonStyle(.midnightProminent)
                 case .downloading(let fraction):
                     ProgressView(value: fraction).frame(width: 110)
                 default:

@@ -71,6 +71,8 @@ private struct GeneralSettings: View {
                 }
             }
 
+            ThemeSettings()
+
             UpdateSettings(updater: model.updater)
 
             SwiftUI.Section {
@@ -133,7 +135,7 @@ private struct UpdateSettings: View {
                 switch updater.state {
                 case .available(let release):
                     Button("Install \(release.version)") { Task { await updater.install() } }
-                        .buttonStyle(.glassProminent)
+                        .buttonStyle(.midnightProminent)
                 case .downloading(let fraction):
                     ProgressView(value: fraction).frame(width: 120)
                 case .checking, .installing:
@@ -158,6 +160,23 @@ private struct UpdateSettings: View {
         case .installing: "Installing. GlassLink reopens by itself."
         case .failed(let reason): reason
         default: "GlassLink checks GitHub's releases once a day. Nothing else is sent."
+        }
+    }
+}
+
+/// Settings › General › Theme: System (follow macOS), Light or Dark.
+private struct ThemeSettings: View {
+    @AppStorage("theme") private var theme = "system"
+
+    var body: some View {
+        SwiftUI.Section {
+            Picker("Theme", selection: $theme) {
+                Text("System").tag("system")
+                Text("Light").tag("light")
+                Text("Dark").tag("dark")
+            }
+            .pickerStyle(.segmented)
+            .onChange(of: theme) { _, choice in Theme.apply(choice) }
         }
     }
 }

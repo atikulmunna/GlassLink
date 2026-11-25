@@ -170,7 +170,7 @@ struct ThreadView: View {
                 .glassEffect(.regular, in: .rect(cornerRadius: 18))
             Button("Send", systemImage: "arrow.up", action: send)
                 .labelStyle(.iconOnly)
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.midnightProminent)
                 .buttonBorderShape(.circle)
                 .controlSize(.large)
                 .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !device.isReady)
@@ -233,7 +233,7 @@ struct NewMessageSheet: View {
                     device.sendMessage(text, to: addresses)
                     dismiss()
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.midnightProminent)
                 .keyboardShortcut(.defaultAction)
                 .disabled(recipient.isEmpty || text.isEmpty)
             }

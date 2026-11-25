@@ -196,7 +196,10 @@ private fun GlassCircleButton(
     onClick: () -> Unit,
 ) {
     val scheme = MaterialTheme.colorScheme
-    val ink = scheme.onSurface
+    // Dark mode: midnight glass in the text colour. Light mode: Material tonal buttons
+    // (primaryContainer), so the palette's colour shows.
+    val dark = androidx.compose.foundation.isSystemInDarkTheme()
+    val ink = if (dark) scheme.onSurface else scheme.onPrimaryContainer
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val pressScale by animateFloatAsState(
@@ -238,16 +241,20 @@ private fun GlassCircleButton(
                     scaleY = pressScale
                 }
                 .clip(CircleShape)
-                .background(Brush.verticalGradient(listOf(ink.copy(alpha = if (pressed) 0.20f else 0.13f), ink.copy(alpha = 0.04f))))
-                .border(1.dp, Brush.verticalGradient(listOf(ink.copy(alpha = 0.34f), ink.copy(alpha = 0.06f))), CircleShape)
+                .then(
+                    if (dark) Modifier
+                        .background(Brush.verticalGradient(listOf(ink.copy(alpha = if (pressed) 0.20f else 0.13f), ink.copy(alpha = 0.04f))))
+                        .border(1.dp, Brush.verticalGradient(listOf(ink.copy(alpha = 0.34f), ink.copy(alpha = 0.06f))), CircleShape)
+                    else Modifier.background(if (pressed) scheme.primary.copy(alpha = 0.28f) else scheme.primaryContainer)
+                )
                 .clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(bounded = true)) {
                     taps++
                     onClick()
                 }
                 .semantics { role = Role.Button }
         ) {
-            // A soft highlight across the top of the glass.
-            Box(
+            // A soft highlight across the top of the glass (dark mode only).
+            if (dark) Box(
                 Modifier
                     .matchParentSize()
                     .background(Brush.radialGradient(listOf(ink.copy(alpha = 0.10f), Color.Transparent),
@@ -320,7 +327,8 @@ private fun PluginsWithoutPermissions(
                         .clip(CircleShape)
                         .background(scheme.surfaceContainerHighest)
                 ) {
-                    Icon(Icons.Filled.Lock, contentDescription = null, tint = scheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Filled.Lock, contentDescription = null, modifier = Modifier.size(16.dp),
+                        tint = if (androidx.compose.foundation.isSystemInDarkTheme()) scheme.onSurfaceVariant else scheme.primary)
                 }
                 Column(modifier = Modifier
                     .weight(1f)

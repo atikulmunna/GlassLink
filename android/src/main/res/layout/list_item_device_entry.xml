@@ -34,7 +34,7 @@ SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted
                 android:layout_marginStart="12dp"
                 android:src="@drawable/ic_device_laptop_32dp"
                 android:importantForAccessibility="no"
-                app:tint="?attr/colorControlNormal"/>
+                app:tint="@color/gl_device_icon"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"

@@ -75,7 +75,10 @@ object ThemeUtil {
         val accent = context.getColor(android.R.color.system_accent1_500)
         val hsv = FloatArray(3)
         android.graphics.Color.colorToHSV(accent, hsv)
-        return hsv[1] > 0.2f
+        val colorful = hsv[1] > 0.2f
+        Log.i("GlassLinkTheme", "Material You accent #%06X, saturation %.2f: %s".format(
+            accent and 0xFFFFFF, hsv[1], if (colorful) "using wallpaper colours" else "using the Material 3 baseline"))
+        return colorful
     }
 
     private fun isNight(context: android.content.Context): Boolean =

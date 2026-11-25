@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.2.5
+
+**Downloads:** `GlassLink-0.2.5.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.5.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. On 0.2.3 or
+later, both apps offer this update themselves. The Android app installs over earlier versions and
+keeps your pairing. GlassLink for Mac has no changes besides the version number.
 
 - **Explains Android's "restricted settings".** Android 13 and later hold back SMS and call-log
   permissions, accessibility and notification access from apps installed from a download. When

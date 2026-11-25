@@ -12,9 +12,9 @@
     <string name="glasslink_needs_permission">Needs a permission</string>
     <string name="glasslink_optional_permission">Works better with a permission</string>
     <string name="pref_plugin_glasslink_quick_actions">Quick actions</string>
-    <string name="pref_plugin_glasslink_quick_actions_desc">Ring or ping your Mac from the device screen</string>
+    <string name="pref_plugin_glasslink_quick_actions_desc">Ring or wave at your Mac from the device screen</string>
     <string name="glasslink_ring">Ring</string>
-    <string name="glasslink_ping">Ping</string>
+    <string name="glasslink_ping">Wave</string>
     <string name="glasslink_finish_setup">Finish setting up</string>
     <string name="glasslink_optional_extras">Optional extras</string>
     <string name="pref_plugin_glasslink_mirror">Screen mirroring</string>
@@ -61,4 +61,7 @@
     <string name="glasslink_restricted_app_info">App info</string>
     <string name="glasslink_restricted_hint">If Android says this setting is restricted, tap App info below, then ⋮ › Allow restricted settings, and try again.</string>
     <string name="glasslink_update_rate_limited">GitHub is limiting requests from your network right now. Try again later.</string>
+    <string name="glasslink_wave_received">Waved at you 👋</string>
+    <string name="glasslink_ring_title">%s is ringing this phone</string>
+    <string name="glasslink_ring_text">Tap Found it to stop.</string>
 </resources>

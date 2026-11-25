@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Ring works on a locked phone.** The phone used to start the sound only once its full-screen
+  ringing screen opened, which Android 14 and later don't allow apps to do by default, so a locked
+  phone stayed silent. It now rings straight away, at alarm volume, with a "… is ringing this phone"
+  notification and a Found it button that stops it.
+- **Ping is now Wave**, on both apps; the other device shows "Waved at you 👋".
 - **Theme setting on the Mac:** Settings › General › Theme: System, Light or Dark (the phone has
   had this under Settings › Choose theme).
 - **Light mode fix:** prominent buttons such as Show on Phone, Install and Allow showed black text

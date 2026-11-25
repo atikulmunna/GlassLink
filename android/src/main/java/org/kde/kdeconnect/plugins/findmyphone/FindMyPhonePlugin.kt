@@ -118,15 +118,47 @@ class FindMyPhonePlugin : Plugin() {
             }
             context.startActivity(intent)
         } else {
-            if (powerManager.isInteractive) {
-                startPlaying()
-                startFlashing()
-                showBroadcastNotification()
-            } else {
-                showActivityNotification()
-            }
+            // GlassLink: ring straight away, also when the phone is locked or its screen is off.
+            // Upstream only started the sound once the full-screen ringing screen opened, and
+            // Android 14+ doesn't let apps open it by default, so a locked phone stayed silent.
+            startPlaying()
+            startFlashing()
+            showRingingNotification()
         }
         return true
+    }
+
+    /** "<Mac> is ringing this phone": Found it stops it; the ringing screen opens where allowed. */
+    private fun showRingingNotification() {
+        val foundIt = PendingIntent.getBroadcast(
+            context, notificationId,
+            Intent(context, FindMyPhoneReceiver::class.java).apply {
+                addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                action = FindMyPhoneReceiver.ACTION_FOUND_IT
+                putExtra(FindMyPhoneReceiver.EXTRA_DEVICE_ID, device.deviceId)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val screen = PendingIntent.getActivity(
+            context, notificationId,
+            Intent(context, FindMyPhoneActivity::class.java).putExtra(FindMyPhoneActivity.EXTRA_DEVICE_ID, device.deviceId),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val notification = NotificationCompat.Builder(context, NotificationHelper.Channels.HIGHPRIORITY)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.glasslink_ring_title, device.name))
+            .setContentText(context.getString(R.string.glasslink_ring_text))
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setOngoing(true)
+            .setSilent(true) // the ringtone plays separately, at alarm volume
+            .setContentIntent(screen)
+            .setFullScreenIntent(screen, true)
+            .addAction(0, context.getString(R.string.findmyphone_found), foundIt)
+            .setDeleteIntent(foundIt)
+            .setGroup("BackgroundService")
+        notificationManager.notify(notificationId, notification.build())
     }
 
     private fun showBroadcastNotification() {

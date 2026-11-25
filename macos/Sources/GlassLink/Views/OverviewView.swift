@@ -180,7 +180,7 @@ struct QuickActions: View {
                         }
                     }
                 }
-                GlassActionButton(title: "Ping", symbol: "hand.wave", trigger: pinged, index: 3, appeared: appeared) {
+                GlassActionButton(title: "Wave", symbol: "hand.wave", trigger: pinged, index: 3, appeared: appeared) {
                     device.ping()
                     pinged += 1
                 }

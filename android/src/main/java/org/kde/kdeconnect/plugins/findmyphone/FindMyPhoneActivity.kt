@@ -60,6 +60,7 @@ class FindMyPhoneActivity : BaseActivity<ActivityFindMyPhoneBinding>() {
         val plugin = KdeConnect.getInstance().getDevicePlugin<FindMyPhonePlugin>(deviceId) ?: return
         plugin.stopPlaying()
         plugin.stopFlashing()
+        plugin.hideNotification() // GlassLink
     }
 
     companion object {

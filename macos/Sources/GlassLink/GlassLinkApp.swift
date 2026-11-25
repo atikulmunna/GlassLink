@@ -32,7 +32,7 @@ struct GlassLinkApp: App {
                     .keyboardShortcut("v", modifiers: [.command, .shift])
                 Button("Get Phone's Clipboard") { model.current?.requestPhoneClipboard() }
                     .disabled(model.current?.supportsClipboardRequest != true)
-                Button("Ping") { model.current?.ping() }
+                Button("Wave at Phone") { model.current?.ping() }
                 MirrorCommand(model: model)
                 Divider()
                 Button("Refresh Connection") { model.refresh() }

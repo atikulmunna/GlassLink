@@ -33,5 +33,6 @@ class FindMyPhoneReceiver : BroadcastReceiver() {
         val plugin = KdeConnect.getInstance().getDevicePlugin<FindMyPhonePlugin>(deviceId) ?: return
         plugin.stopPlaying()
         plugin.stopFlashing()
+        plugin.hideNotification() // GlassLink: the ringing notification goes away with the sound
     }
 }

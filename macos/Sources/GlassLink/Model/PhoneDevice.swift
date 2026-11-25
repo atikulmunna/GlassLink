@@ -337,7 +337,7 @@ final class PhoneDevice: Identifiable {
         }
         switch packet.type {
         case PacketType.ping:
-            app?.notifier.post(title: name, body: packet["message"]?.string ?? "Ping!", deviceId: id)
+            app?.notifier.post(title: name, body: packet["message"]?.string ?? "Waved at you 👋", deviceId: id)
         case PacketType.battery:
             receiveBattery(packet)
         case PacketType.connectivityReport:

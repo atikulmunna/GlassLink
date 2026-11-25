@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.2.7
+
+**Downloads:** `GlassLink-0.2.7.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.7.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. On 0.2.3 or
+later, both apps offer this update themselves. The Android app installs over earlier versions and
+keeps your pairing.
 
 - **Ring works on a locked phone.** The phone used to start the sound only once its full-screen
   ringing screen opened, which Android 14 and later don't allow apps to do by default, so a locked

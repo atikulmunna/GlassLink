@@ -2,15 +2,23 @@ import SwiftUI
 
 struct MenuBarLabel: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        if let device = model.current, device.isConnected {
-            HStack(spacing: 3) {
-                Image(systemName: device.call != nil ? "phone.fill" : "smartphone")
-                if let battery = device.battery { Text("\(battery.level)%").monospacedDigit() }
+        Group {
+            if let device = model.current, device.isConnected {
+                HStack(spacing: 3) {
+                    Image(systemName: device.call != nil ? "phone.fill" : "smartphone")
+                    if let battery = device.battery { Text("\(battery.level)%").monospacedDigit() }
+                }
+            } else {
+                Image(systemName: "smartphone.slash")
             }
-        } else {
-            Image(systemName: "smartphone.slash")
+        }
+        // "Mirror to Mac" on the phone: this label is always alive, so it opens the window.
+        .onChange(of: model.mirrorWindowRequests) { _, _ in
+            openWindow(id: "mirror")
+            NSApp.activate()
         }
     }
 }

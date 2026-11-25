@@ -134,4 +134,8 @@ public enum PacketType {
     public static let glasslinkSetupRequest = "glasslink.setup.request"
     /// Answer, decline or end the phone's call (`action`); the call itself stays on the phone.
     public static let glasslinkCallRequest = "glasslink.call.request"
+    /// From the phone: open the Phone Screen window (which then asks the phone to share).
+    public static let glasslinkMirrorOffer = "glasslink.mirror.offer"
+    /// From the phone: lock this Mac (sleep the display).
+    public static let glasslinkMacLock = "glasslink.mac.lock"
 }

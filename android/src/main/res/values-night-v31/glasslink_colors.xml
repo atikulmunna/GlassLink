@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL -->
+<!-- GlassLink dark mode on Android 12+: the phone's Material You accent (Material's dark tones of
+     it) for icons, switches and highlights. Surfaces stay midnight, from values-night. -->
+<resources>
+    <color name="gl_primary">@android:color/system_accent1_200</color>
+    <color name="gl_on_primary">@android:color/system_accent1_800</color>
+    <color name="gl_primary_container">@android:color/system_accent1_700</color>
+    <color name="gl_on_primary_container">@android:color/system_accent1_100</color>
+    <color name="gl_secondary">@android:color/system_accent2_200</color>
+    <color name="gl_secondary_container">@android:color/system_accent2_700</color>
+    <color name="gl_on_secondary_container">@android:color/system_accent2_100</color>
+</resources>

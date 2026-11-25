@@ -90,7 +90,7 @@ struct RootView: View {
 
 struct Sidebar: View {
     @Environment(\.colorScheme) private var scheme
-    private var sidebarTint: ListItemTint { scheme == .dark ? .monochrome : .preferred(.accentColor) }
+    private var sidebarTint: ListItemTint { .preferred(.accentColor) }
     @Environment(AppModel.self) private var model
     var device: PhoneDevice
     @Binding var section: Section
@@ -197,7 +197,7 @@ struct CallButton: View {
     var title: String
     var symbol: String
     var prominent = false
-    /// Light mode only: Answer's fill (green) or Decline's icon (red). Dark mode stays midnight.
+    /// Answer's fill (green) or Decline's icon (red).
     var color: Color? = nil
     var size: CGFloat = 40
     var action: () -> Void
@@ -218,7 +218,7 @@ struct CallButton: View {
         .buttonStyle(.plain)
         .foregroundStyle(iconStyle)
         // Answer: a solid disc (white in dark mode; green, or the accent colour, in light mode).
-        .background { if prominent { Circle().fill(light ? (color ?? .accentColor) : .primary) } }
+        .background { if prominent { Circle().fill(color ?? .accentColor) } }
         .glassEffect(prominent ? .identity : .regular.interactive(), in: .circle)
         .scaleEffect(hovering ? 1.08 : 1)
         .onHover { over in hovering = over && isEnabled }
@@ -228,8 +228,8 @@ struct CallButton: View {
     }
 
     private var iconStyle: AnyShapeStyle {
-        if prominent { return light ? AnyShapeStyle(Color.white) : AnyShapeStyle(.background) }
-        if light, let color { return AnyShapeStyle(color) }
+        if prominent { return AnyShapeStyle(Color.white) }
+        if let color { return AnyShapeStyle(color) }
         return AnyShapeStyle(.primary)
     }
 }

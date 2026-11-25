@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Accent colour in dark mode too**, on both apps: icons, switches and highlights use the accent
+  (your macOS accent on the Mac; Material You, or Material's palette, on the phone), contacts get
+  coloured circles, the battery is green. Backgrounds stay midnight black.
+- **New phone icons**, from Material Symbols Rounded: Ring, Send files, Mac's clipboard, Send
+  clipboard, Wave, Mirror to Mac and Lock Mac.
+- **More quick actions on the phone:** Send clipboard (always shown now), **Mirror to Mac** (opens
+  the Phone Screen window on the Mac and starts sharing) and **Lock Mac** (puts the Mac's display
+  to sleep, which locks it when a password is required right away).
 - **The Mac's System theme follows macOS.** With Theme set to System, GlassLink stayed light even
   when macOS was dark. It now matches macOS, and switches with it.
 - **Colourful light mode on the Mac.** Light mode now uses your macOS accent colour for buttons,

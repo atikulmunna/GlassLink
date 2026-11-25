@@ -62,6 +62,9 @@ final class AppModel {
     @ObservationIgnored private var heartbeat: Task<Void, Never>?
     @ObservationIgnored private var networkAddresses: Set<String>?
 
+    /// Bumped when the phone asks to mirror; the menu bar label (always alive) opens the window.
+    var mirrorWindowRequests = 0
+
     enum NotificationPermission { case allowed, notAsked, off }
     /// Whether macOS lets GlassLink show banners. Without them, phone notifications and calls only
     /// appear inside the app, so the Overview says so.
@@ -356,6 +359,7 @@ final class AppModel {
             PacketType.findMyPhone, PacketType.sftp,
             PacketType.glasslinkScreenshot, PacketType.glasslinkClipboardImage, PacketType.glasslinkWallpaper,
             PacketType.glasslinkClipboardRequest, PacketType.glasslinkMirror, PacketType.glasslinkSetup,
+            PacketType.glasslinkMirrorOffer, PacketType.glasslinkMacLock,
         ],
         outgoing: [
             PacketType.ping, PacketType.clipboard, PacketType.clipboardConnect,

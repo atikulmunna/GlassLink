@@ -47,6 +47,20 @@ object GlassLinkPalette {
         inverseOnSurface = Color.Black,
     )
 
+    /** Dark mode: midnight surfaces, with [accent]'s colour roles for icons, switches and highlights. */
+    fun darkWithAccent(accent: androidx.compose.material3.ColorScheme) = dark.copy(
+        primary = accent.primary,
+        onPrimary = accent.onPrimary,
+        primaryContainer = accent.primaryContainer,
+        onPrimaryContainer = accent.onPrimaryContainer,
+        secondary = accent.secondary,
+        onSecondary = accent.onSecondary,
+        secondaryContainer = accent.secondaryContainer,
+        onSecondaryContainer = accent.onSecondaryContainer,
+        tertiary = accent.tertiary,
+        onTertiary = accent.onTertiary,
+    )
+
     val light = lightColorScheme(
         primary = Color.Black,
         onPrimary = Color.White,

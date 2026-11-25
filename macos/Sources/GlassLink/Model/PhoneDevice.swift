@@ -368,6 +368,16 @@ final class PhoneDevice: Identifiable {
             receiveWallpaper(packet)
         case PacketType.glasslinkMirror:
             mirror.receive(packet)
+        case PacketType.glasslinkMirrorOffer:
+            app?.selectedDeviceId = id
+            app?.mirrorWindowRequests += 1
+            mirror.start() // no-op if the window's own start already ran
+        case PacketType.glasslinkMacLock:
+            // Sleeping the display locks the Mac when a password is required right away (the default).
+            let sleep = Process()
+            sleep.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
+            sleep.arguments = ["displaysleepnow"]
+            try? sleep.run()
         case PacketType.glasslinkSetup:
             setupMissing = packet["missing"]?.array?.compactMap(\.string) ?? []
             setupLimited = packet["limited"]?.array?.compactMap(\.string) ?? []

@@ -262,7 +262,7 @@ private fun GlassCircleButton(
             )
             Icon(
                 painter = painterResource(id = button.iconRes),
-                tint = ink,
+                tint = if (dark) scheme.primary else ink, // the accent, on midnight glass in dark mode
                 contentDescription = null,
                 modifier = Modifier
                     .size(26.dp)
@@ -328,7 +328,7 @@ private fun PluginsWithoutPermissions(
                         .background(scheme.surfaceContainerHighest)
                 ) {
                     Icon(Icons.Filled.Lock, contentDescription = null, modifier = Modifier.size(16.dp),
-                        tint = if (androidx.compose.foundation.isSystemInDarkTheme()) scheme.onSurfaceVariant else scheme.primary)
+                        tint = scheme.primary)
                 }
                 Column(modifier = Modifier
                     .weight(1f)

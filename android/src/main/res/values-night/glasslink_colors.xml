@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL -->
-<!-- GlassLink midnight palette for the classic (non-Compose) screens; mirrors GlassLinkPalette.kt. -->
+<!-- GlassLink dark mode for the classic (non-Compose) screens: midnight surfaces with an accent for
+     icons, switches and highlights (Material 3 baseline; Material You on Android 12+, see
+     values-night-v31). Mirrors KdeTheme.kt. -->
 <resources>
-    <color name="gl_primary">#FFFFFF</color>
-    <color name="gl_on_primary">#000000</color>
-    <color name="gl_primary_container">#1F1F1F</color>
-    <color name="gl_on_primary_container">#FFFFFF</color>
-    <color name="gl_secondary">#E6E6E6</color>
-    <color name="gl_secondary_container">#262626</color>
-    <color name="gl_on_secondary_container">#FFFFFF</color>
+    <color name="gl_primary">#D0BCFF</color>
+    <color name="gl_on_primary">#381E72</color>
+    <color name="gl_primary_container">#4F378B</color>
+    <color name="gl_on_primary_container">#EADDFF</color>
+    <color name="gl_secondary">#CCC2DC</color>
+    <color name="gl_secondary_container">#4A4458</color>
+    <color name="gl_on_secondary_container">#E8DEF8</color>
     <color name="gl_background">#000000</color>
     <color name="gl_surface">#000000</color>
     <color name="gl_on_surface">#F5F5F5</color>

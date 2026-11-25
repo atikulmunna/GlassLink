@@ -49,7 +49,6 @@ struct BatteryGauge: View {
 
     private var tint: Color {
         guard let battery else { return .secondary }
-        guard scheme == .light else { return .primary }
         if battery.isCharging { return .green }
         return battery.level <= 10 ? .red : battery.level <= 20 ? .orange : .green
     }
@@ -68,7 +67,7 @@ struct BatteryGauge: View {
                 if battery?.isCharging == true {
                     Image(systemName: "bolt.fill")
                         .font(.system(size: compact ? 7 : 9, weight: .bold))
-                        .foregroundStyle(scheme == .light ? Color.white : Midnight.background)
+                        .foregroundStyle(Color.white)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -120,32 +119,18 @@ struct Avatar: View {
         return String(letters).uppercased()
     }
 
-    private var color: Color {
-        let hash = name.unicodeScalars.reduce(5381) { ($0 &* 33) &+ Int($1.value) }
-        return Midnight.greys[abs(hash) % Midnight.greys.count]
-    }
-
     var body: some View {
         Group {
             if let image {
                 Image(nsImage: image).resizable().scaledToFill()
             } else {
-                if scheme == .dark {
-                    ZStack {
-                        LinearGradient(colors: [color.opacity(0.95), color.opacity(0.65)], startPoint: .top, endPoint: .bottom)
-                        Text(initials)
-                            .font(.system(size: size * 0.38, weight: .semibold, design: .rounded))
-                            .foregroundStyle(.white)
-                    }
-                } else {
-                    // Light mode: a pastel of its own for each contact.
-                    let pastel = Midnight.pastel(for: name)
-                    ZStack {
-                        pastel.fill
-                        Text(initials)
-                            .font(.system(size: size * 0.38, weight: .semibold, design: .rounded))
-                            .foregroundStyle(pastel.ink)
-                    }
+                // A colour of its own for each contact: pastel in light mode, deep in dark mode.
+                let tone = Midnight.pastel(for: name, dark: scheme == .dark)
+                ZStack {
+                    tone.fill
+                    Text(initials)
+                        .font(.system(size: size * 0.38, weight: .semibold, design: .rounded))
+                        .foregroundStyle(tone.ink)
                 }
             }
         }
@@ -168,11 +153,11 @@ struct AppIcon: View {
             } else {
                 Text(appName.prefix(1).uppercased())
                     .font(.system(size: size * 0.45, weight: .semibold, design: .rounded))
-                    .foregroundStyle(scheme == .dark ? AnyShapeStyle(.secondary) : AnyShapeStyle(Midnight.pastel(for: appName).ink))
+                    .foregroundStyle(Midnight.pastel(for: appName, dark: scheme == .dark).ink)
             }
         }
         .frame(width: size, height: size)
-        .background(scheme == .dark || image != nil ? AnyShapeStyle(.quaternary.opacity(0.6)) : AnyShapeStyle(Midnight.pastel(for: appName).fill),
+        .background(image != nil ? AnyShapeStyle(.quaternary.opacity(0.6)) : AnyShapeStyle(Midnight.pastel(for: appName, dark: scheme == .dark).fill),
                     in: .rect(cornerRadius: size * 0.28, style: .continuous))
     }
 }
@@ -248,7 +233,7 @@ struct ConnectionDot: View {
     var connected: Bool
     @Environment(\.colorScheme) private var scheme
 
-    private var on: Color { scheme == .light ? .green : .primary }
+    private var on: Color { .green }
 
     var body: some View {
         Circle()

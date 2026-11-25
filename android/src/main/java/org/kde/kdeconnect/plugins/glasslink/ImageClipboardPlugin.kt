@@ -41,7 +41,7 @@ class ImageClipboardPlugin : Plugin(), ClipboardListener.ImageObserver {
 
     /** Mirrors the Mac's "Get Phone's Clipboard": the Mac answers with its text or image. */
     override fun getUiButtons(): List<PluginUiButton> = listOf(
-        PluginUiButton(context.getString(R.string.glasslink_get_mac_clipboard), R.drawable.ic_baseline_content_paste_24) {
+        PluginUiButton(context.getString(R.string.glasslink_get_mac_clipboard), R.drawable.glasslink_sym_mac_clipboard) {
             device.sendPacket(NetworkPacket(PACKET_TYPE_CLIPBOARD_REQUEST))
         }
     )

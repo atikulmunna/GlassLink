@@ -18,11 +18,14 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun KdeTheme(context : Context, content: @Composable () -> Unit) {
-    // GlassLink: dark mode is the midnight palette shared with the Mac app; light mode follows
+    // GlassLink: dark mode is midnight (black surfaces) with the accent on icons and controls; light mode follows
     // Android's Material colours: Material You from the wallpaper when it has colour, otherwise
     // (older Android, or a grey palette) the Material 3 baseline.
     val colorScheme = when {
-        isSystemInDarkTheme() -> GlassLinkPalette.dark
+        isSystemInDarkTheme() -> GlassLinkPalette.darkWithAccent(
+            if (org.kde.kdeconnect.ui.ThemeUtil.hasColorfulDynamicColors(context)) androidx.compose.material3.dynamicDarkColorScheme(context)
+            else androidx.compose.material3.darkColorScheme()
+        )
         org.kde.kdeconnect.ui.ThemeUtil.hasColorfulDynamicColors(context) -> androidx.compose.material3.dynamicLightColorScheme(context)
         else -> androidx.compose.material3.lightColorScheme()
     }

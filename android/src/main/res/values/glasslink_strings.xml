@@ -64,4 +64,6 @@
     <string name="glasslink_wave_received">Waved at you 👋</string>
     <string name="glasslink_ring_title">%s is ringing this phone</string>
     <string name="glasslink_ring_text">Tap Found it to stop.</string>
+    <string name="glasslink_mirror_to_mac">Mirror to Mac</string>
+    <string name="glasslink_lock_mac">Lock Mac</string>
 </resources>

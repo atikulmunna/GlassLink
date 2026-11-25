@@ -22,10 +22,21 @@ enum Midnight {
         (Color(red: 0.82, green: 0.94, blue: 0.94), Color(red: 0.08, green: 0.47, blue: 0.50)), // teal
     ]
 
-    /// The same name always gets the same pastel.
-    static func pastel(for name: String) -> (fill: Color, ink: Color) {
+    /// Dark mode: the same hues, deep, with light initials.
+    static let deepTones: [(fill: Color, ink: Color)] = [
+        (Color(red: 0.27, green: 0.20, blue: 0.45), Color(red: 0.86, green: 0.80, blue: 1.00)), // violet
+        (Color(red: 0.13, green: 0.32, blue: 0.20), Color(red: 0.72, green: 0.93, blue: 0.79)), // green
+        (Color(red: 0.42, green: 0.26, blue: 0.10), Color(red: 1.00, green: 0.85, blue: 0.68)), // orange
+        (Color(red: 0.13, green: 0.25, blue: 0.45), Color(red: 0.74, green: 0.85, blue: 1.00)), // blue
+        (Color(red: 0.42, green: 0.15, blue: 0.27), Color(red: 1.00, green: 0.79, blue: 0.88)), // pink
+        (Color(red: 0.07, green: 0.30, blue: 0.31), Color(red: 0.68, green: 0.92, blue: 0.92)), // teal
+    ]
+
+    /// The same name always gets the same colour: a pastel in light mode, a deep tone in dark mode.
+    static func pastel(for name: String, dark: Bool = false) -> (fill: Color, ink: Color) {
         let hash = name.unicodeScalars.reduce(5381) { ($0 &* 33) &+ Int($1.value) }
-        return pastels[abs(hash) % pastels.count]
+        let palette = dark ? deepTones : pastels
+        return palette[abs(hash) % palette.count]
     }
 }
 
@@ -68,8 +79,8 @@ struct ThemedWindow: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            // Midnight controls in dark mode; the macOS accent colour in light mode.
-            .tint(scheme == .dark ? Color.primary : Color.accentColor)
+            // The macOS accent colour on icons and controls, in both modes.
+            .tint(Color.accentColor)
             .preferredColorScheme(scheme)
             .onReceive(NSApp.publisher(for: \.effectiveAppearance)) { _ in systemDark = Theme.systemIsDark }
             .onReceive(DistributedNotificationCenter.default().publisher(for: Notification.Name("AppleInterfaceThemeChangedNotification"))) { _ in
@@ -104,10 +115,10 @@ struct MidnightProminentButtonStyle: ButtonStyle {
         let small = controlSize == .small || controlSize == .mini
         configuration.label
             .fontWeight(.medium)
-            .foregroundStyle(scheme == .dark ? Color.black : Color.white)
+            .foregroundStyle(Color.white)
             .padding(.horizontal, small ? 10 : 14)
             .padding(.vertical, small ? 3 : 6)
-            .background(Capsule().fill(scheme == .dark ? Color.white : Color.accentColor))
+            .background(Capsule().fill(Color.accentColor))
             .contentShape(Capsule())
             .opacity(isEnabled ? (configuration.isPressed ? 0.75 : 1) : 0.35)
             .scaleEffect(configuration.isPressed ? 0.96 : 1)

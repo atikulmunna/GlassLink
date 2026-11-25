@@ -139,7 +139,7 @@ class SharePlugin : Plugin() {
         return listOf(
             PluginUiButton(
                 context.getString(R.string.send_files),
-                R.drawable.share_plugin_action_24dp
+                R.drawable.glasslink_sym_share // GlassLink: Material Symbols Rounded
             ) { parentActivity: Activity ->
                 val intent = Intent(parentActivity, SendFileActivity::class.java)
                 intent.putExtra(SendFileActivity.EXTRA_DEVICE_ID, device.deviceId)

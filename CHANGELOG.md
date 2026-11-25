@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **The Mac reconnects to the phone after updating itself.** Sometimes the reopened version had no
+  local network access until it was restarted by hand, so the phone stayed disconnected. The
+  updater now reopens GlassLink through macOS's launcher (like opening it from the Dock), and
+  after an update, if no phone has connected within 20 seconds, GlassLink reopens itself once.
+
 ## 0.2.8
 
 **Downloads:** `GlassLink-0.2.8.dmg` for macOS 26 or later (Apple silicon and Intel), and

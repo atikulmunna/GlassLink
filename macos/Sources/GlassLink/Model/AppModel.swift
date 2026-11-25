@@ -126,6 +126,8 @@ final class AppModel {
             return
         }
         updater.startAutomaticChecks()
+        updater.runDebugRelaunchIfAsked()
+        reopenIfCutOffAfterUpdate()
         if DemoData.isEnabled {
             // Demo mode is for UI work: no network, no notifications, no clipboard.
             status = .running
@@ -189,6 +191,23 @@ final class AppModel {
                 app.notifier.refreshPermission()
                 for device in app.pairedDevices where device.isReady { device.requestSetupStatus() }
             }
+        }
+    }
+
+    /// Updaters up to 0.2.8 reopened the new version in a way that left it without local network
+    /// access (no phone could connect until a normal restart). So on the first launch after an
+    /// update, if no paired phone has connected within 20 seconds, reopen once through launchd.
+    private func reopenIfCutOffAfterUpdate() {
+        let key = "lastRunVersion"
+        let previous = UserDefaults.standard.string(forKey: key)
+        UserDefaults.standard.set(Updater.currentVersion, forKey: key)
+        guard let previous, previous != Updater.currentVersion, !DemoData.isEnabled else { return }
+        Task {
+            try? await Task.sleep(for: .seconds(20))
+            guard !pairedDevices.isEmpty, !pairedDevices.contains(where: \.isConnected) else { return }
+            trace("just updated from \(previous) and no phone connected: reopening via launchd")
+            try? Updater.relaunchProcess(dest: Bundle.main.bundlePath, newApp: nil, viaLaunchd: true).run()
+            NSApp.terminate(nil)
         }
     }
 

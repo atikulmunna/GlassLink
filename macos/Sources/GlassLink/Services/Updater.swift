@@ -267,26 +267,73 @@ final class Updater {
             state = .failed("GlassLink can't replace itself in \(current.deletingLastPathComponent().path). The new version is open in Finder: drag it to Applications.")
             return
         }
+        let process = Self.relaunchProcess(dest: current.path, newApp: app.path, viaLaunchd: true)
+        try process.run()
+        NSApp.terminate(nil)
+    }
+
+    /// After this process quits: optionally swap in `newApp`, then reopen GlassLink.
+    ///
+    /// Reopening with `open` straight from this helper (a child of the old app) left the new copy
+    /// without local network access: incoming connections worked, but its announcements never
+    /// reached the phone until a normal restart. Going through launchd (a one-shot job in the
+    /// person's session) starts it the way the Dock or Finder would.
+    static func relaunchProcess(dest: String, newApp: String?, viaLaunchd: Bool) -> Process {
+        let label = "io.github.atikulmunna.glasslink.relaunch"
+        let reopen = viaLaunchd ? """
+            plist="${TMPDIR:-/tmp}/\(label).plist"
+            cat > "$plist" <<PLIST
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0"><dict>
+              <key>Label</key><string>\(label)</string>
+              <key>ProgramArguments</key><array><string>/usr/bin/open</string><string>$DEST</string></array>
+              <key>RunAtLoad</key><true/>
+            </dict></plist>
+            PLIST
+            launchctl bootout "gui/$(id -u)/\(label)" 2>/dev/null
+            launchctl bootstrap "gui/$(id -u)" "$plist" || open "$DEST"
+            sleep 10
+            launchctl bootout "gui/$(id -u)/\(label)" 2>/dev/null
+            rm -f "$plist"
+            """ : """
+            open "$DEST"
+            """
         let script = """
         while kill -0 "$OLD_PID" 2>/dev/null; do sleep 0.2; done
-        backup="$DEST.previous"
-        rm -rf "$backup"
-        if mv "$DEST" "$backup"; then
-          if ditto "$NEW" "$DEST"; then rm -rf "$backup"; else rm -rf "$DEST"; mv "$backup" "$DEST"; fi
+        if [ -n "$NEW" ]; then
+          backup="$DEST.previous"
+          rm -rf "$backup"
+          if mv "$DEST" "$backup"; then
+            if ditto "$NEW" "$DEST"; then rm -rf "$backup"; else rm -rf "$DEST"; mv "$backup" "$DEST"; fi
+          fi
+          xattr -dr com.apple.quarantine "$DEST" 2>/dev/null
         fi
-        xattr -dr com.apple.quarantine "$DEST" 2>/dev/null
-        # macOS takes a moment to register the new binary for local network access; opened
-        # sooner, the app's sockets stay blocked until it restarts.
+        # macOS registers a replaced app for local network access a moment after the swap.
         sleep 3
-        open "$DEST"
+        \(reopen)
         """
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/sh")
         process.arguments = ["-c", script]
-        process.environment = ["OLD_PID": String(ProcessInfo.processInfo.processIdentifier), "DEST": current.path,
-                               "NEW": app.path, "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"]
-        try process.run()
-        NSApp.terminate(nil)
+        process.environment = ["OLD_PID": String(ProcessInfo.processInfo.processIdentifier), "DEST": dest,
+                               "NEW": newApp ?? "", "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+                               "TMPDIR": NSTemporaryDirectory()]
+        return process
+    }
+
+    /// Test hook for the reopen step alone: `defaults write io.github.atikulmunna.glasslink
+    /// debugRelaunch open` (the old way) or `launchd`, then open GlassLink normally. About 15
+    /// seconds later it quits and reopens itself that way, once.
+    func runDebugRelaunchIfAsked() {
+        guard let method = UserDefaults.standard.string(forKey: "debugRelaunch") else { return }
+        UserDefaults.standard.removeObject(forKey: "debugRelaunch")
+        Task {
+            try? await Task.sleep(for: .seconds(15))
+            trace("debug relaunch via \(method)")
+            try? Self.relaunchProcess(dest: Bundle.main.bundlePath, newApp: nil, viaLaunchd: method == "launchd").run()
+            NSApp.terminate(nil)
+        }
     }
 
     enum UpdateError: LocalizedError {

@@ -61,8 +61,21 @@ object ThemeUtil {
         // follows Android's Material colours, from the wallpaper (Material You) where available.
         DynamicColors.applyToActivitiesIfAvailable(
             application,
-            DynamicColorsOptions.Builder().setPrecondition { activity, _ -> !isNight(activity) }.build(),
+            DynamicColorsOptions.Builder().setPrecondition { activity, _ -> !isNight(activity) && hasColorfulDynamicColors(activity) }.build(),
         )
+    }
+
+    /**
+     * Whether the phone's Material You palette has real colour. With a black-and-white wallpaper,
+     * or Samsung's Color palette switched off, Android hands apps near-grey "dynamic" colours; then
+     * GlassLink uses the Material 3 baseline (light) instead, so light mode still looks like Material.
+     */
+    fun hasColorfulDynamicColors(context: android.content.Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
+        val accent = context.getColor(android.R.color.system_accent1_500)
+        val hsv = FloatArray(3)
+        android.graphics.Color.colorToHSV(accent, hsv)
+        return hsv[1] > 0.2f
     }
 
     private fun isNight(context: android.content.Context): Boolean =

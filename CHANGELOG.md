@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.2.6
+
+**Downloads:** `GlassLink-0.2.6.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.6.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. On 0.2.3 or
+later, both apps offer this update themselves. The Android app installs over earlier versions and
+keeps your pairing.
 
 - **Update checks no longer fail on busy networks.** They used GitHub's API, which allows 60
   requests an hour per internet address, shared by everyone behind it; on many home and mobile

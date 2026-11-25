@@ -198,9 +198,9 @@ struct Bubble: View {
                 .textSelection(.enabled)
                 .padding(.horizontal, 13)
                 .padding(.vertical, 8)
-                .foregroundStyle(message.isOutgoing ? AnyShapeStyle(Midnight.background) : AnyShapeStyle(.primary))
+                .foregroundStyle(message.isOutgoing ? AnyShapeStyle(Color.white) : AnyShapeStyle(.primary))
                 .background(
-                    message.isOutgoing ? AnyShapeStyle(Color.primary) : AnyShapeStyle(.quaternary),
+                    message.isOutgoing ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.quaternary), // your messages: the accent
                     in: .rect(cornerRadius: 18, style: .continuous)
                 )
                 .opacity(message.isPending ? 0.6 : 1)

@@ -225,8 +225,10 @@ private fun GlassCircleButton(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier.graphicsLayer {
-            // Staggered entrance: each button arrives a beat after the previous one.
-            val delayed = ((enter * 1.6f) - index * 0.15f).coerceIn(0f, 1f)
+            // Staggered entrance: each button arrives a beat after the previous one, and every
+            // button ends fully visible however many there are (a fixed 1.6x left the 6th and 7th
+            // tiles at 85% and 70% opacity).
+            val delayed = ((enter * (1f + index * 0.15f)) - index * 0.15f).coerceIn(0f, 1f)
             alpha = delayed
             scaleX = 0.7f + 0.3f * delayed
             scaleY = 0.7f + 0.3f * delayed

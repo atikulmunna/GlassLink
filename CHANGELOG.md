@@ -1,43 +1,38 @@
 # Changelog
 
-## Unreleased
+## 0.2.8
 
-- **Accent colour in dark mode too**, on both apps: icons, switches and highlights use the accent
-  (your macOS accent on the Mac; Material You, or Material's palette, on the phone), contacts get
-  coloured circles, the battery is green. Backgrounds stay midnight black.
-- **New phone icons**, from Material Symbols Rounded: Ring, Send files, Mac's clipboard, Send
-  clipboard, Wave, Mirror to Mac and Lock Mac.
-- **More quick actions on the phone:** Send clipboard (always shown now), **Mirror to Mac** (opens
-  the Phone Screen window on the Mac and starts sharing) and **Lock Mac** (puts the Mac's display
-  to sleep, which locks it when a password is required right away).
-- **The Mac's System theme follows macOS.** With Theme set to System, GlassLink stayed light even
-  when macOS was dark. It now matches macOS, and switches with it.
-- **Colourful light mode on the Mac.** Light mode now uses your macOS accent colour for buttons,
-  the sidebar, quick actions and signal bars; each contact and app gets its own pastel circle;
-  the battery is green (orange, then red, when it runs low); the connected dot is green; and on
-  calls, Answer is green and Decline red. Dark mode stays midnight black and white.
-- **Material colours in light mode on the phone.** Light mode follows Android's Material design:
-  your wallpaper's Material You colours on Android 12 and later, Material's standard palette
-  before that. Dark mode stays midnight black and white.
-
-## 0.2.7
-
-**Downloads:** `GlassLink-0.2.7.dmg` for macOS 26 or later (Apple silicon and Intel), and
-`GlassLink-0.2.7.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. On 0.2.3 or
+**Downloads:** `GlassLink-0.2.8.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.8.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. On 0.2.3 or
 later, both apps offer this update themselves. The Android app installs over earlier versions and
-keeps your pairing.
+keeps your pairing. (This release replaces 0.2.7, which was withdrawn; everything from it is here.)
 
-- **Ring works on a locked phone.** The phone used to start the sound only once its full-screen
-  ringing screen opened, which Android 14 and later don't allow apps to do by default, so a locked
-  phone stayed silent. It now rings straight away, at alarm volume, with a "… is ringing this phone"
-  notification and a Found it button that stops it.
+### A new look
+
+- **Light, Dark or System theme on the Mac** (Settings › General › Theme; the phone has it under
+  Settings › Choose theme). The whole window switches straight away, and System follows macOS.
+- **Accent colour on both apps, in both modes.** Icons, switches, highlights and your own message
+  bubbles use the accent: your macOS accent on the Mac; on the phone, Material You from your
+  wallpaper on Android 12 and later, or Material's own palette. Dark mode keeps its midnight black
+  backgrounds.
+- **Colourful light mode on the Mac:** each contact and app gets its own pastel circle (deep tones
+  in dark mode), the battery is green (orange, then red, when it runs low), the connected dot is
+  green, and on calls Answer is green and Decline red.
+- **Material light mode on the phone:** tonal round buttons and Material colours throughout.
+- **New phone icons** from Material Symbols Rounded.
+- Main buttons such as Show on Phone, Install and Allow are readable in light mode (they showed
+  black text on a dark button).
+
+### Phone
+
+- **More quick actions:** Send clipboard (always shown), **Mirror to Mac** (opens the Phone Screen
+  window on the Mac and starts sharing) and **Lock Mac** (puts the Mac's display to sleep, which
+  locks it when a password is required right away).
+- **Ring works on a locked phone.** It used to start only once its full-screen ringing screen
+  opened, which Android 14 and later don't allow by default, so a locked phone stayed silent. It
+  now rings straight away, at alarm volume, with a "… is ringing this phone" notification and a
+  Found it button.
 - **Ping is now Wave**, on both apps; the other device shows "Waved at you 👋".
-- **Theme setting on the Mac:** Settings › General › Theme: System, Light or Dark (the phone has
-  had this under Settings › Choose theme). The whole window switches straight away, and System
-  follows macOS live. In light mode, contact circles are light grey with dark initials.
-- **Light mode fix:** prominent buttons such as Show on Phone, Install and Allow showed black text
-  on a dark button. They're now solid black with white text in light mode (white with black text
-  in dark mode).
 
 ## 0.2.6
 

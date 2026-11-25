@@ -22,9 +22,9 @@ Wi-Fi only, no accounts.
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/mac-home.png" alt="GlassLink for Mac: the phone at a glance, with its wallpaper, battery, signal and quick actions" width="64%">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/mac-home-dark.png"><img src="assets/screenshots/mac-home-light.png" alt="GlassLink for Mac: the phone at a glance, with its wallpaper, battery, signal and quick actions" width="64%"></picture>
   &nbsp;
-  <img src="assets/screenshots/phone-hello.png" alt="GlassLink for Android: the Mac drawn on the phone, writing hello, with round glass quick actions" width="31%">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/phone-hello-dark.png"><img src="assets/screenshots/phone-hello-light.png" alt="GlassLink for Android: the Mac drawn on the phone, writing hello, with round quick actions" width="31%"></picture>
 </p>
 
 ## Why GlassLink
@@ -52,14 +52,18 @@ three. It still speaks the KDE Connect protocol, so the Mac app also works with 
 - **Screenshots:** on the other device's clipboard within a second, never saved as files.
 - **Files:** drag onto the window to send.
 - **Find my phone,** battery and signal, and a menu bar panel.
+- **Quick actions on the phone:** ring the Mac, send files or the clipboard, get the Mac's
+  clipboard, wave, mirror to the Mac, or lock it.
+- **Light, dark or system theme** on both apps: midnight black in dark mode, with your accent
+  colour throughout.
 - **Disconnect** from the phone's notification or the power button in its app; it stays off until
   you reconnect.
 - **Updates in the apps:** both check GitHub once a day (or on demand) and install new versions
   for you.
 
 <p align="center">
-  <img src="assets/screenshots/mac-messages.png" alt="Messages: SMS conversations on the Mac" width="49%">
-  <img src="assets/screenshots/mac-notifications.png" alt="Notifications with inline reply and actions" width="49%">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/mac-messages-dark.png"><img src="assets/screenshots/mac-messages-light.png" alt="Messages: SMS conversations on the Mac" width="49%"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/mac-notifications-dark.png"><img src="assets/screenshots/mac-notifications-light.png" alt="Notifications with inline reply and actions" width="49%"></picture>
 </p>
 
 ## Install

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **The Mac's menu bar icon is visible while the phone is disconnected.** It used a symbol that
+  doesn't exist on macOS, so the item went blank (an empty, clickable space).
+
 ## 0.2.9
 
 **Downloads:** `GlassLink-0.2.9.dmg` for macOS 26 or later (Apple silicon and Intel), and

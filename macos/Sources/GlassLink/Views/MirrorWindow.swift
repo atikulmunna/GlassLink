@@ -9,7 +9,7 @@ struct MirrorWindow: View {
         if let device = model.current {
             MirrorContent(device: device, controller: device.mirror)
         } else {
-            ContentUnavailableView("No Phone Paired", systemImage: "smartphone.slash",
+            ContentUnavailableView("No Phone Paired", systemImage: "iphone.slash",
                                    description: Text("Pair a phone running GlassLink for Android first."))
                 .frame(width: 380, height: 600)
         }

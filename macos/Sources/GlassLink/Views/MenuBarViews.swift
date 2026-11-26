@@ -12,7 +12,7 @@ struct MenuBarLabel: View {
                     if let battery = device.battery { Text("\(battery.level)%").monospacedDigit() }
                 }
             } else {
-                Image(systemName: "smartphone.slash")
+                Image(systemName: "iphone.slash")
             }
         }
         // "Mirror to Mac" on the phone: this label is always alive, so it opens the window.

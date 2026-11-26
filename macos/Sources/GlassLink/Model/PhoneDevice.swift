@@ -373,11 +373,7 @@ final class PhoneDevice: Identifiable {
             app?.mirrorWindowRequests += 1
             mirror.start() // no-op if the window's own start already ran
         case PacketType.glasslinkMacLock:
-            // Sleeping the display locks the Mac when a password is required right away (the default).
-            let sleep = Process()
-            sleep.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
-            sleep.arguments = ["displaysleepnow"]
-            try? sleep.run()
+            Self.lockMac()
         case PacketType.glasslinkSetup:
             setupMissing = packet["missing"]?.array?.compactMap(\.string) ?? []
             setupLimited = packet["limited"]?.array?.compactMap(\.string) ?? []
@@ -633,6 +629,23 @@ final class PhoneDevice: Identifiable {
     func requestSetupStatus(show: Bool = false) {
         guard isReady, link?.info.outgoingCapabilities.contains(PacketType.glasslinkSetup) == true else { return }
         send(NetworkPacket(type: PacketType.glasslinkSetupRequest, body: show ? ["show": true] : [:]))
+    }
+
+    /// "Lock Mac" from the phone: the same as Lock Screen in the Apple menu. macOS has no public API
+    /// for it; the login framework's SACLockScreenImmediate is what that command uses. If it's ever
+    /// missing, sleep the display instead (which only locks when a password is required right away).
+    static func lockMac() {
+        if let login = dlopen("/System/Library/PrivateFrameworks/login.framework/Versions/Current/login", RTLD_LAZY),
+           let lock = dlsym(login, "SACLockScreenImmediate")
+        {
+            typealias LockScreen = @convention(c) () -> Int32
+            _ = unsafeBitCast(lock, to: LockScreen.self)()
+            return
+        }
+        let sleep = Process()
+        sleep.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
+        sleep.arguments = ["displaysleepnow"]
+        try? sleep.run()
     }
 
     /// The phone can share its screen (GlassLink for Android).

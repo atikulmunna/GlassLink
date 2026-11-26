@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Lock Mac really locks the Mac.** It only put the display to sleep, which locks only when the Mac
+  asks for the password right away. It now does the same as Lock Screen in the Apple menu.
 - **The Mac's menu bar icon is visible while the phone is disconnected.** It used a symbol that
   doesn't exist on macOS, so the item went blank (an empty, clickable space).
 

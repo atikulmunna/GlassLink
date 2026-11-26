@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.2.10
+
+**Downloads:** `GlassLink-0.2.10.dmg` for macOS 26 or later (Apple silicon and Intel), and
+`GlassLink-0.2.10.apk` for Android 6.0 or later. Check them against `SHA256SUMS`. On 0.2.3 or
+later, both apps offer this update themselves. GlassLink for Android has no changes besides the
+version number.
 
 - **Lock Mac really locks the Mac.** It only put the display to sleep, which locks only when the Mac
   asks for the password right away. It now does the same as Lock Screen in the Apple menu.
